@@ -112,7 +112,18 @@ export function getDataToSyncUserData(ldapUser, user) {
 	const userData = {};
 
 	if (syncUserData && syncUserDataFieldMap) {
-		const whitelistedUserFields = ['email', 'name', 'customFields'];
+		const whitelistedUserFields = [	'email', 
+										'name', 
+										'customFields', 
+										'company',
+										'physicalDeliveryOfficeName',
+										'department',
+										'title',
+										'telephoneNumber',
+										'ipPhone',
+										'mobile',
+										'homePhone',
+										];
 		const fieldMap = JSON.parse(syncUserDataFieldMap);
 		const emailList = [];
 		_.map(fieldMap, function(userField, ldapField) {

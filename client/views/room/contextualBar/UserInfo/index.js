@@ -48,6 +48,14 @@ export const UserInfo = React.memo(function UserInfo({
 	nickname,
 	// onChange,
 	actions,
+	company,
+	physicalDeliveryOfficeName,
+	department,
+	title,
+	telephoneNumber,
+	ipPhone,
+	mobile,
+	homePhone,
 	...props
 }) {
 	const t = useTranslation();
@@ -65,6 +73,41 @@ export const UserInfo = React.memo(function UserInfo({
 		<Margins block='x4'>
 			<UserCard.Username name={(showRealNames && name) || username || name} status={status} />
 			<Info>{customStatus}</Info>
+
+			{company && <>
+				<Label>{t('Организация')}</Label>
+				<Info>{company}</Info>
+				<Info>{physicalDeliveryOfficeName}</Info>
+			</>}
+
+			{department && <>
+				<Label>{t('Подразделение')}</Label>
+				<Info>{department}</Info>
+			</>}
+			{title && <>
+				<Label>{t('Должность')}</Label>
+				<Info>{title}</Info>
+			</>}
+			{ipPhone && <>
+				<Label>{t('Внутренний номер')}</Label>
+				<Info>{ipPhone}</Info>
+			</>}
+			{telephoneNumber && <>
+				<Label>{t('Телефонный номер')}</Label>
+				<Info>{telephoneNumber}</Info>
+			</>}
+			{mobile && <>
+				<Label>{t('Мобильный номер 1')}</Label>
+				<Info>{mobile}</Info>
+			</>}
+			{homePhone && <>
+				<Label>{t('Мобильный номер 2')}</Label>
+				<Info>{homePhone}</Info>
+			</>}
+
+
+
+
 
 			{!!roles && <>
 				<Label>{t('Roles')}</Label>
@@ -169,7 +212,17 @@ export const UserInfoWithData = React.memo(function UserInfoWithData({ uid, user
 			utcOffset,
 			lastLogin,
 			nickname,
+			company,
+			physicalDeliveryOfficeName,
+			department,
+			title,
+			telephoneNumber,
+			ipPhone,
+			mobile,
+			homePhone,
 		} = user;
+
+		console.log(value);
 		return {
 			_id,
 			name: showRealNames ? name : username,
@@ -180,6 +233,14 @@ export const UserInfoWithData = React.memo(function UserInfoWithData({ uid, user
 			)),
 			bio,
 			phone: user.phone,
+			company: user.company,
+			physicalDeliveryOfficeName: user.physicalDeliveryOfficeName,
+			department: user.department,
+			title: user.title,
+			telephoneNumber: user.telephoneNumber,
+			ipPhone: user.ipPhone,
+			mobile: user.mobile,
+			homePhone: user.homePhone,
 			customFields: user.customFields,
 			verified: getUserEmailVerified(user),
 			email: getUserEmailAddress(user),
@@ -191,7 +252,6 @@ export const UserInfoWithData = React.memo(function UserInfoWithData({ uid, user
 			nickname,
 		};
 	}, [value, showRealNames, getRoles]);
-
 	return (
 		<>
 			<VerticalBar.Header>

@@ -48,6 +48,12 @@ const UserCard = forwardRef(({
 	open,
 	name = <Skeleton width='100%'/>,
 	username,
+	title,
+	department,
+	ipPhone,
+	telephoneNumber,
+	mobile,
+	homePhone,
 	etag,
 	customStatus = <Skeleton width='100%'/>,
 	roles = <>
@@ -78,6 +84,12 @@ const UserCard = forwardRef(({
 			<Username status={status} name={name} title={username !== name ? username : undefined} />
 			{nickname && <Box title={t('Nickname')} color='hint' mis='x8' fontScale='p1' withTruncatedText>({ nickname })</Box>}
 		</Box>
+		{title &&<Info>{title}</Info>}
+		{department &&<Info>{department}</Info>}
+		{ipPhone &&<Info>Вн.номер: {ipPhone}</Info>}
+		{telephoneNumber &&<Info>Тел: {telephoneNumber}</Info>}
+		{mobile &&<Info>Моб1: {mobile}</Info>}
+		{homePhone &&<Info>Моб2: {homePhone}</Info>}
 		{ customStatus && <Info>{customStatus}</Info> }
 		<Roles>{roles}</Roles>
 		<Info>{localTime}</Info>

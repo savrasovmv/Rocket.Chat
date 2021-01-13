@@ -44,6 +44,12 @@ const UserCardWithData = ({ username, onClose, target, open, rid }) => {
 			utcOffset = defaultValue,
 			nickname,
 			avatarETag,
+			department,
+			title,
+			ipPhone,
+			telephoneNumber,
+			mobile,
+			homePhone,
 		} = user;
 
 		return {
@@ -61,6 +67,12 @@ const UserCardWithData = ({ username, onClose, target, open, rid }) => {
 			status: status && <ReactiveUserStatus uid={_id} presence={status} />,
 			customStatus: statusText,
 			nickname,
+			department,
+			title,
+			ipPhone,
+			telephoneNumber,
+			mobile,
+			homePhone,
 		};
 	}, [data, username, showRealNames, state, getRoles]);
 

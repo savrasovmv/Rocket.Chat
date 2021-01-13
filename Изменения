@@ -1,0 +1,206 @@
+Изменения
+
+
+
+
+
+
+##########################################################
+##########################################################
+# 
+# Для отображения доп инфы по сотруднику (Должность, тел и т.п ##########
+	company
+	physicalDeliveryOfficeName АУПТюмень
+	department
+	title
+	telephoneNumber
+	ipPhone
+	mobile Моб1
+	homePhone  Моб2
+#
+##########################################################
+
+app/ldap/server/sync.js
+
+		const whitelistedUserFields = [	'email', 
+										'name', 
+										'customFields', 
+										'company',
+										'physicalDeliveryOfficeName',
+										'department',
+										'title',
+										'telephoneNumber',
+										'ipPhone',
+										'mobile',
+										'homePhone',
+										];
+
+
+-----------------------------------------------------------
+В настроках LDAP в Карта пользовательских данных
+{"cn":"name", "mail":"email","company":"company","physicalDeliveryOfficeName":"physicalDeliveryOfficeName","department":"department","title":"title","telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
+
+
+
+
+########################################################
+Дополнительные поля для отображения в свойствах Users
+
+app/lib/server/functions/getFullUserData.js
+
+const defaultFields = {
+	name: 1,
+	username: 1,
+	nickname: 1,
+	status: 1,
+	utcOffset: 1,
+	type: 1,
+	active: 1,
+	bio: 1,
+	reason: 1,
+	statusText: 1,
+	avatarETag: 1,
+	company: 1,
+	physicalDeliveryOfficeName: 1,
+	department: 1,
+	title: 1,
+	telephoneNumber: 1,
+	ipPhone: 1,
+	mobile: 1,
+	homePhone: 1,
+};
+
+#######################################################
+
+
+client/views/room/contextualBar/UserInfo/index.js
+
+...
+export const UserInfo = React.memo(function UserInfo({
+	...
+	department,
+	title,
+	....
+	return <VerticalBar.ScrollableContent p='x24' {...props}>
+		...
+		{company && <>
+				<Label>{t('Организация')}</Label>
+				<Info>{company}</Info>
+				<Info>{physicalDeliveryOfficeName}</Info>
+			</>}
+
+			{department && <>
+				<Label>{t('Подразделение')}</Label>
+				<Info>{department}</Info>
+			</>}
+			{title && <>
+				<Label>{t('Должность')}</Label>
+				<Info>{title}</Info>
+			</>}
+		....
+
+..........
+..........
+
+export const UserInfoWithData = React.memo(
+....
+	const user = useMemo(() => {
+	..
+		title,
+		department,
+	} = user;
+	...
+	return {
+			...
+			title: user.title,
+			department: user.department,
+			...
+
+
+#######################################################
+
+client/views/admin/users/UserInfo.js
+
+const user = useMemo(() => {
+...
+	const {
+				...
+				title,
+				department,
+			} = user;
+		return {
+			...
+			title: user.title,
+			department: user.department,
+			....
+#######################################################
+
+
+Для отоброжение информации по сотруднику по щелчку ника (всплывающее оконо)
+
+/client/views/room/UserCard/index.js
+....
+const user = useMemo(() => {
+....
+	const {
+			_id,
+			....
+			department,
+			title,
+			ipPhone,
+			telephoneNumber,
+			mobile,
+			homePhone,
+		} = user;
+		return {
+			_id,
+			department,
+			title,
+			ipPhone,
+			telephoneNumber,
+			mobile,
+			homePhone,
+		};
+
+		...
+
+###################################################
+
+client/components/UserCard.js
+...
+const UserCard = forwardRef(({
+	className,
+	style,
+	open,
+	name = <Skeleton width='100%'/>,
+	username,
+	title,
+	department,
+	ipPhone,
+	telephoneNumber,
+	mobile,
+	homePhone,
+	....
+}, ref) => <UserCardContainer className={className} ref={ref} style={style}>
+	....
+	<Box display='flex' ....
+	....
+		{title &&<Info>{title}</Info>}
+		{department &&<Info>{department}</Info>}
+		{ipPhone &&<Info>Вн.номер: {ipPhone}</Info>}
+		{telephoneNumber &&<Info>Тел: {telephoneNumber}</Info>}
+		{mobile &&<Info>Моб1: {mobile}</Info>}
+		{homePhone &&<Info>Моб2: {homePhone}</Info>}
+		{ customStatus && <Info>{customStatus}</Info> }
+		<Roles>{roles}</Roles>
+	....
+
+
+
+
+
+
+
+
+#######################################################
+#######################################################

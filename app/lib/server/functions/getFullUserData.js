@@ -20,6 +20,14 @@ const defaultFields = {
 	reason: 1,
 	statusText: 1,
 	avatarETag: 1,
+	company: 1,
+	physicalDeliveryOfficeName: 1,
+	department: 1,
+	title: 1,
+	telephoneNumber: 1,
+	ipPhone: 1,
+	mobile: 1,
+	homePhone: 1,
 };
 
 const fullFields = {

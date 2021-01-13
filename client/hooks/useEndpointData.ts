@@ -32,7 +32,7 @@ export const useEndpointData = <T>(
 	useEffect(() => {
 		fetchData();
 	}, [fetchData]);
-
+	
 	return {
 		...state,
 		reload: fetchData,
