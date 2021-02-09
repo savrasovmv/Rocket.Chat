@@ -1,1 +1,2 @@
+import './adapter';
 import './SipPhone';

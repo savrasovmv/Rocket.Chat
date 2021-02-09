@@ -31,9 +31,14 @@ export const SipPhone = () => {
     
   //return (<SideNavButton onClick={() => handleSipPhone()}/>);
   return (
-    <div>
-    <SideNavButton onClick={handleSipPhone}/>
-    <div onClick={handleSipPhone}>Call</div> 
+    <div className="button" onClick={handleSipPhone}>
+      
+        <ul className="rooms-list__list">
+         
+            <p className="rooms-list__empty-room"><i className="icon-phone"></i>Телефон</p>
+          
+        </ul>
+       
     </div>
     );
       

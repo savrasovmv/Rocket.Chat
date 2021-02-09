@@ -176,7 +176,7 @@ FlowRouter.route('/setup-wizard/:step?', {
 	},
 });
 FlowRouter.route('/sipphone', {
-	name: 'setup-wizard',
+	name: 'sipphone',
 	action: () => {
 		renderRouteComponent(() => import('./../app/sipphone/client/SipPage'), { template: 'main', region: 'center' });
 	},
