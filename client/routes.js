@@ -175,6 +175,12 @@ FlowRouter.route('/setup-wizard/:step?', {
 		renderRouteComponent(() => import('./views/setupWizard/SetupWizardRoute'));
 	},
 });
+FlowRouter.route('/sipphone', {
+	name: 'setup-wizard',
+	action: () => {
+		renderRouteComponent(() => import('./../app/sipphone/client/SipPage'), { template: 'main', region: 'center' });
+	},
+});
 
 FlowRouter.notFound = {
 	action: () => {

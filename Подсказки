@@ -1,0 +1,54 @@
+
+GIT
+
+git add *
+git commit -m "Дополнительные поля"
+git push origin master --no-verify
+
+
+METEOR
+Скомпилировать сервер
+meteor build --server-only --directory /homt/user/build/rc-build
+
+Сжать и получить архив rc-build3.10.3-rc1.tar.gz
+
+Передать архив на удаленный сервер
+sudo scp rc-build3.10.3-rc1.tar.gz user@109.194.174.140:/home/user
+
+
+MONGO
+
+Сделать dump
+mongodump
+
+Восстановить
+mongorestore
+
+Подключится к базе из meteor
+meteor mongo
+
+show dbs		-	Вывести список баз
+use <db name> 	- 	Использовать базу
+show collections - 	Показать колекции
+
+
+
+ROCKET CHAT
+
+Обновление
+Скачать или передать на сервер архив с скомпилированным сервером rc-build3.10.3-rc1.tar.gz
+
+sudo systemctl stop rocketchat
+
+sudo rm -rf /opt/Rocket.Chat
+
+tar -xzf /home/user/rc-build3.10.3-rc1.tar.gz -C /tmp
+
+cd /tmp/rc-build3.10.3-rc1/bundle/programs/server/ && npm install
+
+sudo mv /tmp/rc-build3.10.3-rc1/bundle /opt/Rocket.Chat
+
+sudo chown -R rocketchat:rocketchat /opt/Rocket.Chat
+
+sudo chown -R rocketchat:rocketchat /opt/Rocket.Chat
+

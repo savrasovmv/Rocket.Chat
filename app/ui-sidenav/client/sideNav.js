@@ -13,6 +13,7 @@ import { createTemplateForComponent } from '../../../client/reactAdapters';
 
 createTemplateForComponent('sidebarHeader', () => import('../../../client/sidebar/header'));
 createTemplateForComponent('sidebarChats', () => import('../../../client/sidebar/RoomList'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
+createTemplateForComponent('sipPhone', () => import('../../sipphone/client/SipPhone'));// eslint-disable-line new-cap
 
 Template.sideNav.helpers({
 	flexTemplate() {

@@ -130,6 +130,9 @@ Template.roomList.helpers({
 		}
 		return roomTypes.getConfig(instance.data.identifier).getUiText(UiTextContext.NO_ROOMS_SUBSCRIBED) || 'No_channels_yet';
 	},
+	isSIPPhone() {
+		return this.identifier === 'l';
+	},
 });
 
 const getLowerCaseNames = (room, nameDefault = '', fnameDefault = '') => {

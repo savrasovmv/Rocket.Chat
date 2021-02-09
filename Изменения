@@ -1,6 +1,8 @@
 Изменения
 
-
+Были установлены доп пакеты:
+meteor npm install jssip
+meteor npm install lodash
 
 
 
