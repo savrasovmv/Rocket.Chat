@@ -6,7 +6,7 @@ export const SipPage = () => {
    
   return (
     <div className="SipCallButton">
-        <p>Телефон</p>
+    
         <SoftPhone/>
     </div>
   );
