@@ -1,9 +1,22 @@
+
+.sipphone-box {
+  position: relative;
+  display: none;
+  background-color: white;
+  border: 1px solid #ddd;
+  z-index: 999999;
+  position: sticky;
+
+}
+
+
+
 .button {
   font-weight: bold;
   font-size: 1em;
   border: none;
   color: white;
-  box-shadow: 0 3px 3px rgba(34, 25, 25, 0.4);
+  box-shadow: 2px solid rgba(111,41,97,.5);
   padding: 5px;
   cursor: pointer;
 }
@@ -115,6 +128,42 @@
 }
 
 
+
+.flex-row-room {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  /*margin: 15px;*/
+  min-width: 100%;
+
+
+}
+
+.room-button {
+  flex: 1 100%;
+  font-size: 14px;
+   width: 100%;
+   height: 40px;
+   padding: 16px 16px;
+   
+   /*border: 1px solid #e5e5e5;
+   color: transparent-light;
+   
+   text-decoration: none;
+   vertical-align: middle;
+   text-align: center;
+   line-height: 1.5*/
+   }
+
+.flex-row-room:hover {
+  background: #140f09;
+  color: #d3d3d3;
+}
+
+
+
+
 .panel-button11 {
   
   padding: 16px 32px;
@@ -159,7 +208,7 @@
    text-decoration: none;
    vertical-align: middle;
    text-align: center;
-   line-height: 1;
+   line-height: 1.5
    }
 
 .panel-button7 {
@@ -179,7 +228,7 @@
 }
 .panel-button:hover {
   background: #d4d4d4;
-  /*color: #000;*/
+  color: #000;
 }
 
 .panel-button-min {
@@ -252,8 +301,7 @@
 }
 
 .end-button:hover {
-  background: #d9000e;
-}
+  background: #d9000e;}
 
 
 
@@ -286,7 +334,7 @@
 }
 
 
-.flex-container {
+.flex-row {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -296,11 +344,180 @@
 
 }
 
+.flex-block-phone{
+  flex-grow:2;
+  
+}
+.flex-block-settings{
+  flex-grow:1;
+
+}
+
 .flex-container-keypad {
   display: flex;
   flex-direction: row;
   justify-content: center;
   flex-direction: row | row-reverse | column | column-reverse;
+}
+
+
+.flex-column {
+  display: -webkit-flex; 
+  -webkit-flex-direction: column;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+
+
+
+.sipSettings select {
+ 
+  appearance: none;
+ 
+  background-color: transparent;
+  
+  padding: 0 1em 0 0;
+  margin: 0;
+  width: 100%;
+
+  cursor: inherit;
+  line-height: inherit;
+
+  
+  border-bottom: 2px solid $gray;
+  outline: 0;
+ 
+  color: $white;
+  padding: 7px 0;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+
+
+.sipSettings label {
+    width: 100px; /* Ширина */
+    text-align: right; /* Выравниваем по правому краю */
+    float: left; /* Выстраиваем элементы рядом */
+    margin-right: 10px; /* Расстояние от текста до текстового поля */
+    line-height: 30px; /* Выравниваем по высоте */
+   }
+
+
+.sipSettings table {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #333333;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* Style the tab */
+.tab-sipline {
+  overflow: hidden;
+  border: 0px solid #ccc;
+  /*background-color: #f1f1f1;*/
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab-sipline button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab-sipline button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab-sipline button.active {
+  border: 1px solid #ccc;
+}
+
+.tab-sipline-incall {
+  color: green;
+}
+
+/* Style the tab content */
+.tab-sip-content {
+  display: block;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.tab-sip-content-active {
+  display: block;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* CSS  Всплывающие сообщения*/ 
+.toast {
+overflow: hidden;
+font-size: 0.875rem;
+background-color: #02ACEC;
+background-clip: padding-box;
+border: 1px solid rgba(0, 0, 0, 0.1);
+border-radius: 0.25rem;
+box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(10px);
+display: block;
+position: relative;
+padding: 0.75rem 2rem 0.75rem 0.75rem;
+overflow-wrap: break-word;
+word-break: break-word;
+}
+
+.toast__close {
+position: absolute;
+top: 0;
+right: 10px;
+padding: 0;
+background-color: transparent;
+border: 0;
+cursor: pointer;
+float: right;
+font-size: 1.5rem;
+font-weight: 700;
+line-height: 1;
+color: #000;
+text-shadow: 0 1px 0 #fff;
+opacity: 0.6;
+appearance: button;
+margin: 0;
+font-family: inherit;
+border-radius: 0;
 }
 
 

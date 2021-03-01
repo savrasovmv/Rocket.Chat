@@ -46,13 +46,13 @@ export const CallButton = ({ handleCall }) => {
   );
 }
 
-export const EndButton = ({ handleEndCall }) => {
+export const EndButton = ({ sessionId, handleEndCall }) => {
   
   return (
     <div>
 
      
-      <button className="panel-button end-button panel-button-min" onClick={handleEndCall}>
+      <button className="panel-button end-button panel-button-min" value={sessionId} onClick={handleEndCall}>
             
             <img className="img-button" src={end_icon}/>
                     
@@ -65,6 +65,7 @@ export const EndButton = ({ handleEndCall }) => {
 export const HoldButton = ({ hold, sessionId, handleHold }) => {
   const [icon, setIcon] = useState(pause_icon);
   const [name, setName] = useState("Удерживать");
+
   const handleH = (event) => {
       //event.persist();
       console.log(event)
@@ -86,7 +87,7 @@ export const HoldButton = ({ hold, sessionId, handleHold }) => {
   return (
     <div>
        
-              <button className="panel-button " onClick={handleH}>
+              <button className="panel-button " value={sessionId} onClick={handleH}>
                      <img className="img-button" src={icon}/>
                      <p>{ name }</p>
                  
@@ -135,8 +136,8 @@ export const MicButton = ({ muted, handleMicMute }) => {
 export const TransferButton = ({ handleCallTransfer }) => {
   const handleTransfer = (event) => {
       
-    
-          handleCallTransfer();
+      console.log("Click Trasfer")
+      handleCallTransfer();
 
     };
 
@@ -168,6 +169,28 @@ export const AttendedTransferButton = ({ handleCallAttendedTransfer }) => {
                 <img className="img-button" src={attransfer_icon}/>
                 <p>Сопров.</p>
                 <p>Перевод</p>
+            </button>
+      </div>
+      
+        
+      
+  );
+}
+
+export const AttendedTransferButtonFinish = ({ handleCallAttendedTransfer }) => {
+  const handleAttendedTransfer = (event) => {
+      
+    
+          handleCallAttendedTransfer('finish', {});
+
+    };
+
+  return (
+      <div>
+           <button className="panel-button " onClick={handleAttendedTransfer}>
+                <img className="img-button" src={attransfer_icon}/>
+                <p>Завершить</p>
+                <p>перевод</p>
             </button>
       </div>
       

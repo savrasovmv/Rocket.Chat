@@ -46,10 +46,11 @@ function CallsFlowControl() {
   };
   this.micMuted = false;
   this.activeCall = null;
-  this.activeChanel = null;
+  this.activeChannel = null;
   this.callsQueue = [];
   this.holdCallsQueue = [];
   this.player = {};
+  this.devicesInputId = true;
   this.ringer = null;
   this.connectedPhone = null;
   this.config = {};
@@ -81,6 +82,7 @@ function CallsFlowControl() {
   this.connectAudio = () => {
     this.activeCall.connection.addEventListener('addstream', (event) => {
       this.player.current.srcObject = event.stream;
+
     });
   };
 
@@ -233,7 +235,7 @@ function CallsFlowControl() {
         optional: [{ DtlsSrtpKeyAgreement: 'true' }]
       },
       mediaConstraints: {
-        audio: true
+        audio: this.devicesInputId
       },
       sessionTimersExpires: 600
     });
@@ -243,7 +245,7 @@ function CallsFlowControl() {
     if (this.activeCall) {
       this.notify('Already have an active call');
       console.log('Already has active call');
-    } else if (this.activeChanel.inCall) {
+    } else if (this.activeChannel.inCall) {
       this.notify('Current chanel is busy');
       console.log('Chanel is Busy');
     } else {
@@ -253,10 +255,10 @@ function CallsFlowControl() {
       // Get the call from calls Queue
       this.activeCall = _.find(this.callsQueue, { id: sessionId });
       if (this.activeCall) {
-        this.activeCall.customPayload = this.activeChanel.id;
+        this.activeCall.customPayload = this.activeChannel.id;
         this.activeCall.answer({
           mediaConstraints: {
-            audio: true
+            audio: this.devicesInputId
           }
         });
 

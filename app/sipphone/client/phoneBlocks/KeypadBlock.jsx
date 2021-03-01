@@ -29,108 +29,37 @@ export const KeypadButton = ({
 
 
 
-export const KeypadBlock = ({ 
-              handleCallAttendedTransfer,
-              handleCallTransfer,
-              handlePressKey,
-              handleMicMute,
-              handleCall,
-              handleEndCall,
-              activeChanel,
-              keyVariant = 'default',
-              handleHold,
-              dialState,
-              handleDialStateChange
-         }) => {
+export const KeypadBlock = ({ viewKeyPad, handlePressKey }) => {
 
   
-    const {
-        inCall,
-        muted,
-        hold,
-        sessionId,
-        inAnswer,
-        allowTransfer,
-        allowAttendedTransfer,
-        inAnswerTransfer,
-        inConference,
-        inTransfer,
-        transferControl
-      } = activeChanel;
-  const [viewKeyPad, setView] = useState(false);
-  
-  const handleDial = (event) => {
-      
-      if (viewKeyPad === false) { 
-          setView(true);
-        } else {
-          setView(false);
-        }
-      
-    };
-
+ 
 
   return (
-    <div>
+    
 
-      <div className="flex-container">
-          <input
-            className="input-field"
-            type="text"
-            placeholder="Номер или имя абонента"
-            value={dialState}
-            onChange={handleDialStateChange}
-          />
-
-          {inCall === false ? (
-                <CallButton handleCall={handleCall}/>
-                
-           
-              ) : (
-                <EndButton handleEndCall={handleEndCall}/>
-                
-                
-          )}
-               
-
-      </div> 
-      
-          
-          { inAnswer ? (
-              <div className="flex-container">
-                  <DialButton handleDial={handleDial}/>
-                  <MicButton muted={muted} handleMicMute={handleMicMute}/>
-                  <HoldButton sessionId={sessionId} hold={hold} handleHold={handleHold} />
-                  <TransferButton handleHold={handleCallTransfer} />
-                  <AttendedTransferButton handleHold={handleCallAttendedTransfer} />
-              </div>
-            ):
-              <div className="flex-container">
-                <DialButton handleDial={handleDial}/>
-              </div>
-
-          }
+      <div>
+       
       
 
 
       { viewKeyPad ? (
         <div >
-          <div className="flex-container">
+          <div>
               <KeypadButton value={1} handleName={handlePressKey}/>
               <KeypadButton value={2} handleName={handlePressKey}/>
               <KeypadButton value={3} handleName={handlePressKey}/>
           </div>
-          <div className="flex-container">
+          <div>
               <KeypadButton value={4} handleName={handlePressKey}/>
               <KeypadButton value={5} handleName={handlePressKey}/>
               <KeypadButton value={6} handleName={handlePressKey}/>
           </div>
-          <div className="flex-container">
+          <div>
               <KeypadButton value={7} handleName={handlePressKey}/>
               <KeypadButton value={8} handleName={handlePressKey}/>
               <KeypadButton value={9} handleName={handlePressKey}/>
           </div>
-          <div className="flex-container">
+          <div>
               <KeypadButton value={"*"} handleName={handlePressKey}/>
               <KeypadButton value={0} handleName={handlePressKey}/>
               <KeypadButton value={"#"} handleName={handlePressKey}/>
@@ -141,19 +70,6 @@ export const KeypadBlock = ({
     }
     </div>
   );
-}
-
-KeypadBlock.propTypes = {
-  handleCallAttendedTransfer: PropTypes.any,
-  handleCallTransfer: PropTypes.any,
-  handlePressKey: PropTypes.any,
-  handleMicMute: PropTypes.any,
-  handleCall: PropTypes.any,
-  handleEndCall: PropTypes.any,
-  activeChanel: PropTypes.any,
-  keyVariant: PropTypes.any,
-  handleHold: PropTypes.any
-
 };
 
 

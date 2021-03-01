@@ -5,8 +5,39 @@ import { StatusBlock } from './phoneBlocks/StatusBlock';
 //import './main.css';
 
 
+export const SettingsButton = ({ isSettings, setIsSettings }) => {
 
-export const NavBar = ({ connectingPhone ,connectedPhone}) => {
+  
+
+  const handleSettingsButton = (event) => {
+      //console.log(isSettings)
+      if (isSettings) {
+        isSettings = false;
+      } else {
+        isSettings = true;
+      }
+
+      setIsSettings(isSettings)
+      
+      
+    };
+   
+  return (
+  
+    <div>
+           <button className="panel-button panel-button-min" value={isSettings}  onClick={handleSettingsButton}>
+                
+                  Настройки
+
+            </button>
+      </div>
+  
+  );
+};
+
+
+export const NavBar = ({ connectingPhone ,connectedPhone, setIsSettings, isSettings}) => {
+
    
   return (
 	<div className="sip-header">
@@ -17,8 +48,16 @@ export const NavBar = ({ connectingPhone ,connectedPhone}) => {
         	<StatusBlock
               connectedPhone={connectedPhone}
               connectingPhone={connectingPhone}
+
           	/>
-          	
+
+
+            <SettingsButton
+              isSettings={isSettings}
+              setIsSettings={setIsSettings}
+            />
+
+
 
        
         

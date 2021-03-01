@@ -1,15 +1,18 @@
-import React, { useState, useEffect, createRef, useMemo } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import CallsFlowControl from './CallsFlowControl';
 import { StatusBlock } from './phoneBlocks/StatusBlock';
 import { CallQueue } from './phoneBlocks/CallQueue';
 import { KeypadBlock } from './phoneBlocks/KeypadBlock';
+import { HistoryBlock } from './phoneBlocks/HistoryBlock';
 import SwipeCaruselBlock from './phoneBlocks/SwipeCaruselBlock';
+import { SettingsBlock } from './phoneBlocks/SettingsBlock';
 
 import { WebSocketInterface} from 'jssip';
 import _ from 'lodash';
 import { NavBar } from './NavBar.jsx';
+import { PhoneBlock } from './PhoneBlock.jsx';
 
 import PropTypes from 'prop-types';
 
@@ -17,7 +20,7 @@ import PropTypes from 'prop-types';
 
 const config = {
     domain: 'fs2.fineapple.xyz', // sip-server@your-domain.io
-    uri: 'sip:1013@fs2.fineapple.xyz', // sip:sip-user@your-domain.io
+    uri: 'sip:1011@fs2.fineapple.xyz', // sip:sip-user@your-domain.io
     password: 'Gfhjkm12@', //  PASSWORD ,
     ws_servers: 'https://fs2.fineapple.xyz:7443', //ws server
     sockets: new WebSocketInterface('wss://fs2.fineapple.xyz:7443'),
@@ -27,8 +30,8 @@ const config = {
 
 
 };
-/*uri: 'sip:1011@fs2.fineapple.xyz',*/
 
+var transferLine ='';
 /*const config = {
     domain: 'fs.tmenergo.ru', // sip-server@your-domain.io
     uri: 'sip:1003@fs.tmenergo.ru', // sip:sip-user@your-domain.io
@@ -155,25 +158,92 @@ export const SoftPhone = (  callVolume=80,
         ringVolume: 80
     
     };
+
+
+
+
+    const getInputDevices = () => {
+        //event.persist();
+        var value = localStorage.defaultInDevices;
+        if (!value) {
+          localStorage.defaultInDevices = true;
+          console.log("Не назначено устройство ввода по умолчанию")
+          return true;
+
+        }
+     
+        return value
+        
+    };
+    const getDefaultInDevices = () => {
+        //event.persist();
+        var value = getInputDevices();
+        if (value === true) {
+            console.log("Устройство ввода по умолчанию")
+            return true;
+
+        } else {
+
+          return { deviceId: value }
+        }
+        console.log("value IN")
+        console.log(value)
+        return value
+        
+    };
+    const getDefaultOutDevices = () => {
+        //event.persist();
+        var value = localStorage.defaultOutDevices;
+        if (!value) {
+          localStorage.defaultOutDevices = '';
+
+        } 
+        //console.log("value OUT")
+        //console.log(value)
+       
+        return value;
+        
+    };
+
+    
+
+
+
+
     
     const [drawerOpen, drawerSetOpen] = useState(false);
     const [dialState, setdialState] = useState('');
-    const [activeChannel, setActiveChannel] = useState(0);
+    const [activeChannelNumber, setActiveChannel] = useState(0);
     const [localStatePhone, setLocalStatePhone] = useState(defaultSoftPhoneState);
     const [notificationState, setNotificationState] = useState({ open: false, message: '' });
     const [calls, setCalls] = useState([]);
+    const [localMediaDevices, setlocalMediaDevices] = useState(false);
+    const [inputDevices, setInputDevices] = useState(getDefaultInDevices());
+    const [outputDevices, setOutputDevices] = useState(getDefaultOutDevices());
+    const [isSettings, setIsSettings] = useState(false);
+
+
+
+    const hangleSettings = () => {
+        setInputDevices(getDefaultInDevices());
+        setOutputDevices(getDefaultOutDevices());
+
+    }
+
+
+
     const notify = (message) => {
         setNotificationState((notification) => ({ ...notification, open: true, message }));
     };
     Notification.requestPermission();
     const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-        return;
-    }
+      if (reason === 'clickaway') {
+          return;
+      }
 
-    setNotificationState((notification) => ({ ...notification, open: false }));
+      setNotificationState((notification) => ({ ...notification, open: false }));
     };
-    flowRoute.activeChanel = localStatePhone.displayCalls[activeChannel];
+    flowRoute.activeChannel = localStatePhone.displayCalls[activeChannelNumber];
     flowRoute.connectedPhone = localStatePhone.connectedPhone;
     flowRoute.engineEvent = (event, payload) => {
     // Listen Here for Engine "UA jssip" events
@@ -232,7 +302,7 @@ export const SoftPhone = (  callVolume=80,
             allowTransfer: true,
             inAnswerTransfer: true,
             inTransfer: true,
-            attendedTransferOnline: data.request.headers['P-Asserted-Identity'][0].raw.split(' ')[0]
+            attendedTransferOnline:  ''//data ? data.request.headers['P-Asserted-Identity'][0].raw.split(' ')[0] : null
 
           } : a))
         }));
@@ -274,8 +344,8 @@ export const SoftPhone = (  callVolume=80,
         // Create object with the Display data of new outgoing call
 
         const newProgressLocalStatePhone = _.cloneDeep(localStatePhone);
-        newProgressLocalStatePhone.displayCalls[activeChannel] = {
-          ...localStatePhone.displayCalls[activeChannel],
+        newProgressLocalStatePhone.displayCalls[activeChannelNumber] = {
+          ...localStatePhone.displayCalls[activeChannelNumber],
           inCall: true,
           hold: false,
           inAnswer: false,
@@ -297,6 +367,7 @@ export const SoftPhone = (  callVolume=80,
         // Call is ended, lets delete the call from calling queue
         // Call is ended, lets check and delete the call from  display calls list
         //        const ifExist= _.findIndex(localStatePhone.displayCalls,{sessionId:e.sessionId})
+        console.log("+++++++ callEnded")
         setLocalStatePhone((prevState) => ({
           ...prevState,
           phoneCalls: localStatePhone.phoneCalls.filter((item) => item.sessionId !== payload),
@@ -312,10 +383,13 @@ export const SoftPhone = (  callVolume=80,
             allowTransfer: true,
             allowAttendedTransfer: true,
             inConference: false,
-            callInfo: 'Ready'
+            callInfo: 'Ready',
+            transferControl: '',
+            transferNumber: ''
 
           } : a))
         }));
+        console.log(localStatePhone)
 
         const firstCheck = localStatePhone.phoneCalls.filter((item) => item.sessionId === payload && item.direction === 'incoming');
         const secondCheck = localStatePhone.displayCalls.filter((item) => item.sessionId === payload);
@@ -422,6 +496,29 @@ export const SoftPhone = (  callVolume=80,
   };
 
 
+    const handleSettingsSlider = (name, newValue) => {
+      // setLocalStatePhone((prevState) => ({
+      //   ...prevState,
+      //   [name]: newValue
+      // }));
+
+      switch (name) {
+        case 'ringVolume':
+          ringer.current.volume = parseInt(newValue, 10) / 100;
+          setRingVolume(newValue);
+          // flowRoute.setOutputVolume(newValue);
+          break;
+
+        case 'callVolume':
+          player.current.volume = parseInt(newValue, 10) / 100;
+          setCallVolume(newValue);
+
+          break;
+
+        default:
+          break;
+      }
+    };
 
 
 
@@ -468,13 +565,18 @@ export const SoftPhone = (  callVolume=80,
     };
 
     const handleNotifications = (event, newValue) => {
-        event.persist();
-        setLocalStatePhone((prevState) => ({
-          ...prevState,
-          notifications: newValue
-        }));
+        //event.persist();
+        if (newValue) {
+          setLocalStatePhone((prevState) => ({
+            ...prevState,
+            notifications: newValue
+          }));
+          setNotificationState(newValue);
+        } else {
+          setNotificationState();
 
-        setNotifications(newValue);
+        }
+
     };
 
     const handlePressKey = (event) => {
@@ -505,7 +607,17 @@ export const SoftPhone = (  callVolume=80,
 
     const handleEndCall = event => {
         //event.persist();
-        flowRoute.hungup(localStatePhone.displayCalls[activeChannel].sessionId);
+        //flowRoute.hungup(event.currentTarget.value);
+        /*console.log("activeChannelNumber");
+        console.log(activeChannelNumber);*/
+        flowRoute.hungup(localStatePhone.displayCalls[activeChannelNumber].sessionId);
+        const nexActiveLine = localStatePhone.displayCalls.filter((item) => item.inCall === true);
+        if (nexActiveLine.length > 0) {
+          setActiveChannel(nexActiveLine[0].id);
+          flowRoute.activeChannel = localStatePhone.displayCalls[nexActiveLine[0].id];
+
+        }
+
     };
 
     const handleHold = (sessionId, hold) => {
@@ -517,8 +629,55 @@ export const SoftPhone = (  callVolume=80,
     };
 
     const handleAnswer = (event) => {
-        flowRoute.answer(event.currentTarget.value);
+        //event.persist();
+            
+       
+        
+       
+        if (localStatePhone.displayCalls[activeChannelNumber].inCall === false) {
+            flowRoute.answer(event.currentTarget.value);
+        } else {
+            
+            const freeLine = localStatePhone.displayCalls.filter((item) => item.inCall === false);
+            if (freeLine.length > 0) {
+                const newActiveCall = freeLine[0].id;
+                
+                if (localStatePhone.displayCalls[activeChannelNumber].hold === false) {
+                    flowRoute.hold(localStatePhone.displayCalls[activeChannelNumber].sessionId);
+                }
+
+                console.log("--------newActiveCall");
+                console.log(newActiveCall);
+                setActiveChannel(newActiveCall);
+                console.log("---------activeChannelNumber");
+                console.log(activeChannelNumber);
+                flowRoute.activeChannel = localStatePhone.displayCalls[newActiveCall];
+                flowRoute.answer(event.currentTarget.value);
+
+
+            }
+            else {
+                notify("Все линии заняты");
+
+            }
+
+       
+            
+
+
+        }
+        
+
     };
+
+
+        
+    const handleAnswerActiveCall = (event) => {
+           event.persist();
+           flowRoute.answer(event.currentTarget.value);
+    };
+
+
     const handleReject = (event) => {
       flowRoute.hungup(event.currentTarget.value);
       
@@ -528,25 +687,29 @@ export const SoftPhone = (  callVolume=80,
     };
     const handleCallTransfer = () => {
       console.log("handleCallTransfer")
-      const newCallTransferDisplayCalls = _.map(
-        localStatePhone.displayCalls, (a) => (a.id === activeChannel ? {
-          ...a,
-          transferNumber: dialState,
-          inTransfer: true,
-          allowAttendedTransfer: false,
-          allowFinishTransfer: false,
-          allowTransfer: false,
-          callInfo: 'Transfering...'
-        } : a)
-      );
-      setLocalStatePhone((prevState) => ({
-        ...prevState,
-        displayCalls: newCallTransferDisplayCalls
-      }));
-      console.log("newCallTransferDisplayCalls")
-      console.log(newCallTransferDisplayCalls)
-      flowRoute.activeCall.refer(dialState);
-      flowRoute.activeCall.sendDTMF(`##${dialState}`);
+      if (dialState) {
+        const newCallTransferDisplayCalls = _.map(
+          localStatePhone.displayCalls, (a) => (a.id === activeChannelNumber ? {
+            ...a,
+            transferNumber: dialState,
+            inTransfer: true,
+            allowAttendedTransfer: false,
+            allowFinishTransfer: false,
+            allowTransfer: false,
+            callInfo: 'Transfering...'
+          } : a)
+        );
+        setLocalStatePhone((prevState) => ({
+          ...prevState,
+          displayCalls: newCallTransferDisplayCalls
+        }));
+        console.log("newCallTransferDisplayCalls")
+        console.log(newCallTransferDisplayCalls)
+        flowRoute.activeCall.refer(dialState);
+        flowRoute.activeCall.sendDTMF(`##${dialState}`);
+      } else {
+        notify("Введите номер для переадресации");
+      }
     };
 
     const handleCallAttendedTransfer = (event) => {
@@ -554,9 +717,11 @@ export const SoftPhone = (  callVolume=80,
       console.log(event)
       switch (event) {
         case 'transfer':
+
+          const transferNumber = localStatePhone.displayCalls[activeChannelNumber].callNumber;
           setLocalStatePhone((prevState) => ({
             ...prevState,
-            displayCalls: _.map(localStatePhone.displayCalls, (a) => (a.id === activeChannel ? {
+            displayCalls: _.map(localStatePhone.displayCalls, (a) => (a.id === activeChannelNumber ? {
               ...a,
               transferNumber: dialState,
               allowAttendedTransfer: false,
@@ -568,12 +733,60 @@ export const SoftPhone = (  callVolume=80,
             } : a))
           }));
           console.log("Trasfer to: "+ dialState)
-          flowRoute.activeCall.sendDTMF(`*2${dialState}`);
-          //flowRoute.activeCall.sendDTMF(`Transfer ${dialState}`);
+          console.log(flowRoute.activeCall)
+
+          const freeLine = localStatePhone.displayCalls.filter((item) => item.inCall === false);
+            if (freeLine.length > 0) {
+                const newActiveCall = freeLine[0].id;
+                transferLine = flowRoute.activeChannel;
+                if (localStatePhone.displayCalls[activeChannelNumber].hold === false) {
+                    flowRoute.hold(localStatePhone.displayCalls[activeChannelNumber].sessionId);
+                }
+
+
+
+                console.log("*********** holdCallsQueue");
+                console.log(flowRoute.holdCallsQueue[0]);
+                console.log(flowRoute.holdCallsQueue[0].id);
+                console.log("+++++++OLDactiveChannel");
+                console.log(flowRoute.activeChannel);
+                console.log("+++++++newActiveCall");
+                console.log(newActiveCall);
+                setActiveChannel(newActiveCall);
+                console.log("+++++++activeChannelNumber");
+                console.log(activeChannelNumber);
+                flowRoute.activeChannel = localStatePhone.displayCalls[newActiveCall];
+                console.log("+++++++activeChannel");
+                console.log(flowRoute.activeChannel);
+                //flowRoute.call(dialState);
+                setLocalStatePhone((prevState) => ({
+                  ...prevState,
+                  displayCalls: _.map(localStatePhone.displayCalls, (a) => (a.id === newActiveCall ? {
+                    ...a,
+                    transferNumber: transferNumber,
+                    allowAttendedTransfer: false,
+                    allowTransfer: false,
+                    transferControl: true,
+                    allowFinishTransfer: false,
+                    callInfo: 'Attended Transfering...',
+                    inTransfer: false
+                  } : a))
+                }));
+
+
+            }
+            else {
+                notify("Все линии заняты");
+
+            }
+
+          
+          //flowRoute.activeCall.sendDTMF(`*2${dialState}`);
+          
           break;
         case 'merge':
           const newCallMergeAttendedTransferDisplayCalls = _.map(
-            localStatePhone.displayCalls, (a) => (a.id === activeChannel ? {
+            localStatePhone.displayCalls, (a) => (a.id === activeChannelNumber ? {
               ...a,
               callInfo: 'Conference',
               inConference: true
@@ -590,11 +803,44 @@ export const SoftPhone = (  callVolume=80,
           flowRoute.activeCall.sendDTMF('*6');
           break;
         case 'finish':
-          flowRoute.activeCall.sendDTMF('*4');
+
+            console.log("Start finishing transfer")
+            console.log("localStatePhone.displayCalls[activeChannelNumber].transferNumber")
+            console.log(localStatePhone.displayCalls[activeChannelNumber].transferNumber)
+            const lineNumberCallTransfer = localStatePhone.displayCalls.filter((item) => item.callNumber === localStatePhone.displayCalls[activeChannelNumber].transferNumber);
+            console.log("lineNumberCallTransfer")
+            console.log(lineNumberCallTransfer)
+
+            if (lineNumberCallTransfer.length > 0) {
+
+                const transferChannel = _.find(flowRoute.holdCallsQueue, { id: lineNumberCallTransfer[0].sessionId });
+                console.log("transferChannel")
+                console.log(transferChannel)
+                if (transferChannel) {
+                  const opt ={
+                    'replaces' : transferChannel,
+                    'callNumber' : localStatePhone.displayCalls[activeChannelNumber].transferNumber,
+                    mediaConstraints: {
+                          audio: true
+                        }
+                  };
+                  flowRoute.activeCall.refer(transferChannel.id, opt);
+
+
+                } else {
+                  notify("Не найдена линия для перевода");
+
+                }
+              
+
+            } else {
+              notify("Не найдена линия для перевода");
+            }
+          //flowRoute.activeCall.sendDTMF('*4');
           break;
         case 'cancel':
           const newCallCancelAttendedTransferDisplayCalls = _.map(
-            localStatePhone.displayCalls, (a) => (a.id === activeChannel ? {
+            localStatePhone.displayCalls, (a) => (a.id === activeChannelNumber ? {
               ...a,
               transferNumber: dialState,
               allowAttendedTransfer: true,
@@ -621,13 +867,46 @@ export const SoftPhone = (  callVolume=80,
     };
 
 
- 
+    
+
+
+
+    useEffect(() => {
+
+      console.log('before mediadevices enumeration');
+
+      navigator.mediaDevices.enumerateDevices()
+        .then(sourceInfos => {
+
+          console.log('mediadevices enumeration gets sourceInfos', sourceInfos);
+          setlocalMediaDevices(sourceInfos);
+
+        }).catch(error => {
+
+           console.log('error on mediadevices enumeration', error)
+
+        })
+    }, []);
+
+    useEffect(() => {
+
+      console.log('Update inputDevices');
+      console.log(calls)
+      console.log(flowRoute.player)
+
+      flowRoute.devicesInputId = inputDevices;
+    }, [inputDevices]);
+
 
     useEffect(() => {
         
+          console.log("default devices id")
+          console.log("input ", inputDevices)
+          console.log("output " + outputDevices)
 
         flowRoute.config = config;
         flowRoute.init();
+        flowRoute.devicesInputId = inputDevices;
         
         if (localStatePhone.phoneConnectOnStart) {
           handleConnectPhone(null, true);
@@ -636,10 +915,15 @@ export const SoftPhone = (  callVolume=80,
           player.current.defaultMuted = false;
           player.current.autoplay = true;
           player.current.volume = parseInt(localStatePhone.callVolume, 10) / 100;
+          
+          player.current.setSinkId(outputDevices);
+          //player.current.setSinkId(getDefaultInDevices());
+          //console.log('Audio is being played on ' + player.current.sinkId );
           // player.volume = this.outputVolume;
           flowRoute.player = player;
           console.log("flowRoute.player-------")
           console.log(flowRoute.player)
+          
           ringer.current.src = '/ringing.mp3';
           ringer.current.loop = true;
           ringer.current.volume = parseInt(localStatePhone.ringVolume, 10) / 100;
@@ -652,58 +936,106 @@ export const SoftPhone = (  callVolume=80,
     },
     []);
   return (
-    <div className="siphone">
+    <div className="flex-column">
 
           <NavBar
               connectedPhone={localStatePhone.connectedPhone}
               connectingPhone={localStatePhone.connectingPhone}
+              isSettings={isSettings}
+              setIsSettings={setIsSettings}
           />
 
+
+          <div className="flex-row">
+
+          
+
+          <div className="flex-block-phone">
          
       
         
       
-        {/*<div className="key-button" onClick={handleCall}>Call</div>
-        <div className="key-button" onClick={handleEndCall}>EndCall</div>*/}
-        {/*<div onClick={handleAnswer} value={localStatePhone.sessionId}>Answer</div>*/}
+                {/*<div className="key-button" onClick={handleCall}>Call</div>
+                <div className="key-button" onClick={handleEndCall}>EndCall</div>*/}
+                {/*<div onClick={handleAnswer} value={localStatePhone.sessionId}>Answer</div>*/}
 
-       
-        <div >{ notificationState.message} </div>
+                { notificationState.open ? (
+                  <div className='toast'>
+                      { notificationState.message} 
+                      <button className="toast__close" type="button" onClick={handleClose}>&times;</button>
+                  </div>
+                  ) : null
+                }
+                
 
-        <CallQueue
-          calls={localStatePhone.phoneCalls}
-          handleAnswer={handleAnswer}
-          handleReject={handleReject}
-          
-        />
+                <CallQueue
+                  calls={localStatePhone.phoneCalls}
+                  handleAnswer={handleAnswer}
+                  handleReject={handleReject}
+                  
+                />
+                
 
-       <KeypadBlock
-            handleCallAttendedTransfer={handleCallAttendedTransfer}
-            handleCallTransfer={handleCallTransfer}
-            handleMicMute={handleMicMute}
-            handleHold={handleHold}
-            handleCall={handleCall}
-            handleEndCall={handleEndCall}
-            handlePressKey={handlePressKey}
-            activeChanel={localStatePhone.displayCalls[activeChannel]}
-            handleSettingsButton={handleSettingsButton}
-            dialState={dialState}
-            handleDialStateChange={handleDialStateChange}
-
-
-          />
-
-
-        <SwipeCaruselBlock
-            setLocalStatePhone={setLocalStatePhone}
-            setActiveChannel={setActiveChannel}
-            activeChannel={activeChannel}
-            localStatePhone={localStatePhone}
-          />
+                <PhoneBlock
+                      handleCallAttendedTransfer={handleCallAttendedTransfer}
+                      handleCallTransfer={handleCallTransfer}
+                      handleMicMute={handleMicMute}
+                      handleHold={handleHold}
+                      handleCall={handleCall}
+                      handleEndCall={handleEndCall}
+                      handlePressKey={handlePressKey}
+                      activeChannelNumber={activeChannelNumber}
+                      activeChannel={localStatePhone.displayCalls[activeChannelNumber]}
+                      handleSettingsButton={handleSettingsButton}
+                      dialState={dialState}
+                      handleDialStateChange={handleDialStateChange}
+                      setLocalStatePhone={setLocalStatePhone}
+                      setActiveChannel={setActiveChannel}
+                      localStatePhone={localStatePhone}
+                 
 
 
-   
-        
+                    />
+
+
+
+
+
+                <HistoryBlock
+                  localStatePhone={localStatePhone}
+                  handleConnectPhone={handleConnectPhone}
+                  handleSettingsSlider={handleSettingsSlider}
+                  handleConnectOnStart={handleConnectOnStart}
+                  handleNotifications={handleNotifications}
+                  calls={calls}
+                  timelocale={timelocale}
+                  callVolume={callVolume}
+                />
+
+                
+
+            </div>
+
+
+                {isSettings === true ? (
+            <div className="flex-block-settings">
+
+                      <SettingsBlock 
+                          localMediaDevices={localMediaDevices}
+                          audioElement={player.current}
+                          notify={notify}
+                          hangleSettings={hangleSettings}
+                      />
+            </div>
+                    ) : null
+                }
+              
+
+
+
+
+          </div>
+              
 
         <div hidden>
             <audio id="audio" preload="auto" ref={player}/>
@@ -726,7 +1058,12 @@ SoftPhone.propTypes = {
   notifications: PropTypes.any,
   connectOnStart: PropTypes.any,
   config: PropTypes.any,
-  timelocale: PropTypes.any
+  timelocale: PropTypes.any,
+  activeChannelNumber: PropTypes.any,
+  activeChannel: PropTypes.any,
+  setActiveChannel: PropTypes.any,
+  localStatePhone: PropTypes.any,
+  hangleSettings: PropTypes.any
 
 
 };

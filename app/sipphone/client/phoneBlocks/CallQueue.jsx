@@ -3,10 +3,12 @@ const call_icon = "/icons/call-icon.svg"
 const end_icon = "/icons/end2-icon.svg"
 
 export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
+
+
   
 
   return (
-    <div className="flex-container">
+    <div className="flex-row">
       {calls.map(call => {
         const parsedCaller = call.callNumber.split('-');
         return (
@@ -19,7 +21,7 @@ export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
                 
                   
                 
-                <button className="panel-button call-button panel-button-min" onClick={handleAnswer} value={call.sessionId}>
+                <button className="panel-button call-button panel-button-min" onClick={handleAnswer}  value={call.sessionId}>
                       
                       <img className="img-button" src={call_icon}/>
                               

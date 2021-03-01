@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-const InfoBlock = ({ displayCall, duration }) => {
+const CallInfoBlock = ({ displayCall, duration }) => {
 	
 
 
@@ -142,7 +142,7 @@ const InfoBlock = ({ displayCall, duration }) => {
 
 
 
-export const SwipeCaruselBlock = ({ localStatePhone, activeChannelNumber, setActiveChannel }) => {
+export const LineBlock = ({ localStatePhone, activeChannelNumber, setActiveChannel }) => {
 
 
   const [duration, setDuration] = useState(
@@ -175,15 +175,7 @@ export const SwipeCaruselBlock = ({ localStatePhone, activeChannelNumber, setAct
   const handleTabChangeIndex = (index) => {
     setActiveChannel(index);
   };
-  const handleTabChange = (event, newValue) => {
-    console.log("activeChannelNumber");
-    console.log(activeChannelNumber);
-    
-    newValue=event.currentTarget.value;
-    console.log("newValue");
-    console.log(newValue);
-    setActiveChannel(newValue);
-  };
+
 
 
   displayCalls.map((displayCall, key) => {
@@ -214,46 +206,16 @@ export const SwipeCaruselBlock = ({ localStatePhone, activeChannelNumber, setAct
       
 
           <div className="flex-container info-block" >
-              {displayCalls.map((displayCall, key) => (
-
-              	
-              	<div key={`${displayCall.id}-TabPanel`} value={key} index={displayCall.id}> 
-                     
-                    <button key={`${displayCall.id}`} 
-                            value={key} index={displayCall.id} 
-                            onClick={handleTabChange} 
-                            className="panel-button panel-button-min" 
-                            style={{
-                                    color: displayCall.inCall === true ? 'red' : 'green',
-                                   
-                                  }}
-                            >
-                    
-                      <p>Линия № {displayCall.id+1}</p>
-                    </button>
-                        
-
-                     <div> Линия № {displayCall.id+1}</div>
+              
                       
                           
 
                       
                   
-                      <InfoBlock displayCall={displayCall} duration={duration[key].duration}/>
+                      <CallInfoBlock displayCall={displayCall} duration={duration[key].duration}/>
                     
 
 
-                   
-                  </div>
-                       
-              
-                      
-
-              		
-                   
-                    
-             
-              ))}
           </div>
 
 
@@ -263,11 +225,11 @@ export const SwipeCaruselBlock = ({ localStatePhone, activeChannelNumber, setAct
 
 
 
-SwipeCaruselBlock.propTypes = {
+LineBlock.propTypes = {
   localStatePhone: PropTypes.any,
   activeChannelNumber: PropTypes.any,
   setActiveChannel: PropTypes.any
 
 
 };
-export default SwipeCaruselBlock;
+export default LineBlock;``

@@ -9,37 +9,55 @@ import { useSetting } from '../../../client/contexts/SettingsContext';
 
 import { FlowRouter } from 'meteor/kadira:flow-router';
 
+import { SoftPhone } from './SoftPhone.jsx';
+
 export const SipPhone = () => {
 
   const sipPhoneRoute = useRoute('sipphone');
   const showSipPhone = useSetting('SIPPhone_Enable');
+  const [isView, setIsView] = useState(false);
   const handleSipPhone = useMutableCallback(() => sipPhoneRoute.push({}));
- /* const handleSipPhone = (event) => {
+  /*const handleSipPhone = (event) => {
         
         console.log("Click Call111:");
+        //document.getElementsByClassName('sipphone-box')[0].style.visibility = 'hidden';
         
-    };*/
+  };*/
 
   const handleCall = event => {
         //event.preventDefault();
         /*AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();*/
+
         console.log("Click Call:");
-        event.persist();
+        if (isView) {
+          document.getElementsByClassName('sipphone-box')[0].style.display = 'none';
+          setIsView(false);
+        } else {
+          document.getElementsByClassName('sipphone-box')[0].style.display = 'block';
+          setIsView(true);
+
+        }
+        //event.persist();
     
     };
     
   //return (<SideNavButton onClick={() => handleSipPhone()}/>);
   return (
-    <div className="button" onClick={handleSipPhone}>
+    
+    
       
-        <ul className="rooms-list__list">
-         
-            <p className="rooms-list__empty-room"><i className="icon-phone"></i>Телефон</p>
+
+      <div >
+           <button className="rc-box rcx-box--full rcx-sidebar-item rcx-sidebar-item--clickable" onClick={handleCall}>
+           
+              <i className="icon-phone"></i>Телефон
+           </button>
+
           
-        </ul>
-       
-    </div>
+      </div>    
+          
+    
     );
       
   
