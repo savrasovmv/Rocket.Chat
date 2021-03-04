@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
+
+import { Mongo } from 'meteor/mongo';
 import { SideNavButton } from './SideNavButton.jsx';
 
 import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
@@ -15,6 +17,10 @@ export const SipPhone = () => {
 
   const sipPhoneRoute = useRoute('sipphone');
   const showSipPhone = useSetting('SIPPhone_Enable');
+  const domain = useSetting('SIPPhone_domain');
+  const wsServers = useSetting('SIPPhone_ws_servers');
+  const stunServers = useSetting('STUN_Servers');
+
   const [isView, setIsView] = useState(false);
   const handleSipPhone = useMutableCallback(() => sipPhoneRoute.push({}));
   /*const handleSipPhone = (event) => {
@@ -23,6 +29,11 @@ export const SipPhone = () => {
         //document.getElementsByClassName('sipphone-box')[0].style.visibility = 'hidden';
         
   };*/
+
+  if (!showSipPhone || !domain || !wsServers) {return}
+
+  console.log("Meteor.userId()")
+  console.log(Meteor.userId())
 
   const handleCall = event => {
         //event.preventDefault();

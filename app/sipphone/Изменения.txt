@@ -1,0 +1,26 @@
+
+/app/ui-sidenav/client/SideNav.html
+<template name="sideNav">
+	....
+	{{> sidebarHeader }}
+		<div class="wrapper-unread">
+			........
+		</div>
+		<div class="rooms-list__type">
+			{{> sipPhone }}
+		</div>
+		..............
+	<div class="sipphone-box">{{> SipPage }}</div>
+</template>
+
+
+/app/ui-sidenav/client/sideNav.js
+
+createTemplateForComponent('sidebarHeader', () => import('../../../client/sidebar/header'));
+createTemplateForComponent('sidebarChats', () => import('../../../client/sidebar/RoomList'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
+createTemplateForComponent('sipPhone', () => import('../../sipphone/client/SipPhone'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
+createTemplateForComponent('SipPage', () => import('../../sipphone/client/SipPage'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
+
+
+
+

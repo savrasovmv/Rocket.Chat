@@ -1,41 +1,138 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
+import { Modal, Box, Item, Content, Sidebar, Option, Button, Icon } from '@rocket.chat/fuselage';
+import moment from 'moment';
 
-export const HistoryBlock = ({   calls,
-							  localStatePhone,
-							  handleConnectPhone,
-							  handleSettingsSlider,
-							  handleConnectOnStart,
-							  handleNotifications,
-							  timelocale }) => {
+//import { SipHistoryCollection } from '../api/SipHistory';
+import { SipHistoryCollection } from '../../db/SipHistory';
 
 
+//const handleLists = Meteor.subscribe('siphistory.lists')
 
-	const [value, setValue] = useState(0);
+/*Tracker.autorun(() => {
+	Meteor.subscribe('siphistory.lists')
+	console.log("SipHistoryCollection");
+	console.log(SipHistoryCollection);
+  //const areReady = handleLists.ready();
+  //console.log(`Handles are ${areReady ? 'ready' : 'not ready'}`);
+});*/
+/*Tracker.autorun(() => {
+	console.log('Update siphistory+++++++++++++++');
+	console.log(SipHistoryCollection.find({}).fetch())
+	if (handleLists.ready) {
 
-	const handleChange = (event, newValue) => {
-		setValue(newValue);
-	};
+  		//setSiphistory(SipHistoryCollection.find({}).fetch());
+		}
+});*/
+
+
+
+export const HistoryBlock = ({calls, handleLists, handleCall}) => {
+
+
+
+	
+	const [siphistory, setSiphistory] = useState([{"text":"Нет истории", "_id": 0}]);
+
+	//const SipHistoryCollection = new Mongo.Collection('sip_history');
+
+	
+	//if (handleLists.ready) {
+		//const siphistory = SipHistoryCollection.find({}).fetch();
+
+			//setSiphistory(SipHistoryCollection.find({}).fetch());
+	//}
+/*	Tracker.autorun(() => {
+		const handleLists = Meteor.subscribe('siphistory.lists');
+		if (handleLists.ready) {
+
+			//setSiphistory(SipHistoryCollection.find({}).fetch());
+		}
+	      console.log('Update siphistory+++++++++++++++');
+	      console.log(SipHistoryCollection.find({}).fetch())
+
+
+	})*/
+	
+/*	Tracker.autorun(() => {
+		const handleLists = Meteor.subscribe('siphistory.lists')
+		console.log("SipHistoryCollection");
+		console.log(SipHistoryCollection);
+		console.log(handleLists);
+
+	  //const areReady = handleLists.ready();
+	  //console.log(`Handles are ${areReady ? 'ready' : 'not ready'}`);
+	});
+*/
+	/*console.log("siphistory")
+	console.log(siphistory)
+
+*/
+
+	useEffect(() => {
+	  //const handleLists = Meteor.subscribe('siphistory.lists')
+      console.log('Update handleLists.ready');
+      console.log(SipHistoryCollection.find({}).fetch());
+      //const siphistory = SipHistoryCollection.find({}).fetch();
+      //if (handleLists.ready) {
+	
+      		setSiphistory(SipHistoryCollection.find({}).fetch());
+  		//}
+
+    }, [handleLists.ready]);
+
+
 
 	return (
     		<div className="flex-row">
     		<div className="flex-column">
-    			<div>Журнал</div>
-    			{calls.map(({
-		              sessionId, direction, number, time, status
-		            }) => (
+    			
+    			<Sidebar.Section.Title>История звонков</Sidebar.Section.Title>
+    			{siphistory.map(({number, direction, createdAt,status, _id}) => (
+		              
 
-		            	<div key={sessionId}  
-		                    style={{
-		                      color: status === 'missed' ? 'red' : 'green',
-		                      fontSize: '0.675rem',
-		                      lineHeight: '20px'
-		                    }}
-		                  >
-		                   {direction} : {number} : {time.toString()} : {status}
-		                </div>
-		           )
-		        )}
+		            <div key={_id}>
+		            	<Box position='relative' maxWidth={350}>
+					      <Option>
+					      	
+					        <Option.Content>
+					        		<Box 
+					        			color={ status === 'missed' ?'danger': 'default'} 
+					        			
+					        			>
+					        		<Icon name={ direction==="incoming" ? "arrow-fall" : "arrow-rise" }  />
+						        		{number}
+
+						        	</Box>
+					        </Option.Content>
+					        <Option.Content>
+					        		<Box>
+						        		{moment(createdAt).format('DD.MM.YYYY, hh:mm') }
+
+						        	</Box>
+					        </Option.Content>
+					        <Option.Menu>
+					        	<Button square onClick={(e) => handleCall(number, e)} value={number}>
+							      <Icon color='success' name='phone' size='x20'   />
+					        	</Button>
+							    
+					        </Option.Menu>
+					        <Option.Menu>
+					        	<Button square onClick={(e) => handleCall(number, e)} value={number}>
+							      <Icon color='warning' name='star' size='x20'   />
+					        	</Button>
+							    
+					        </Option.Menu>
+					      </Option>
+					    </Box>
+		            	
+					  
+					    
+					    
+				    </div>
+    			
+				))}
 
     		</div>
     		</div>
@@ -47,13 +144,8 @@ export const HistoryBlock = ({   calls,
 
 HistoryBlock.propTypes = {
   calls: PropTypes.any,
-  localStatePhone: PropTypes.any,
-  handleConnectPhone: PropTypes.any,
-  handleSettingsSlider: PropTypes.any,
-  handleConnectOnStart: PropTypes.any,
-  handleNotifications: PropTypes.any,
-  callVolume: PropTypes.any,
-  timelocale: PropTypes.any
+  handleLists: PropTypes.any
+  
 
 };
 

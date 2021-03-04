@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
+import { SearchInput, Button, Icon } from '@rocket.chat/fuselage';
+import { Modal, Box, Item, Content, Sidebar, Option } from '@rocket.chat/fuselage';
+
+import SearchList from '../../../client/sidebar/search/SearchList';
+import { useOutsideClick } from '../../../client/hooks/useOutsideClick';
+import { useMutableCallback } from '@rocket.chat/fuselage-hooks';
+import { APIClient } from '../../utils/client';
+
+import { Users } from '../../models/client';
 
 import {  ButtonPanel, 
           CallButton, 
@@ -133,9 +142,68 @@ export const PhoneBlock = ({
 
 
 
+
+  const [search, setSearch] = useState('');
+  const [sr, setSR] = useState([]);
+  const handleSearch = (event) => {
+    setSearch(event.target.value)
+
+    
+  };
+
+
+  useEffect(() => {
+
+      const arr = [];
+      console.log('Update search');
+      if (search) {
+        console.log("====================================");
+        const result =  APIClient.v1.get('users.list', 
+                {
+                    query: '{ "$or": [{"ipPhone": {"$regex": "'+search+'" }}, {"name": {"$regex": "'+search+'" , "$options": "i"}}] }'
+                  });
+        console.log(result);
+        console.log(result.resolve);
+        result.then((resolve) =>{
+          console.log("resolve");
+          console.log(resolve);
+          console.log(resolve.count);
+          setSR(resolve.users)
+
+        })
+        //const { PromiseResult: data = { users }, phase: status } =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "'+search+'" } }'});
+        //console.log(status);
+        //console.log(result.users);
+        //users.forEach((user) => {
+
+          //arr.push(user);
+       
+          
+        //});
+
+        //console.log("arr");
+        //console.log(arr);
+
+        //setUsers(result);
+        //console.log(users.count());
+      } else {
+        setSR([])
+
+      }
+
+    }, [search]);
+
+
+
   
+  const [searchOpen, setSearchOpen] = useState(false);
 
-
+  // const viewRef = useRef();
+  //const  users =  APIClient.v1.get('users.info', {username:"savrasovmv"})
+  //const  users =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "11" } }'})
+  //const  users =  APIClient.v1.get('spotlight', {})
+  //console.log("====================================");
+  //console.log(users);
 
    
   return (
@@ -146,16 +214,22 @@ export const PhoneBlock = ({
                
                 <div className="flex-row"	>
                 	
-                  <input
-                        className="input-field"
-                        type="text"
-                        placeholder="Номер или имя абонента"
+                  
+                  <SearchInput 
+                        placeholder='Номер или имя абонента'
                         value={dialState}
-                        onChange={handleDialStateChange}
+                        onChange={handleDialStateChange} 
                   />
-
+                  <SearchInput 
+                        placeholder='Н111'
+                        value={search}
+                        onChange={handleSearch} 
+                  />
                        
-                  { !inCall ? (<CallButton handleCall={handleCall}/>) : ( null)}
+                  
+                  { !inCall ? (
+                    <Button primary success onClick={handleCall}> <Icon name='phone' size='x20' /></Button>
+                    ) : ( null)}
                         
                   
                 </div>
@@ -165,6 +239,39 @@ export const PhoneBlock = ({
 
                 <div className="flex-row" >
                     <div className="flex-column" >
+                    {sr.map(({name, ipPhone, _id}) => (
+                  
+
+                        <div key={_id}>
+                            
+                          <Box position='relative' maxWidth={350}>
+                            <Option>
+                              
+                              <Option.Content>
+                                  <Box color='default'>
+                                  
+                                    {name}
+
+                                  </Box>
+                              </Option.Content>
+                              <Option.Content>
+                                  <Box>
+                                    {ipPhone}
+
+                                  </Box>
+                              </Option.Content>
+                              <Option.Menu>
+                                <Button square onClick={(e) => handleCall(ipPhone, e)} value={ipPhone}>
+                                <Icon color='success' name='phone'    />
+                                </Button>
+                              
+                              </Option.Menu>
+                              
+                            </Option>
+                          </Box>
+                        </div>
+          
+                      ))}
                   
 
                       
@@ -191,7 +298,8 @@ export const PhoneBlock = ({
                         {localStatePhone.displayCalls.map((displayCall, key) => (
 
                               <div  key={displayCall.id} 
-                                    style={{display: activeChannelNumber === displayCall.id ? ' inline-block' : 'none',}}>
+                                    style={{display: activeChannelNumber === displayCall.id ? ' block' : 'none',}}>
+
 
                                     <div className="flex-row">
                                       <div>

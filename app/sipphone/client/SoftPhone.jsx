@@ -401,7 +401,14 @@ export const SoftPhone = (  callVolume=80,
             number: firstCheck[0].callNumber,
             time: new Date()
           }, ...call]);
+          //console.log("+++++++ callEnded=======firstCheck")
+          Meteor.call('siphistory.insert', 
+            status = 'missed',
+            direction = firstCheck[0].direction,
+            number = firstCheck[0].callNumber
+          );
         } else if (secondCheck.length === 1) {
+          //console.log("+++++++ callEnded=======secondCheck")
           setCalls((call) => [{
             status: secondCheck[0].inAnswer ? 'answered' : 'missed',
             sessionId: secondCheck[0].sessionId,
@@ -409,7 +416,17 @@ export const SoftPhone = (  callVolume=80,
             number: secondCheck[0].callNumber,
             time: new Date()
           }, ...call]);
+          //console.log("+++++++ callEnded=======Meteor.call(")
+          //Meteor.call('siphistory.insert', "22222222");
+          Meteor.call('siphistory.insert', 
+            status = secondCheck[0].inAnswer ? 'answered' : 'missed',
+         
+            direction = secondCheck[0].direction,
+            number = secondCheck[0].callNumber
+          );
         }
+        //text = localStatePhone.displayCalls[activeChannelNumber].callNumber + " " + localStatePhone.displayCalls[activeChannelNumber].duration
+        
         break;
       case 'callAccepted':
         // Established conection
@@ -586,6 +603,8 @@ export const SoftPhone = (  callVolume=80,
       setdialState(dialState + event.currentTarget.value);*/
       setdialState(dialState + event);
       if (flowRoute.activeCall) {
+
+        console.log("sendDTMF")
         flowRoute.activeCall.sendDTMF(`${event}`);
       }
     };
@@ -593,10 +612,22 @@ export const SoftPhone = (  callVolume=80,
 
 
 
-    const handleCall = event => {
+    const handleCall = (number='', event) => {
         //event.preventDefault();
         /*AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();*/
+        //event.persist();
+
+        console.log(number);
+        //console.log(event.target);
+        //console.log(event.target.value);
+        if (number.length>0) {
+          setdialState(number);
+          if (number.match(/^[0-9]+$/) != null) {
+              console.log("Start Call"+number);
+            flowRoute.call(number);
+          }
+        }
         console.log("Click Call:"+dialState);
         //event.persist();
         if (dialState.match(/^[0-9]+$/) != null) {
@@ -610,6 +641,8 @@ export const SoftPhone = (  callVolume=80,
         //flowRoute.hungup(event.currentTarget.value);
         /*console.log("activeChannelNumber");
         console.log(activeChannelNumber);*/
+        
+        //Meteor.call('siphistory.insert', "22222222");
         flowRoute.hungup(localStatePhone.displayCalls[activeChannelNumber].sessionId);
         const nexActiveLine = localStatePhone.displayCalls.filter((item) => item.inCall === true);
         if (nexActiveLine.length > 0) {
@@ -935,6 +968,9 @@ export const SoftPhone = (  callVolume=80,
    
     },
     []);
+
+  const handleLists = Meteor.subscribe('siphistory.lists')
+
   return (
     <div className="flex-column">
 
@@ -1002,14 +1038,11 @@ export const SoftPhone = (  callVolume=80,
 
 
                 <HistoryBlock
-                  localStatePhone={localStatePhone}
-                  handleConnectPhone={handleConnectPhone}
-                  handleSettingsSlider={handleSettingsSlider}
-                  handleConnectOnStart={handleConnectOnStart}
-                  handleNotifications={handleNotifications}
-                  calls={calls}
-                  timelocale={timelocale}
-                  callVolume={callVolume}
+                  
+                 
+                  handleLists={handleLists}
+                  handleCall={handleCall}
+                  
                 />
 
                 

@@ -1,11 +1,17 @@
 
 .sipphone-box {
-  position: relative;
+  position: absolute;
+  left: 20%;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  width: 80%;
   display: none;
   background-color: white;
   border: 1px solid #ddd;
   z-index: 999999;
-  position: sticky;
+  
+  /*position: sticky;*/
 
 }
 
@@ -20,6 +26,7 @@
   padding: 5px;
   cursor: pointer;
 }
+
 
 .sip-navbar-container {
   display: flex; /* or inline-flex */
@@ -41,7 +48,7 @@
 
   padding: 15px 15px 15px 15px;
   position: relative;
-  box-shadow: 0 1px 0px rgba(34, 25, 25, 0.4);
+  box-shadow: 0 1px 0px #ddd;
 
 
 
@@ -156,11 +163,11 @@
    line-height: 1.5*/
    }
 
-.flex-row-room:hover {
+/*.flex-row-room:hover {
   background: #140f09;
   color: #d3d3d3;
 }
-
+*/
 
 
 
@@ -366,6 +373,10 @@
   -webkit-flex-direction: column;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  /*margin: 15px;*/
+  width: 100%;
 }
 
 
