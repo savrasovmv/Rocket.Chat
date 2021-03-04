@@ -158,9 +158,29 @@ export const PhoneBlock = ({
       console.log('Update search');
       if (search) {
         console.log("====================================");
+        //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
         const result =  APIClient.v1.get('users.list', 
                 {
-                    query: '{ "$or": [{"ipPhone": {"$regex": "'+search+'" }}, {"name": {"$regex": "'+search+'" , "$options": "i"}}] }'
+                    query: '{ \
+                              "$and":[\
+                                      {"$or": [\
+                                            {"ipPhone": {"$ne": null}},\
+                                            {"telephoneNumber": {"$ne": null}},\
+                                            {"mobile": {"$ne": null}},\
+                                            {"homePhone": {"$ne": null}}\
+                                            ]\
+                                      },\
+                                      {\
+                                        "$or": [\
+                                            {"ipPhone": {"$regex": "'+search+'" }},\
+                                            {"telephoneNumber": {"$regex": "'+search+'" }},\
+                                            {"mobile": {"$regex": "'+search+'" }},\
+                                            {"homePhone": {"$regex": "'+search+'" }},\
+                                            {"name": {"$regex": "'+search+'" , "$options": "i"}}\
+                                            ] \
+                                      }\
+                                ]\
+                            }'
                   });
         console.log(result);
         console.log(result.resolve);
@@ -239,7 +259,7 @@ export const PhoneBlock = ({
 
                 <div className="flex-row" >
                     <div className="flex-column" >
-                    {sr.map(({name, ipPhone, _id}) => (
+                    {sr.map(({name, ipPhone, telephoneNumber, mobile, homePhone, _id}) => (
                   
 
                         <div key={_id}>
@@ -256,8 +276,11 @@ export const PhoneBlock = ({
                               </Option.Content>
                               <Option.Content>
                                   <Box>
-                                    {ipPhone}
-
+                                    {ipPhone ? ipPhone.includes(search) ? ipPhone : null : null}
+                                    {telephoneNumber ? telephoneNumber.includes(search) ? telephoneNumber : null : null}
+                                    {mobile ? mobile.includes(search) ? mobile : null : null}
+                                    {homePhone ? homePhone.includes(search) ? homePhone : null : null}
+                                    
                                   </Box>
                               </Option.Content>
                               <Option.Menu>
