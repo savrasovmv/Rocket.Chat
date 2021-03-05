@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { Modal, Box, Item, Content, Sidebar, Option, Button, Icon } from '@rocket.chat/fuselage';
 import moment from 'moment';
+import { useFormatDateAndTime } from '../../../../client/hooks/useFormatDateAndTime';
 
 //import { SipHistoryCollection } from '../api/SipHistory';
 import { SipHistoryCollection } from '../../db/SipHistory';
@@ -69,6 +70,8 @@ export const HistoryBlock = ({calls, handleLists, handleCall}) => {
 	console.log(siphistory)
 
 */
+	
+	const formatDate = useFormatDateAndTime();
 
 	useEffect(() => {
 	  //const handleLists = Meteor.subscribe('siphistory.lists')
@@ -108,7 +111,8 @@ export const HistoryBlock = ({calls, handleLists, handleCall}) => {
 					        </Option.Content>
 					        <Option.Content>
 					        		<Box>
-						        		{moment(createdAt).format('DD.MM.YYYY, hh:mm') }
+						        		{formatDate(createdAt)}
+						        		
 
 						        	</Box>
 					        </Option.Content>

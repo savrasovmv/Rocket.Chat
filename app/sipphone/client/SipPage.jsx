@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { SoftPhone } from './SoftPhone.jsx';
 import { useSetting } from '../../../client/contexts/SettingsContext';
+import { Modal, Box, Item, Content, Sidebar, Option, Label, Grid, Tile } from '@rocket.chat/fuselage';
 
 export const SipPage = () => {
   const showSipPhone = useSetting('SIPPhone_Enable');
@@ -12,9 +13,14 @@ export const SipPage = () => {
   	return (<div></div>)
   }
   return (
-    <div className="flex-column">
-    
-        <SoftPhone/>
+  	<div className="sipphone-box">
+  		<div className="sip-page-container">
+	
+	    	
+
+	        	<SoftPhone/>
+	        
+	    </div>
     </div>
   );
 };

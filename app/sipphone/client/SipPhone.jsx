@@ -13,6 +13,10 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 
 import { SoftPhone } from './SoftPhone.jsx';
 
+import { SearchInput, Button, Icon } from '@rocket.chat/fuselage';
+import { Modal, Box, Item, Content, Sidebar, Option, Label } from '@rocket.chat/fuselage';
+
+
 export const SipPhone = () => {
 
   const sipPhoneRoute = useRoute('sipphone');
@@ -43,9 +47,11 @@ export const SipPhone = () => {
         console.log("Click Call:");
         if (isView) {
           document.getElementsByClassName('sipphone-box')[0].style.display = 'none';
+          document.getElementsByClassName('rc-old main-content content-background-color')[0].style.display = 'flex';
           setIsView(false);
         } else {
-          document.getElementsByClassName('sipphone-box')[0].style.display = 'block';
+          document.getElementsByClassName('sipphone-box')[0].style.display = 'flex';
+          document.getElementsByClassName('rc-old main-content content-background-color')[0].style.display = 'none';
           setIsView(true);
 
         }
@@ -59,14 +65,16 @@ export const SipPhone = () => {
     
       
 
-      <div >
+      <Box >
            <button className="rc-box rcx-box--full rcx-sidebar-item rcx-sidebar-item--clickable" onClick={handleCall}>
            
               <i className="icon-phone"></i>Телефон
            </button>
+           
+     
 
           
-      </div>    
+      </Box>    
           
     
     );

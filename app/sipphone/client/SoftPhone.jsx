@@ -1024,6 +1024,7 @@ export const SoftPhone = (  callVolume=80,
                       activeChannel={localStatePhone.displayCalls[activeChannelNumber]}
                       handleSettingsButton={handleSettingsButton}
                       dialState={dialState}
+                      setdialState={setdialState}
                       handleDialStateChange={handleDialStateChange}
                       setLocalStatePhone={setLocalStatePhone}
                       setActiveChannel={setActiveChannel}
@@ -1096,7 +1097,9 @@ SoftPhone.propTypes = {
   activeChannel: PropTypes.any,
   setActiveChannel: PropTypes.any,
   localStatePhone: PropTypes.any,
-  hangleSettings: PropTypes.any
+  hangleSettings: PropTypes.any,
+  dialState: PropTypes.any,
+  setdialState: PropTypes.any,
 
 
 };

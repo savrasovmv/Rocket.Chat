@@ -151,6 +151,7 @@ const Sidebar = () => <>
 			<aside class='sidebar sidebar--main' role='navigation'>
 				<Header />
 				<div class='rooms-list sidebar--custom-colors' aria-label='Channels' role='region'>
+					fff
 					<RoomList />
 				</div>
 			</aside>

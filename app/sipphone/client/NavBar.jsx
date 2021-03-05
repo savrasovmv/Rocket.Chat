@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { StatusBlock } from './phoneBlocks/StatusBlock';
+import { Modal, Box, Item, Content, Sidebar, Option, Button, Icon } from '@rocket.chat/fuselage';
 
 //import './main.css';
 
@@ -23,14 +24,12 @@ export const SettingsButton = ({ isSettings, setIsSettings }) => {
     };
    
   return (
+    <Box>
+    <Button square value={isSettings}  onClick={handleSettingsButton}>
+      <Icon name='cog' size='x20' />
+    </Button>
   
-    <div>
-           <button className="panel-button panel-button-min" value={isSettings}  onClick={handleSettingsButton}>
-                
-                  Настройки
-
-            </button>
-      </div>
+    </Box>
   
   );
 };

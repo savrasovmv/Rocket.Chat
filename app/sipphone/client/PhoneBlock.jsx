@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { SearchInput, Button, Icon } from '@rocket.chat/fuselage';
-import { Modal, Box, Item, Content, Sidebar, Option } from '@rocket.chat/fuselage';
+import { Modal, Box, Item, Content, Sidebar, Option, Label } from '@rocket.chat/fuselage';
 
 import SearchList from '../../../client/sidebar/search/SearchList';
 import { useOutsideClick } from '../../../client/hooks/useOutsideClick';
@@ -23,6 +23,7 @@ import {  ButtonPanel,
 import { KeypadBlock } from './phoneBlocks/KeypadBlock.jsx';
 import { InfoBlock } from './phoneBlocks/InfoBlock.jsx';
 import { LineBlock } from './phoneBlocks/LineBlock.jsx';
+import { SearchBlock } from './phoneBlocks/SearchBlock.jsx';
 
 const call_icon = "/icons/call-icon.svg"
 const end_icon = "/icons/end-icon.svg"
@@ -83,6 +84,7 @@ export const PhoneBlock = ({
                               activeChannel,
                               handleSettingsButton,
                               dialState,
+                              setdialState,
                               handleDialStateChange,
                               setLocalStatePhone,
                               setActiveChannel,
@@ -142,76 +144,101 @@ export const PhoneBlock = ({
 
 
 
+  const handleSearchCall = (number='', event) => {
+    console.log("handleSearchCall")
+    console.log(number)
+    setdialState(number)
+    setUsers([])
+    console.log(dialState)
+    setOpenSearch(false)
 
-  const [search, setSearch] = useState('');
-  const [sr, setSR] = useState([]);
+    
+  };
+
+
+  const [openSearch, setOpenSearch] = useState(false);
+
+  const [typeNumSearch, setTypeNumSearch] = useState(true);
+  const [users, setUsers] = useState([]);
   const handleSearch = (event) => {
-    setSearch(event.target.value)
+    setOpenSearch(true)
+    setdialState(event.target.value)
 
     
   };
 
 
   useEffect(() => {
+      if (openSearch) {
+        const arr = [];
+        console.log('Update search');
+        if (dialState) {
+          console.log("====================================");
+          if(/^[0-9]+$/.test(dialState)){
+            console.log('Введены цифры');
+            setTypeNumSearch(true);
+          } else {
+            console.log('Введены буквы');
+            setTypeNumSearch(false);
 
-      const arr = [];
-      console.log('Update search');
-      if (search) {
-        console.log("====================================");
-        //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
-        const result =  APIClient.v1.get('users.list', 
-                {
-                    query: '{ \
-                              "$and":[\
-                                      {"$or": [\
-                                            {"ipPhone": {"$ne": null}},\
-                                            {"telephoneNumber": {"$ne": null}},\
-                                            {"mobile": {"$ne": null}},\
-                                            {"homePhone": {"$ne": null}}\
-                                            ]\
-                                      },\
-                                      {\
-                                        "$or": [\
-                                            {"ipPhone": {"$regex": "'+search+'" }},\
-                                            {"telephoneNumber": {"$regex": "'+search+'" }},\
-                                            {"mobile": {"$regex": "'+search+'" }},\
-                                            {"homePhone": {"$regex": "'+search+'" }},\
-                                            {"name": {"$regex": "'+search+'" , "$options": "i"}}\
-                                            ] \
-                                      }\
-                                ]\
-                            }'
-                  });
-        console.log(result);
-        console.log(result.resolve);
-        result.then((resolve) =>{
-          console.log("resolve");
-          console.log(resolve);
-          console.log(resolve.count);
-          setSR(resolve.users)
+          }
+          //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
+          const result =  APIClient.v1.get('users.list', 
+                  {
+                      query: '{ \
+                                "$and":[\
+                                        {"$or": [\
+                                              {"ipPhone": {"$ne": null}},\
+                                              {"telephoneNumber": {"$ne": null}},\
+                                              {"mobile": {"$ne": null}},\
+                                              {"homePhone": {"$ne": null}}\
+                                              ]\
+                                        },\
+                                        {\
+                                          "$or": [\
+                                              {"ipPhone": {"$regex": "'+dialState+'" }},\
+                                              {"telephoneNumber": {"$regex": "'+dialState+'" }},\
+                                              {"mobile": {"$regex": "'+dialState+'" }},\
+                                              {"homePhone": {"$regex": "'+dialState+'" }},\
+                                              {"name": {"$regex": "'+dialState+'" , "$options": "i"}}\
+                                              ] \
+                                        }\
+                                  ]\
+                              }'
+                  }
 
-        })
-        //const { PromiseResult: data = { users }, phase: status } =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "'+search+'" } }'});
-        //console.log(status);
-        //console.log(result.users);
-        //users.forEach((user) => {
+                  );
+          console.log(result);
+          console.log(result.resolve);
+          result.then((resolve) =>{
+            console.log("resolve");
+            console.log(resolve);
+            console.log(resolve.count);
+            setUsers(resolve.users)
 
-          //arr.push(user);
-       
-          
-        //});
+          })
+          //const { PromiseResult: data = { users }, phase: status } =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "'+search+'" } }'});
+          //console.log(status);
+          //console.log(result.users);
+          //users.forEach((user) => {
 
-        //console.log("arr");
-        //console.log(arr);
+            //arr.push(user);
+         
+            
+          //});
 
-        //setUsers(result);
-        //console.log(users.count());
-      } else {
-        setSR([])
+          //console.log("arr");
+          //console.log(arr);
 
+          //setUsers(result);
+          //console.log(users.count());
+        } else {
+          setUsers([])
+
+        }
       }
 
-    }, [search]);
+    }, [dialState]);
 
 
 
@@ -235,14 +262,15 @@ export const PhoneBlock = ({
                 <div className="flex-row"	>
                 	
                   
-                  <SearchInput 
+                  {/*<SearchInput 
                         placeholder='Номер или имя абонента'
                         value={dialState}
                         onChange={handleDialStateChange} 
-                  />
+                  />*/}
                   <SearchInput 
-                        placeholder='Н111'
-                        value={search}
+                        maxWidth={500}
+                        placeholder='Номер или имя абонента'
+                        value={dialState}
                         onChange={handleSearch} 
                   />
                        
@@ -259,43 +287,13 @@ export const PhoneBlock = ({
 
                 <div className="flex-row" >
                     <div className="flex-column" >
-                    {sr.map(({name, ipPhone, telephoneNumber, mobile, homePhone, _id}) => (
-                  
 
-                        <div key={_id}>
-                            
-                          <Box position='relative' maxWidth={350}>
-                            <Option>
-                              
-                              <Option.Content>
-                                  <Box color='default'>
-                                  
-                                    {name}
-
-                                  </Box>
-                              </Option.Content>
-                              <Option.Content>
-                                  <Box>
-                                    {ipPhone ? ipPhone.includes(search) ? ipPhone : null : null}
-                                    {telephoneNumber ? telephoneNumber.includes(search) ? telephoneNumber : null : null}
-                                    {mobile ? mobile.includes(search) ? mobile : null : null}
-                                    {homePhone ? homePhone.includes(search) ? homePhone : null : null}
-                                    
-                                  </Box>
-                              </Option.Content>
-                              <Option.Menu>
-                                <Button square onClick={(e) => handleCall(ipPhone, e)} value={ipPhone}>
-                                <Icon color='success' name='phone'    />
-                                </Button>
-                              
-                              </Option.Menu>
-                              
-                            </Option>
-                          </Box>
-                        </div>
-          
-                      ))}
-                  
+                      <SearchBlock
+                            handleSearchCall={handleSearchCall}
+                            users={users}
+                            typeNumSearch={typeNumSearch}
+                            search={dialState}
+                      />
 
                       
                       <div className="flex-row tab-sipline">
@@ -418,10 +416,14 @@ PhoneBlock.propTypes = {
   keyVariant: PropTypes.any,
   handleSettingsButton: PropTypes.any,
   dialState: PropTypes.any,
+  setdialState: PropTypes.any,
   handleDialStateChange: PropTypes.any,
   setLocalStatePhone: PropTypes.any,
   setActiveChannel: PropTypes.any,
-  localStatePhone: PropTypes.any
+  localStatePhone: PropTypes.any,
+  typeNumSearch: PropTypes.any,
+  users: PropTypes.any,
+  search: PropTypes.any
 
 };
 
