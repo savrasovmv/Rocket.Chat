@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Meteor } from 'meteor/meteor'
 import PropTypes from 'prop-types'
 import { SearchInput, Button, Icon } from '@rocket.chat/fuselage'
@@ -10,6 +10,10 @@ import {
   Sidebar,
   Option,
   Label,
+  Scrollable,
+  Tile,
+  Tabs,
+  Tooltip,
 } from '@rocket.chat/fuselage'
 
 import SearchList from '../../../client/sidebar/search/SearchList'
@@ -44,38 +48,38 @@ const play_icon = '/icons/play-icon.svg'
 
 //import './main.css';
 
-export const LineButton = ({
-  localStatePhone,
-  displayCall,
-  handleTabLine,
-  activeChannelNumber,
-}) => {
-  const [className, setclassName] = useState('tab-sipline ')
+// export const LineButton = ({
+//   localStatePhone,
+//   displayCall,
+//   handleTabLine,
+//   activeChannelNumber,
+// }) => {
+//   const [className, setclassName] = useState('tab-sipline ')
 
-  useEffect(() => {
-    console.log('----localStatePhone  BLOCK')
-    newclassName = 'tab-sipline '
-    if (activeChannelNumber === displayCall.id) {
-      newclassName += ' active '
-    }
-    if (displayCall.inCall === true) {
-      newclassName += ' tab-sipline-incall '
-    }
-    setclassName(newclassName)
-  }, [localStatePhone, activeChannelNumber])
+//   useEffect(() => {
+//     console.log('----localStatePhone  BLOCK')
+//     newclassName = 'tab-sipline '
+//     if (activeChannelNumber === displayCall.id) {
+//       newclassName += ' active '
+//     }
+//     if (displayCall.inCall === true) {
+//       newclassName += ' tab-sipline-incall '
+//     }
+//     setclassName(newclassName)
+//   }, [localStatePhone, activeChannelNumber])
 
-  return (
-    <div>
-      <button
-        className={className}
-        value={displayCall.id}
-        onClick={handleTabLine}
-      >
-        Линия {displayCall.id + 1}
-      </button>
-    </div>
-  )
-}
+//   return (
+//     <div>
+//       <button
+//         className={className}
+//         value={displayCall.id}
+//         onClick={handleTabLine}
+//       >
+//         Линия {displayCall.id + 1}
+//       </button>
+//     </div>
+//   )
+// }
 
 export const PhoneBlock = ({
   handleCallAttendedTransfer,
@@ -129,11 +133,11 @@ export const PhoneBlock = ({
     setActiveChannel(newValue)
   }
 
-  const handleTabLine = (event, newValue) => {
+  const handleTabLine = (lineId) => {
     console.log('activeChannelNumber')
     console.log(activeChannelNumber)
 
-    newValue = parseInt(event.currentTarget.value)
+    newValue = parseInt(lineId)
     //newValue=parseInt(event);
     console.log('newValue')
     console.log(newValue)
@@ -233,135 +237,154 @@ export const PhoneBlock = ({
   //console.log(users);
 
   return (
-    <div>
-      <div>
-        <div className="flex-row">
-          {/*<SearchInput
-                        placeholder='Номер или имя абонента'
-                        value={dialState}
-                        onChange={handleDialStateChange}
-                  />*/}
-          <SearchInput
-            maxWidth={500}
-            placeholder="Номер или имя абонента"
-            value={dialState}
-            onChange={handleSearch}
-          />
+    <Fragment>
+      <Box display="flex" justifyContent="center" margin="x16">
+        <SearchInput
+          maxWidth={500}
+          placeholder="Номер или имя абонента"
+          value={dialState}
+          onChange={handleSearch}
+        />
 
-          {!inCall ? (
-            <Button primary success onClick={handleCall}>
-              {' '}
-              <Icon name="phone" size="x20" />
-            </Button>
-          ) : null}
-        </div>
+        {!inCall ? (
+          <Button primary success onClick={handleCall} minWidth="x100" mis="x5">
+            {' '}
+            <Icon name="phone" size="x20" />
+          </Button>
+        ) : null}
+      </Box>
+      <Box display="flex" justifyContent="center">
+        {users.length > 0 ? (
+          <Scrollable smooth>
+            <Tile padding="none" height={200}>
+              <Box display="flex" flexDirection="column">
+                <SearchBlock
+                  handleSearchCall={handleSearchCall}
+                  users={users}
+                  typeNumSearch={typeNumSearch}
+                  search={dialState}
+                />
+              </Box>
+            </Tile>
+          </Scrollable>
+        ) : null}
+      </Box>
+      <Box display="flex" justifyContent="center" margin="x16">
+        <Tabs>
+          {localStatePhone.displayCalls.map((displayCall, key) => (
+            <Tabs.Item
+              selected={activeChannelNumber === displayCall.id ? true : false}
+              onClick={() => handleTabLine(displayCall.id)}
+              key={displayCall.id}
+              color={displayCall.inCall === true ? 'primary' : 'hint'}
+            >
+              Линия {displayCall.id + 1}{' '}
+            </Tabs.Item>
+          ))}
+        </Tabs>
+      </Box>
 
-        <div className="flex-row">
-          <div className="flex-column">
-            <SearchBlock
-              handleSearchCall={handleSearchCall}
-              users={users}
-              typeNumSearch={typeNumSearch}
-              search={dialState}
-            />
+      <Box display="flex" justifyContent="center">
+        {localStatePhone.displayCalls.map((displayCall, key) => (
+          <Box
+            display={activeChannelNumber === displayCall.id ? 'flex' : 'none'}
+            flexDirection="column"
+            justifyContent="center"
+            key={displayCall.id}
+          >
+            {/* Группа кнопок */}
+            <Box display="flex" flexDirection="row">
+              {/* Кнопа цифровой панели */}
+              <Button square size="x64" margin="x1" onClick={handleDial}>
+                <Icon name="dialpad" size="x36" />
+              </Button>
+              {/* Кнопа микрофона */}
+              <Button
+                square
+                size="x64"
+                margin="x1"
+                disabled={inCall ? false : true}
+                onClick={handleMicMute}
+              >
+                <Icon name={muted ? 'mic-off' : 'mic'} size="x36" />
+              </Button>
+              {/* Кнопа удержания */}
+              <Button
+                square
+                size="x64"
+                margin="x1"
+                disabled={inCall ? false : true}
+                onClick={handleHold}
+                //data-tooltip="Удержание вызова"
+              >
+                <Icon name={hold ? 'play' : 'pause'} size="x36" />
+              </Button>
+              {/* <Tooltip  placement="bottom-start"> Удержание вызова </Tooltip> */}
+              {!displayCall.transferControl ? (
+                <Fragment>
+                  <Button
+                    square
+                    size="x64"
+                    margin="x1"
+                    disabled={inCall ? false : true}
+                    onClick={handleCallTransfer}
+                  >
+                    <Icon name="arrow-jump" size="x36" />
+                  </Button>
 
-            <div className="flex-row tab-sipline">
-              {localStatePhone.displayCalls.map((displayCall, key) => (
-                <div key={displayCall.id}>
-                  <LineButton
-                    localStatePhone={localStatePhone}
-                    displayCall={displayCall}
-                    handleTabLine={handleTabLine}
-                    activeChannelNumber={activeChannelNumber}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div>
-              {localStatePhone.displayCalls.map((displayCall, key) => (
-                <div
-                  key={displayCall.id}
-                  style={{
-                    display:
-                      activeChannelNumber === displayCall.id
-                        ? ' block'
-                        : 'none',
-                  }}
+                  <Button
+                    square
+                    size="x64"
+                    margin="x1"
+                    disabled={inCall ? false : true}
+                    onClick={() => handleCallAttendedTransfer('transfer')}
+                  >
+                    <Icon name="arrow-loop" size="x36" />
+                  </Button>
+                </Fragment>
+              ) : (
+                <Button
+                  square
+                  size="x64"
+                  margin="x1"
+                  disabled={inCall ? false : true}
+                  onClick={() => handleCallAttendedTransfer('finish')}
                 >
-                  <div className="flex-row">
-                    <div>
-                      <DialButton handleDial={handleDial} />
-                    </div>
-                    <div>
-                      <MicButton muted={muted} handleMicMute={handleMicMute} />
-                    </div>
-                    <div>
-                      <HoldButton
-                        sessionId={displayCall.sessionId}
-                        hold={hold}
-                        handleHold={handleHold}
-                      />
-                    </div>
-
-                    {displayCall.transferControl ? (
-                      <div>
-                        <AttendedTransferButtonFinish
-                          handleCallAttendedTransfer={
-                            handleCallAttendedTransfer
-                          }
-                        />
-                      </div>
-                    ) : null}
-
-                    {!displayCall.transferControl ? (
-                      <div>
-                        <TransferButton
-                          handleCallTransfer={handleCallTransfer}
-                        />
-                      </div>
-                    ) : null}
-                    {!displayCall.transferControl ? (
-                      <div>
-                        <AttendedTransferButton
-                          handleCallAttendedTransfer={
-                            handleCallAttendedTransfer
-                          }
-                        />
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="flex-row">
-                    <InfoBlock
-                      displayCall={displayCall}
-                      localStatePhone={localStatePhone}
-                      activeChannelNumber={activeChannelNumber}
-                      setActiveChannel={setActiveChannel}
-                    />
-                  </div>
-                  {displayCall.inCall ? (
-                    <div className="flex-row">
-                      <EndButton
-                        sessionId={displayCall.sessionId}
-                        handleEndCall={handleEndCall}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-row">
-          <KeypadBlock
-            viewKeyPad={viewKeyPad}
-            handlePressKey={handlePressKey}
-          />
-        </div>
-      </div>
-    </div>
+                  <Icon name="arrow-collapse" size="x36" />
+                </Button>
+              )}
+            </Box>
+            <Box display="flex" justifyContent="center">
+              <KeypadBlock
+                viewKeyPad={viewKeyPad}
+                handlePressKey={handlePressKey}
+              />
+            </Box>
+            <Box display="flex" justifyContent="center">
+              <InfoBlock
+                displayCall={displayCall}
+                localStatePhone={localStatePhone}
+                activeChannelNumber={activeChannelNumber}
+                setActiveChannel={setActiveChannel}
+              />
+            </Box>
+            <Box display="flex" justifyContent="center">
+              {displayCall.inCall ? (
+                <Button
+                  mi="5"
+                  minWidth="x100"
+                  primary
+                  danger
+                  onClick={handleEndCall}
+                >
+                  <Icon name="phone-off" size="x20" />
+                </Button>
+              ) : null}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Fragment>
   )
 }
 

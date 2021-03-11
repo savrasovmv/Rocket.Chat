@@ -1,0 +1,327 @@
+    <div className="flex-column">
+      <NavBar
+        connectedPhone={localStatePhone.connectedPhone}
+        connectingPhone={localStatePhone.connectingPhone}
+        isSettings={isSettings}
+        setIsSettings={setIsSettings}
+        ipPhone={ipPhone}
+      />
+
+      <div className="flex-row">
+        <div className="flex-block-phone">
+          {/*<div className="key-button" onClick={handleCall}>Call</div>
+                <div className="key-button" onClick={handleEndCall}>EndCall</div>*/}
+          {/*<div onClick={handleAnswer} value={localStatePhone.sessionId}>Answer</div>*/}
+
+          {notificationState.open ? (
+            <div className="toast">
+              {notificationState.message}
+              <button
+                className="toast__close"
+                type="button"
+                onClick={handleClose}
+              >
+                &times;
+              </button>
+            </div>
+          ) : null}
+
+          <CallQueue
+            calls={localStatePhone.phoneCalls}
+            handleAnswer={handleAnswer}
+            handleReject={handleReject}
+          />
+
+          <PhoneBlock
+            handleCallAttendedTransfer={handleCallAttendedTransfer}
+            handleCallTransfer={handleCallTransfer}
+            handleMicMute={handleMicMute}
+            handleHold={handleHold}
+            handleCall={handleCall}
+            handleEndCall={handleEndCall}
+            handlePressKey={handlePressKey}
+            activeChannelNumber={activeChannelNumber}
+            activeChannel={localStatePhone.displayCalls[activeChannelNumber]}
+            handleSettingsButton={handleSettingsButton}
+            dialState={dialState}
+            setdialState={setdialState}
+            handleDialStateChange={handleDialStateChange}
+            setLocalStatePhone={setLocalStatePhone}
+            setActiveChannel={setActiveChannel}
+            localStatePhone={localStatePhone}
+          />
+
+          <HistoryBlock handleLists={handleLists} handleCall={handleCall} />
+        </div>
+
+        {isSettings === true ? (
+          <div className="flex-block-settings">
+            <SettingsBlock
+              localMediaDevices={localMediaDevices}
+              audioElement={player.current}
+              notify={notify}
+              hangleSettings={hangleSettings}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <div hidden>
+        <audio id="audio" preload="auto" ref={player} />
+      </div>
+      <div hidden>
+        <audio preload="auto" ref={ringer} />
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <div className="flex-column">
+
+        <div >Настройки</div>
+
+        <div>
+
+          <table>
+          <tbody>
+          <tr>
+            <td>
+              Микрофон:
+            </td>
+            <td>
+              <select value={defaultInDevices} onChange={handleInDevices}>
+                  {localMediaDevices !==false ? (
+
+                          localMediaDevices.filter((devices) => devices.kind === 'audioinput').map((devices, key) => (
+
+
+                                   <option key={key} value={devices.deviceId}>{devices.label}</option>
+
+
+                          ))
+
+
+                    ): null}
+              </select>
+
+            </td>
+          </tr>
+          <tr>
+            <td>
+
+              Аудиовыход:
+            </td>
+            <td>
+              <select value={defaultOutDevices} onChange={handleOutDevices}>
+                  {localMediaDevices !==false ? (
+
+                          localMediaDevices.filter((devices) => devices.kind === 'audiooutput').map((devices, key) => (
+
+
+                                   <option key={key} value={devices.deviceId}>{devices.label}</option>
+
+
+                          ))
+
+
+                    ): null}
+              </select>
+            </td>
+          </tr>
+          </tbody>
+          </table>
+
+          <button className="panel-button  panel-button-min" onClick={handleSaveSettings}>
+
+              Сохранить
+
+          </button>
+        </div>
+    </div>
+
+
+
+
+    <div className="flex-row">
+      {calls.map(call => {
+        const parsedCaller = call.callNumber.split('-');
+        return (
+          <div key={call.sessionId}>
+
+
+                {parsedCaller[0] ? (<div>Вызов:{parsedCaller[0]}</div>):<div/>}
+                {parsedCaller[1] ? (<div>Jurisdiction:{parsedCaller[1]}</div>):<div/>}
+                {parsedCaller[2] ? (<div>Номер:{parsedCaller[2]}</div>):<div/>}
+
+
+
+                <button className="panel-button call-button panel-button-min" onClick={handleAnswer}  value={call.sessionId}>
+
+                      <img className="img-button" src={call_icon}/>
+
+                </button>
+                <button className="panel-button end-button panel-button-min" onClick={handleReject} value={call.sessionId}>
+
+                      <img className="img-button" src={end_icon}/>
+
+                </button>
+
+          </div>
+
+
+
+        );
+      })}
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div>
+      <div>
+        <div className="flex-row">
+          {/*<SearchInput
+                        placeholder='Номер или имя абонента'
+                        value={dialState}
+                        onChange={handleDialStateChange}
+                  />*/}
+          <SearchInput
+            maxWidth={500}
+            placeholder="Номер или имя абонента"
+            value={dialState}
+            onChange={handleSearch}
+          />
+
+          {!inCall ? (
+            <Button primary success onClick={handleCall}>
+              {' '}
+              <Icon name="phone" size="x20" />
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="flex-row">
+          <div className="flex-column">
+            <SearchBlock
+              handleSearchCall={handleSearchCall}
+              users={users}
+              typeNumSearch={typeNumSearch}
+              search={dialState}
+            />
+
+            <div className="flex-row tab-sipline">
+              {localStatePhone.displayCalls.map((displayCall, key) => (
+                <div key={displayCall.id}>
+                  <LineButton
+                    localStatePhone={localStatePhone}
+                    displayCall={displayCall}
+                    handleTabLine={handleTabLine}
+                    activeChannelNumber={activeChannelNumber}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              {localStatePhone.displayCalls.map((displayCall, key) => (
+                <div
+                  key={displayCall.id}
+                  style={{
+                    display:
+                      activeChannelNumber === displayCall.id
+                        ? ' block'
+                        : 'none',
+                  }}
+                >
+                  <div className="flex-row">
+                    <div>
+                      <DialButton handleDial={handleDial} />
+                    </div>
+                    <div>
+                      <MicButton muted={muted} handleMicMute={handleMicMute} />
+                    </div>
+                    <div>
+                      <HoldButton
+                        sessionId={displayCall.sessionId}
+                        hold={hold}
+                        handleHold={handleHold}
+                      />
+                    </div>
+
+                    {displayCall.transferControl ? (
+                      <div>
+                        <AttendedTransferButtonFinish
+                          handleCallAttendedTransfer={
+                            handleCallAttendedTransfer
+                          }
+                        />
+                      </div>
+                    ) : null}
+
+                    {!displayCall.transferControl ? (
+                      <div>
+                        <TransferButton
+                          handleCallTransfer={handleCallTransfer}
+                        />
+                      </div>
+                    ) : null}
+                    {!displayCall.transferControl ? (
+                      <div>
+                        <AttendedTransferButton
+                          handleCallAttendedTransfer={
+                            handleCallAttendedTransfer
+                          }
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="flex-row">
+                    <InfoBlock
+                      displayCall={displayCall}
+                      localStatePhone={localStatePhone}
+                      activeChannelNumber={activeChannelNumber}
+                      setActiveChannel={setActiveChannel}
+                    />
+                  </div>
+                  {displayCall.inCall ? (
+                    <div className="flex-row">
+                      <EndButton
+                        sessionId={displayCall.sessionId}
+                        handleEndCall={handleEndCall}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-row">
+          <KeypadBlock
+            viewKeyPad={viewKeyPad}
+            handlePressKey={handlePressKey}
+          />
+        </div>
+      </div>
+    </div>
