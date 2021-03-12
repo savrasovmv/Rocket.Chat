@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
+import { Box, Label } from '@rocket.chat/fuselage'
 
 const LineInfoBlock = ({ displayCall, duration }) => {
   const secondsToHms = (d) => {
@@ -15,6 +16,66 @@ const LineInfoBlock = ({ displayCall, duration }) => {
   }
 
   if (displayCall.inCall === true) {
+    return (
+      <Fragment>
+        <Box display="flex" flexDirection="column" m="x10">
+          <Box m="x5" fontSize="x14">
+            {displayCall.inTransfer ? 'inTransfer' : 'not inTransfer'}
+            {displayCall.allowAttendedTransfer
+              ? 'Allow Transfer'
+              : 'Not Allow Transfer'}
+          </Box>
+          {displayCall.hold ? (
+            <Box m="x5" fontSize="x18">
+              На удержании
+            </Box>
+          ) : null}
+          <Box m="x5" fontSize="x18">
+            {displayCall.callInfo === 'Answer' ? 'Разговор' : null}
+            {displayCall.callInfo === 'In Call' ? 'Вызывается' : null}
+            {displayCall.callInfo === 'Attended Transfering...'
+              ? 'Переадресация'
+              : null}
+
+            {displayCall.callInfo === 'Transfering...'
+              ? 'Перевод звонка'
+              : null}
+          </Box>
+          {displayCall.inTransfer ? (
+            <Box m="x5" fontSize="x18">
+              Перевод звонка на {displayCall.transferNumber}
+            </Box>
+          ) : null}
+          <Box m="x5" fontSize="x14">
+            {displayCall.direction === 'outgoing'
+              ? 'Исходящий вызов'
+              : 'Входящий вызов'}
+          </Box>
+          <Box m="x5" fontSize="x14">
+            {displayCall.callNumber}
+          </Box>
+          <Box m="x5" fontSize="x14">
+            {displayCall.inAnswer ? secondsToHms(duration) : null}
+          </Box>
+
+          {displayCall.inTransfer ? (
+            <Box m="x5" fontSize="x14">
+              Перевод звонка на: {displayCall.transferNumber}
+            </Box>
+          ) : null}
+
+          <Box m="x5" fontSize="x14">
+            {displayCall.attendedTransferOnline.length > 1 &&
+            !displayCall.inConference ? (
+              <span>
+                {'Talking with :'} {displayCall.attendedTransferOnline}
+              </span>
+            ) : null}
+          </Box>
+        </Box>
+      </Fragment>
+    )
+
     if (displayCall.inAnswer === true) {
       if (displayCall.hold === true) {
         // Show hold Call info
@@ -187,14 +248,10 @@ export const InfoBlock = ({
   })
 
   return (
-    <div>
-      <div className="flex-container info-block">
-        <LineInfoBlock
-          displayCall={displayCall}
-          duration={duration[displayCall.id].duration}
-        />
-      </div>
-    </div>
+    <LineInfoBlock
+      displayCall={displayCall}
+      duration={duration[displayCall.id].duration}
+    />
   )
 }
 

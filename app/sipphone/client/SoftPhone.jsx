@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect, createRef } from 'react'
 import { Meteor } from 'meteor/meteor'
 import { render } from 'react-dom'
 import CallsFlowControl from './CallsFlowControl'
+import { SipPhone } from './SipPhone'
 import { StatusBlock } from './phoneBlocks/StatusBlock'
 import { CallQueue } from './phoneBlocks/CallQueue'
 import { KeypadBlock } from './phoneBlocks/KeypadBlock'
@@ -334,21 +335,38 @@ export const SoftPhone = ({
             },
           ],
         }))
+        //document.visibilityState !== 'visible'
+        console.log(
+          'STYLE====',
+          document.getElementsByClassName('sipphone-box')[0].style.display
+        )
         if (
-          document.visibilityState !== 'visible' &&
+          (document.getElementsByClassName('sipphone-box')[0].style.display ===
+            'none' ||
+            document.getElementsByClassName('sipphone-box')[0].style.display ===
+              '') &&
           localStatePhone.notifications
         ) {
           const notification = new Notification('Incoming Call', {
+            requireInteraction: true, //Постоянно отображается
             icon: '/call-icon.png',
-            body: `Caller: ${
+            body: `Входящий вызов: ${
               payload.remote_identity.display_name !== ''
                 ? `${payload.remote_identity.display_name || ''}`
                 : payload.remote_identity.uri.user
             }`,
           })
           notification.onclick = function () {
+            document.getElementsByClassName('sipphone-box')[0].style.display =
+              'flex'
+            document.getElementsByClassName(
+              'rc-old main-content content-background-color'
+            )[0].style.display = 'none'
+
+            handleAnswer(payload.id)
             window.parent.focus()
             window.focus() // just in case, older browsers
+
             this.close()
           }
         }
@@ -367,7 +385,7 @@ export const SoftPhone = ({
           direction: payload.direction,
           sessionId: payload.id,
           callNumber: payload.remote_identity.uri.user,
-          callInfo: 'Вызываю',
+          callInfo: 'In Call',
         }
         // Save new object into the array with display calls
 
@@ -496,7 +514,7 @@ export const SoftPhone = ({
                   inCall: true,
                   inAnswer: true,
                   hold: false,
-                  callInfo: 'Разговор',
+                  callInfo: 'Answer',
                 }
               : a
           ),
@@ -712,7 +730,7 @@ export const SoftPhone = ({
 
   const handleAnswer = (sessionId) => {
     //event.persist();
-
+    console.log('hendleAnsver sessionID: ', sessionId)
     if (localStatePhone.displayCalls[activeChannelNumber].inCall === false) {
       flowRoute.answer(sessionId)
     } else {
@@ -782,20 +800,16 @@ export const SoftPhone = ({
     }
   }
 
-  const handleCallAttendedTransfer = (event) => {
-    console.log('handleCallAttendedTransfer')
-    console.log(event)
-    switch (event) {
-      case 'transfer':
-        const transferNumber =
-          localStatePhone.displayCalls[activeChannelNumber].callNumber
+  const asyncSetLocalState = async (type, id, transferNumber = '') => {
+    switch (type) {
+      case 'inTransfer':
         setLocalStatePhone((prevState) => ({
           ...prevState,
           displayCalls: _.map(localStatePhone.displayCalls, (a) =>
-            a.id === activeChannelNumber
+            a.id === id
               ? {
                   ...a,
-                  transferNumber: dialState,
+                  transferNumber: transferNumber,
                   allowAttendedTransfer: false,
                   allowTransfer: false,
                   transferControl: true,
@@ -806,6 +820,62 @@ export const SoftPhone = ({
               : a
           ),
         }))
+        console.log('00000000000000000000000000000000000')
+        break
+      case 'outTransfer':
+        setLocalStatePhone((prevState) => ({
+          ...prevState,
+          displayCalls: _.map(localStatePhone.displayCalls, (a) =>
+            a.id === id
+              ? {
+                  ...a,
+                  transferNumber: transferNumber,
+                  allowAttendedTransfer: false,
+                  allowTransfer: false,
+                  transferControl: true,
+                  allowFinishTransfer: true,
+                  callInfo: 'Attended Transfering...',
+                  inTransfer: false,
+                }
+              : a
+          ),
+        }))
+        console.log('111111111111111111111111111111111')
+        break
+    }
+  }
+  const handleCallAttendedTransfer = (event) => {
+    console.log('handleCallAttendedTransfer')
+    console.log(event)
+    switch (event) {
+      case 'transfer':
+        const transferNumber =
+          localStatePhone.displayCalls[activeChannelNumber].callNumber
+        console.log(
+          '++++++++++++++++++++++++++++++++++++++++++++++++++++ activeChannelNumber',
+          activeChannelNumber
+        )
+        asyncSetLocalState('inTransfer', activeChannelNumber, dialState)
+        // setLocalStatePhone((prevState) => ({
+        //   ...prevState,
+        //   displayCalls: _.map(localStatePhone.displayCalls, (a) =>
+        //     a.id === activeChannelNumber
+        //       ? {
+        //           ...a,
+        //           transferNumber: dialState,
+        //           allowAttendedTransfer: false,
+        //           allowTransfer: false,
+        //           transferControl: true,
+        //           allowFinishTransfer: false,
+        //           callInfo: 'Attended Transfering...',
+        //           inTransfer: true,
+        //         }
+        //       : a
+        //   ),
+        // }))
+        console.log('localStatePhone1111')
+        console.log(localStatePhone)
+        //break
         console.log('Trasfer to: ' + dialState)
         console.log(flowRoute.activeCall)
 
@@ -815,13 +885,13 @@ export const SoftPhone = ({
         if (freeLine.length > 0) {
           const newActiveCall = freeLine[0].id
           transferLine = flowRoute.activeChannel
-          if (
-            localStatePhone.displayCalls[activeChannelNumber].hold === false
-          ) {
-            flowRoute.hold(
-              localStatePhone.displayCalls[activeChannelNumber].sessionId
-            )
-          }
+          // if (
+          //   localStatePhone.displayCalls[activeChannelNumber].hold === false
+          // ) {
+          //   flowRoute.hold(
+          //     localStatePhone.displayCalls[activeChannelNumber].sessionId
+          //   )
+          // }
 
           console.log('*********** holdCallsQueue')
           console.log(flowRoute.holdCallsQueue[0])
@@ -837,23 +907,27 @@ export const SoftPhone = ({
           console.log('+++++++activeChannel')
           console.log(flowRoute.activeChannel)
           //flowRoute.call(dialState);
-          setLocalStatePhone((prevState) => ({
-            ...prevState,
-            displayCalls: _.map(localStatePhone.displayCalls, (a) =>
-              a.id === newActiveCall
-                ? {
-                    ...a,
-                    transferNumber: transferNumber,
-                    allowAttendedTransfer: false,
-                    allowTransfer: false,
-                    transferControl: true,
-                    allowFinishTransfer: false,
-                    callInfo: 'Attended Transfering...',
-                    inTransfer: false,
-                  }
-                : a
-            ),
-          }))
+          asyncSetLocalState('outTransfer', newActiveCall)
+          // setLocalStatePhone((prevState) => ({
+          //   ...prevState,
+          //   displayCalls: _.map(localStatePhone.displayCalls, (a) =>
+          //     a.id === newActiveCall
+          //       ? {
+          //           ...a,
+          //           transferNumber: transferNumber,
+          //           allowAttendedTransfer: false,
+          //           allowTransfer: false,
+          //           transferControl: true,
+          //           allowFinishTransfer: true,
+          //           callInfo: 'Attended Transfering...',
+          //           inTransfer: false,
+          //         }
+          //       : a
+          //   ),
+          // }))
+          console.log('localStatePhone2222')
+          console.log(localStatePhone)
+          //handleCall()
         } else {
           notify('Все линии заняты')
         }
@@ -885,16 +959,20 @@ export const SoftPhone = ({
         break
       case 'finish':
         console.log('Start finishing transfer')
+        console.log('localStatePhone333')
+        console.log(localStatePhone)
         console.log(
           'localStatePhone.displayCalls[activeChannelNumber].transferNumber'
         )
         console.log(
           localStatePhone.displayCalls[activeChannelNumber].transferNumber
         )
+        console.log('lineNumbelocalStatePhonerCallTransfer')
+        console.log(localStatePhone)
         const lineNumberCallTransfer = localStatePhone.displayCalls.filter(
-          (item) =>
-            item.callNumber ===
-            localStatePhone.displayCalls[activeChannelNumber].transferNumber
+          (item) => item.inTransfer === true
+          // item.callNumber ===
+          // localStatePhone.displayCalls[activeChannelNumber].transferNumber
         )
         console.log('lineNumberCallTransfer')
         console.log(lineNumberCallTransfer)
@@ -908,9 +986,9 @@ export const SoftPhone = ({
           if (transferChannel) {
             const opt = {
               replaces: transferChannel,
-              callNumber:
-                localStatePhone.displayCalls[activeChannelNumber]
-                  .transferNumber,
+              callNumber: lineNumberCallTransfer[0].callNumber,
+              // localStatePhone.displayCalls[activeChannelNumber]
+              //   .transferNumber,
               mediaConstraints: {
                 audio: true,
               },
@@ -1017,6 +1095,7 @@ export const SoftPhone = ({
       <Box
         display="flex"
         flexDirection="column"
+
         // flexGrow={1}
         // flexShrink={1}
         // mis="x24"
@@ -1035,7 +1114,14 @@ export const SoftPhone = ({
             {notificationState.message}
           </Callout>
         ) : null}
-
+        {isSettings === true ? (
+          <SettingsBlock
+            localMediaDevices={localMediaDevices}
+            audioElement={player.current}
+            notify={notify}
+            hangleSettings={hangleSettings}
+          />
+        ) : null}
         <CallQueue
           calls={localStatePhone.phoneCalls}
           handleAnswer={handleAnswer}
@@ -1061,18 +1147,7 @@ export const SoftPhone = ({
         />
         <HistoryBlock handleLists={handleLists} handleCall={handleCall} />
       </Box>
-      <Box>
-        {isSettings === true ? (
-          <div className="flex-block-settings">
-            <SettingsBlock
-              localMediaDevices={localMediaDevices}
-              audioElement={player.current}
-              notify={notify}
-              hangleSettings={hangleSettings}
-            />
-          </div>
-        ) : null}
-      </Box>
+      <Box></Box>
       <div hidden>
         <audio id="audio" preload="auto" ref={player} />
       </div>

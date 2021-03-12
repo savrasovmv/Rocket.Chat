@@ -71,6 +71,7 @@ export const SipPage = () => {
     // <div className="sipphone-box">
     //   <div className="sip-page-container">
     //<Box bg="default" display="flex" flexDirection="column">
+
     <SoftPhone config={config} ipPhone={ipPhone} />
   ) : null
   //</Box>

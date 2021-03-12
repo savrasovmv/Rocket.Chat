@@ -284,12 +284,17 @@ export const PhoneBlock = ({
         </Tabs>
       </Box>
 
-      <Box display="flex" justifyContent="center">
+      <Box
+        display="flex"
+        justifyContent="center"
+        bg={inCall ? 'hint' : 'alternative'}
+      >
         {localStatePhone.displayCalls.map((displayCall, key) => (
           <Box
             display={activeChannelNumber === displayCall.id ? 'flex' : 'none'}
             flexDirection="column"
             justifyContent="center"
+            m="x10"
             key={displayCall.id}
           >
             {/* Группа кнопок */}
@@ -326,7 +331,11 @@ export const PhoneBlock = ({
                     square
                     size="x64"
                     margin="x1"
-                    disabled={inCall ? false : true}
+                    disabled={
+                      displayCall.allowTransfer && dialState === ''
+                        ? true
+                        : false
+                    }
                     onClick={handleCallTransfer}
                   >
                     <Icon name="arrow-jump" size="x36" />
@@ -336,7 +345,11 @@ export const PhoneBlock = ({
                     square
                     size="x64"
                     margin="x1"
-                    disabled={inCall ? false : true}
+                    disabled={
+                      displayCall.allowAttendedTransfer && dialState === ''
+                        ? true
+                        : false
+                    }
                     onClick={() => handleCallAttendedTransfer('transfer')}
                   >
                     <Icon name="arrow-loop" size="x36" />
@@ -347,7 +360,7 @@ export const PhoneBlock = ({
                   square
                   size="x64"
                   margin="x1"
-                  disabled={inCall ? false : true}
+                  disabled={displayCall.allowFinishTransfer ? false : true}
                   onClick={() => handleCallAttendedTransfer('finish')}
                 >
                   <Icon name="arrow-collapse" size="x36" />

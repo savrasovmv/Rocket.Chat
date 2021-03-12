@@ -74,7 +74,15 @@ export const SipPhone = () => {
     //   window.open('http://stackoverflow.com/a/13328397/1269037')
     // }
 
-    console.log('Click Telephone')
+    console.log('Click Telephone isView', isView)
+    if (
+      document.getElementsByClassName('sipphone-box')[0].style.display ===
+        'flex' &&
+      !isView
+    ) {
+      console.log('Уже видимый')
+      setIsView(true)
+    }
     if (isView) {
       document.getElementsByClassName('sipphone-box')[0].style.display = 'none'
       document.getElementsByClassName(

@@ -67,22 +67,23 @@ export const SettingsBlock = ({
   }
 
   return (
-    <Sidebar.TopBar.ToolBox>
-      <Sidebar.TopBar.Title>Настройки</Sidebar.TopBar.Title>
-
+    <Box>
+      <Sidebar.Section.Title>Настройки</Sidebar.Section.Title>
       <Sidebar.Item>
-        <Label>Микрофон:</Label>
-        <select value={defaultInDevices} onChange={handleInDevices}>
-          {localMediaDevices !== false
-            ? localMediaDevices
-                .filter((devices) => devices.kind === 'audioinput')
-                .map((devices, key) => (
-                  <option key={key} value={devices.deviceId}>
-                    {devices.label}
-                  </option>
-                ))
-            : null}
-        </select>
+        <Sidebar.Item.Content>
+          <Label>Микрофон:</Label>
+          <select value={defaultInDevices} onChange={handleInDevices}>
+            {localMediaDevices !== false
+              ? localMediaDevices
+                  .filter((devices) => devices.kind === 'audioinput')
+                  .map((devices, key) => (
+                    <option key={key} value={devices.deviceId}>
+                      {devices.label}
+                    </option>
+                  ))
+              : null}
+          </select>
+        </Sidebar.Item.Content>
       </Sidebar.Item>
       <Sidebar.Item>
         <Label>Аудиовыход:</Label>
@@ -103,7 +104,7 @@ export const SettingsBlock = ({
           Сохранить
         </Button>
       </Sidebar.Item>
-    </Sidebar.TopBar.ToolBox>
+    </Box>
   )
 }
 

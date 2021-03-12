@@ -51,6 +51,7 @@ export const NavBar = ({
     }
 
     setIsSettings(isSettings)
+    console.log(isSettings)
   }
   return (
     <Sidebar.TopBar.Section>

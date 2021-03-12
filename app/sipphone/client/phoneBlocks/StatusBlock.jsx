@@ -15,13 +15,9 @@ export const StatusBlock = ({ connectingPhone, connectedPhone, ipPhone }) => {
 
   return (
     <Box>
-      <Avatar
-        url="https://www.flaticon.com/svg/vstatic/svg/15/15895.svg?token=exp=1615469038~hmac=d5cf489afbf64b1ba33a08fac31dfccf"
-        size="x28"
-      />
       {status ? <StatusBullet status={status} m="x10" /> : <StatusBullet />}
-      <Label m="x10" fontSize="x20">
-        {ipPhone}
+      <Label m="x10" fontSize="x16">
+        {ipPhone} - {Meteor.user().name}
       </Label>
     </Box>
   )
