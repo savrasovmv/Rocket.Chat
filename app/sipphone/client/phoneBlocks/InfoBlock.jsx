@@ -203,12 +203,12 @@ export const InfoBlock = ({
     setActiveChannel(index)
   }
   const handleTabChange = (event, newValue) => {
-    console.log('activeChannelNumber')
-    console.log(activeChannelNumber)
+    // console.log('activeChannelNumber')
+    // console.log(activeChannelNumber)
 
     newValue = event.currentTarget.value
-    console.log('newValue')
-    console.log(newValue)
+    // console.log('newValue')
+    // console.log(newValue)
     setActiveChannel(newValue)
   }
 

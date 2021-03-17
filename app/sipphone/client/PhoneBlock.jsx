@@ -115,41 +115,32 @@ export const PhoneBlock = ({
 
   const [viewKeyPad, setView] = useState(false)
 
-  const handleDial = (event) => {
-    if (viewKeyPad === false) {
-      setView(true)
-    } else {
-      setView(false)
-    }
-  }
+  const handleDial = () => setView((prev) => !prev)
+
+  // const handleDial = (event) => {
+  //   if (viewKeyPad === false) {
+  //     setView(true)
+  //   } else {
+  //     setView(false)
+  //   }
+  // }
 
   const handleTabChange = (event, newValue) => {
-    console.log('activeChannelNumber')
-    console.log(activeChannelNumber)
-
     newValue = event.currentTarget.value
-    console.log('newValue')
-    console.log(newValue)
+
     setActiveChannel(newValue)
   }
 
   const handleTabLine = (lineId) => {
-    console.log('activeChannelNumber')
-    console.log(activeChannelNumber)
-
     newValue = parseInt(lineId)
-    //newValue=parseInt(event);
-    console.log('newValue')
-    console.log(newValue)
+
     setActiveChannel(newValue)
   }
 
   const handleSearchCall = (number = '', event) => {
-    console.log('handleSearchCall')
-    console.log(number)
     setdialState(number)
     setUsers([])
-    console.log(dialState)
+
     setOpenSearch(false)
   }
 
@@ -163,16 +154,17 @@ export const PhoneBlock = ({
   }
 
   useEffect(() => {
-    if (openSearch) {
+    //console.log('Update search')
+    if (openSearch && !inCall) {
       const arr = []
-      console.log('Update search')
+      //console.log('Update search')
       if (dialState) {
-        console.log('====================================')
+        // console.log('====================================')
         if (/^[0-9]+$/.test(dialState)) {
-          console.log('Введены цифры')
+          //console.log('Введены цифры')
           setTypeNumSearch(true)
         } else {
-          console.log('Введены буквы')
+          //console.log('Введены буквы')
           setTypeNumSearch(false)
         }
         //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
@@ -199,28 +191,10 @@ export const PhoneBlock = ({
                                   ]\
                               }',
         })
-        console.log(result)
-        console.log(result.resolve)
+
         result.then((resolve) => {
-          console.log('resolve++++')
-          console.log(resolve)
-          console.log(resolve.count)
           setUsers(resolve.users)
         })
-        //const { PromiseResult: data = { users }, phase: status } =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "'+search+'" } }'});
-        //console.log(status);
-        //console.log(result.users);
-        //users.forEach((user) => {
-
-        //arr.push(user);
-
-        //});
-
-        //console.log("arr");
-        //console.log(arr);
-
-        //setUsers(result);
-        //console.log(users.count());
       } else {
         setUsers([])
       }
@@ -229,13 +203,7 @@ export const PhoneBlock = ({
 
   const [searchOpen, setSearchOpen] = useState(false)
 
-  // const viewRef = useRef();
-  //const  users =  APIClient.v1.get('users.info', {username:"savrasovmv"})
-  //const  users =  APIClient.v1.get('users.list', {query: '{"ipPhone": {"$regex": "11" } }'})
-  //const  users =  APIClient.v1.get('spotlight', {})
-  //console.log("====================================");
-  //console.log(users);
-
+  console.log('Render')
   return (
     <Fragment>
       <Box display="flex" justifyContent="center" margin="x16">
@@ -276,7 +244,13 @@ export const PhoneBlock = ({
               selected={activeChannelNumber === displayCall.id ? true : false}
               onClick={() => handleTabLine(displayCall.id)}
               key={displayCall.id}
-              color={displayCall.inCall === true ? 'primary' : 'hint'}
+              color={
+                displayCall.hold
+                  ? 'warning'
+                  : displayCall.inCall === true
+                  ? 'primary'
+                  : 'hint'
+              }
             >
               Линия {displayCall.id + 1}{' '}
             </Tabs.Item>
@@ -319,7 +293,7 @@ export const PhoneBlock = ({
                 size="x64"
                 margin="x1"
                 disabled={inCall ? false : true}
-                onClick={handleHold}
+                onClick={() => handleHold(displayCall.sessionId)}
                 //data-tooltip="Удержание вызова"
               >
                 <Icon name={hold ? 'play' : 'pause'} size="x36" />
@@ -327,33 +301,46 @@ export const PhoneBlock = ({
               {/* <Tooltip  placement="bottom-start"> Удержание вызова </Tooltip> */}
               {!displayCall.transferControl ? (
                 <Fragment>
-                  <Button
-                    square
-                    size="x64"
-                    margin="x1"
-                    disabled={
-                      displayCall.allowTransfer && dialState === ''
-                        ? true
-                        : false
-                    }
-                    onClick={handleCallTransfer}
-                  >
-                    <Icon name="arrow-jump" size="x36" />
-                  </Button>
+                  {!displayCall.inTransfer ? (
+                    <Fragment>
+                      <Button
+                        square
+                        size="x64"
+                        margin="x1"
+                        disabled={
+                          !displayCall.allowTransfer || !displayCall.inCall
+                            ? true
+                            : false
+                        }
+                        onClick={handleCallTransfer}
+                      >
+                        <Icon name="arrow-jump" size="x36" />
+                      </Button>
 
-                  <Button
-                    square
-                    size="x64"
-                    margin="x1"
-                    disabled={
-                      displayCall.allowAttendedTransfer && dialState === ''
-                        ? true
-                        : false
-                    }
-                    onClick={() => handleCallAttendedTransfer('transfer')}
-                  >
-                    <Icon name="arrow-loop" size="x36" />
-                  </Button>
+                      <Button
+                        square
+                        size="x64"
+                        margin="x1"
+                        disabled={
+                          !displayCall.allowTransfer || !displayCall.inCall
+                            ? true
+                            : false
+                        }
+                        onClick={() => handleCallAttendedTransfer('transfer')}
+                      >
+                        <Icon name="arrow-loop" size="x36" />
+                      </Button>
+                    </Fragment>
+                  ) : (
+                    <Button
+                      square
+                      size="x64"
+                      margin="x1"
+                      onClick={() => handleCallAttendedTransfer('cancel')}
+                    >
+                      <Icon name="cancel" size="x36" />
+                    </Button>
+                  )}
                 </Fragment>
               ) : (
                 <Button

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { Meteor } from 'meteor/meteor'
 
 import { Mongo } from 'meteor/mongo'
@@ -16,6 +16,7 @@ import { APIClient } from '../../utils/client'
 
 import { SearchInput, Button, Icon } from '@rocket.chat/fuselage'
 import {
+  Avatar,
   Modal,
   Box,
   Item,
@@ -23,6 +24,7 @@ import {
   Sidebar,
   Option,
   Label,
+  StatusBullet,
 } from '@rocket.chat/fuselage'
 
 export const SipPhone = () => {
@@ -50,7 +52,7 @@ export const SipPhone = () => {
     result.then((resolve) => {
       const ipPhone = resolve.user.ipPhone
       if (ipPhone) {
-        console.log('Есть номера SIP:', ipPhone)
+        // console.log('Есть номера SIP:', ipPhone)
         setIsPhone(true)
       } else return
     })
@@ -74,13 +76,13 @@ export const SipPhone = () => {
     //   window.open('http://stackoverflow.com/a/13328397/1269037')
     // }
 
-    console.log('Click Telephone isView', isView)
+    //console.log('Click Telephone isView', isView)
     if (
       document.getElementsByClassName('sipphone-box')[0].style.display ===
         'flex' &&
       !isView
     ) {
-      console.log('Уже видимый')
+      //console.log('Уже видимый')
       setIsView(true)
     }
     if (isView) {
@@ -99,17 +101,27 @@ export const SipPhone = () => {
     //event.persist();
   }
 
-  return isPhone ? (
-    <Box>
-      <button
-        className="rc-box rcx-box--full rcx-sidebar-item rcx-sidebar-item--clickable"
-        onClick={handleCall}
-      >
-        <i className="icon-phone"></i>Телефон
-      </button>
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      width="100%"
+      //height="x36"
+      mbs="x8"
+      onClick={handleCall}
+    >
+      <Sidebar.Item clickable selected={isView}>
+        <Sidebar.Item.Content>
+          <Box marginInline="x10" marginBlock="x5">
+            <Avatar size="x16" url="icons/call-icon.svg" />
+          </Box>
+          <Sidebar.Item.Title>
+            <StatusBullet status="online" /> &nbsp;&nbsp;Телефон
+          </Sidebar.Item.Title>
+        </Sidebar.Item.Content>
+      </Sidebar.Item>
     </Box>
-  ) : null
-  //return (<SideNavButton onClick={() => handleSipPhone()}/>);
+  )
 }
 
 export default React.memo(SipPhone)

@@ -40,7 +40,7 @@ export const SettingsBlock = ({
   const handleOutDevices = (event) => {
     //event.persist();
     const newDevicesId = event.currentTarget.value
-    console.log(newDevicesId)
+    //console.log(newDevicesId)
     const promise = audioElement.setSinkId(newDevicesId)
 
     promise.then(
@@ -59,7 +59,7 @@ export const SettingsBlock = ({
 
   const handleSaveSettings = (event) => {
     //event.persist();
-    console.log('SAVE')
+    //console.log('SAVE')
 
     localStorage.defaultInDevices = defaultInDevices
     localStorage.defaultOutDevices = defaultOutDevices

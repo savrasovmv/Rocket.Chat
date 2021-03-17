@@ -16,6 +16,8 @@ import {
 } from '@rocket.chat/fuselage'
 import { WebSocketInterface } from 'jssip'
 
+console.log('Start STREAMER')
+
 export const SipPage = () => {
   const [config, setConfig] = useState(false)
   const [ipPhone, setIpPhone] = useState(false)
@@ -26,14 +28,28 @@ export const SipPage = () => {
   const wsPort = useSetting('SIPPhone_ws_port')
   const stunServers = useSetting('SIPPhone_STUN_Servers')
 
-  console.log('SipPage start')
+  //.log('SipPage start')
   if (!showSipPhone || !sipDomain || !wsServers) {
     console.log('SipPage Не определены параметры SIP')
     return <div></div>
   }
-  console.log('SipPage end')
+  //console.log('SipPage end')
+  // Meteor.call('sip.getHistory', [], (err, result) => {
+  //   if (err) {
+  //     console.log('err', err)
+  //   } else {
+  //     console.log(resolve(result))
+  //   }
+  // })
+  //const history = APIClient.v1.get('getSipHistory', {})
+  //console.log('getSipHistory', history)
 
   Meteor.startup(() => {
+    // console.log('getSipHistory')
+    // const history = APIClient.v1.get('sip.getHistory', {})
+    // history.then((resolve) => {
+    //   console.log('resolve', resolve)
+    // })
     const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
     result.then((resolve) => {
       // console.log('++++++resolve++++')
