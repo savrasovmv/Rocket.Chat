@@ -38,6 +38,7 @@ import { KeypadBlock } from './phoneBlocks/KeypadBlock.jsx'
 import { InfoBlock } from './phoneBlocks/InfoBlock.jsx'
 import { LineBlock } from './phoneBlocks/LineBlock.jsx'
 import { SearchBlock } from './phoneBlocks/SearchBlock.jsx'
+import { setStatusSIP } from './lib/streamer'
 
 const call_icon = '/icons/call-icon.svg'
 const end_icon = '/icons/end-icon.svg'
@@ -152,6 +153,14 @@ export const PhoneBlock = ({
     setOpenSearch(true)
     setdialState(event.target.value)
   }
+
+  useEffect(() => {
+    if (inCall) {
+      setStatusSIP('busy')
+    } else {
+      setStatusSIP('online')
+    }
+  }, [inCall])
 
   useEffect(() => {
     //console.log('Update search')

@@ -37,7 +37,7 @@ import {
 //import { SipHistoryCollection } from '../db/SipHistory'
 import { SipProvider, useSip } from './SipContext'
 
-import { setMissedSIP } from './lib/streamer'
+import { setMissedSIP, setStatusSIP } from './lib/streamer'
 
 //const SIPPhone_domain = useSetting('SIPPhone_domain')
 //console.log('SIPPhone_domain')

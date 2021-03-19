@@ -16,7 +16,13 @@ import {
 
 export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
   return (
-    <Box display="flex" justifyContent="center">
+    <Box
+      display="flex"
+      justifyContent="center"
+      // position="absolute"
+      // zIndex="99"
+      // invisible={false}
+    >
       {calls.map((call) => {
         const parsedCaller = call.callNumber.split('-')
         return (

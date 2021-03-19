@@ -3,8 +3,8 @@ import { Meteor } from 'meteor/meteor'
 import { Push } from '../../../push/server/push'
 
 export const streamerSipStatus = new Meteor.Streamer('sip')
-streamerSipStatus.allowRead('all')
-streamerSipStatus.allowWrite('all')
+streamerSipStatus.allowRead('logged')
+streamerSipStatus.allowWrite('logged')
 //streamerSipStatus.emit('setStatusSIP', status)
 
 streamerSipStatus.on('setStatusSIP', function (value) {
