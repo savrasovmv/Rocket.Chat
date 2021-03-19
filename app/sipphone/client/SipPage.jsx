@@ -3,18 +3,9 @@ import { Meteor } from 'meteor/meteor'
 import { SoftPhone } from './SoftPhone.jsx'
 import { useSetting } from '../../../client/contexts/SettingsContext'
 import { APIClient } from '../../utils/client'
-import {
-  Modal,
-  Box,
-  Item,
-  Content,
-  Sidebar,
-  Option,
-  Label,
-  Grid,
-  Tile,
-} from '@rocket.chat/fuselage'
+
 import { WebSocketInterface } from 'jssip'
+import { SipProvider, useSip } from './SipContext'
 
 console.log('Start STREAMER')
 
@@ -33,31 +24,12 @@ export const SipPage = () => {
     console.log('SipPage Не определены параметры SIP')
     return <div></div>
   }
-  //console.log('SipPage end')
-  // Meteor.call('sip.getHistory', [], (err, result) => {
-  //   if (err) {
-  //     console.log('err', err)
-  //   } else {
-  //     console.log(resolve(result))
-  //   }
-  // })
-  //const history = APIClient.v1.get('getSipHistory', {})
-  //console.log('getSipHistory', history)
 
   Meteor.startup(() => {
-    // console.log('getSipHistory')
-    // const history = APIClient.v1.get('sip.getHistory', {})
-    // history.then((resolve) => {
-    //   console.log('resolve', resolve)
-    // })
     const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
     result.then((resolve) => {
-      // console.log('++++++resolve++++')
-      // console.log(resolve)
-      // console.log(resolve.users)
-      // console.log(resolve.user.ipPhone)
       const resIpPhone = resolve.user.ipPhone
-      // console.log('ipPhone===', ipPhone)
+
       if (!config && resIpPhone !== 'false') {
         setIpPhone(resIpPhone)
         if (ipPhone) {
@@ -78,22 +50,14 @@ export const SipPage = () => {
           })
         }
       }
-      // console.log('CONFIG')
-      // console.log(config)
     })
   })
 
   return config && ipPhone ? (
-    // <div className="sipphone-box">
-    //   <div className="sip-page-container">
-    //<Box bg="default" display="flex" flexDirection="column">
-
-    <SoftPhone config={config} ipPhone={ipPhone} />
+    <SipProvider>
+      <SoftPhone config={config} ipPhone={ipPhone} />
+    </SipProvider>
   ) : null
-  //</Box>
-  // </div>
-  // </div>
-  null
 }
 
 export default SipPage

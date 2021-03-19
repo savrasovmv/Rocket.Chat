@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react'
 
-import { Box, StatusBullet, Label, Icon, Avatar } from '@rocket.chat/fuselage'
+import {
+  Box,
+  StatusBullet,
+  Label,
+  Icon,
+  Avatar,
+  Button,
+} from '@rocket.chat/fuselage'
 
+import { setStatusSIP } from './../lib/streamer'
 export const StatusBlock = ({ connectingPhone, connectedPhone, ipPhone }) => {
   const [status, setStatus] = useState('offline')
 
@@ -9,9 +17,21 @@ export const StatusBlock = ({ connectingPhone, connectedPhone, ipPhone }) => {
     if (!connectingPhone) {
       setStatus(connectedPhone ? 'online' : 'offline')
     } else {
-      setStatus(!connectedPhone ? false : 'busy')
+      setStatus(false)
     }
+    //setStatus(false)
   }, [connectingPhone, connectedPhone])
+
+  useEffect(() => {
+    console.log('Изменился СТАТУС:', status)
+    //streamer.emit('message', status)
+    if (status) {
+      console.log('SEND status:', status)
+      setStatusSIP(status)
+    }
+
+    // handleStatus(status)
+  }, [status])
 
   return (
     <Box>

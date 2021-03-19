@@ -222,20 +222,30 @@ export const PhoneBlock = ({
         ) : null}
       </Box>
       <Box display="flex" justifyContent="center">
-        {users.length > 0 ? (
-          <Scrollable smooth>
-            <Tile padding="none" height={200}>
-              <Box display="flex" flexDirection="column">
-                <SearchBlock
-                  handleSearchCall={handleSearchCall}
-                  users={users}
-                  typeNumSearch={typeNumSearch}
-                  search={dialState}
-                />
-              </Box>
-            </Tile>
-          </Scrollable>
-        ) : null}
+        <Box
+          paddingInlineEnd="x100"
+          style={{
+            position: 'absolute',
+            zIndex: '3',
+            insetInlineEnd: 'neg-x5',
+            //insetBlockStart: 'neg-x8',
+          }}
+        >
+          {users.length > 0 ? (
+            <Scrollable smooth>
+              <Tile padding="none" height={300}>
+                <Box display="flex" flexDirection="column">
+                  <SearchBlock
+                    handleSearchCall={handleSearchCall}
+                    users={users}
+                    typeNumSearch={typeNumSearch}
+                    search={dialState}
+                  />
+                </Box>
+              </Tile>
+            </Scrollable>
+          ) : null}
+        </Box>
       </Box>
       <Box display="flex" justifyContent="center" margin="x16">
         <Tabs>
@@ -274,38 +284,85 @@ export const PhoneBlock = ({
             {/* Группа кнопок */}
             <Box display="flex" flexDirection="row">
               {/* Кнопа цифровой панели */}
-              <Button square size="x64" margin="x1" onClick={handleDial}>
-                <Icon name="dialpad" size="x36" />
-              </Button>
+
+              <Box
+                size="x90"
+                fontSize="x12"
+                lineHeight="1.25"
+                color="info"
+                is={Button}
+                margin="x1"
+                onClick={handleDial}
+              >
+                <Box>
+                  <Icon name="dialpad" size="x36" />
+                </Box>
+
+                <Box>
+                  <small>Книпки</small>
+                </Box>
+                <Box>
+                  <small>набора</small>
+                </Box>
+              </Box>
               {/* Кнопа микрофона */}
-              <Button
-                square
-                size="x64"
+
+              <Box
+                size="x90"
+                fontSize="x12"
+                lineHeight="1.25"
+                color="info"
+                is={Button}
                 margin="x1"
                 disabled={inCall ? false : true}
                 onClick={handleMicMute}
+                fontSize="x12"
               >
-                <Icon name={muted ? 'mic-off' : 'mic'} size="x36" />
-              </Button>
+                <Box>
+                  <Icon name={muted ? 'mic-off' : 'mic'} size="x36" />
+                </Box>
+
+                <Box>
+                  <small>Вкл/Выкл</small>
+                </Box>
+                <Box>
+                  <small>микрофон</small>
+                </Box>
+              </Box>
               {/* Кнопа удержания */}
-              <Button
-                square
-                size="x64"
+
+              <Box
+                size="x90"
+                fontSize="x12"
+                lineHeight="1.25"
+                color="info"
+                is={Button}
                 margin="x1"
                 disabled={inCall ? false : true}
                 onClick={() => handleHold(displayCall.sessionId)}
-                //data-tooltip="Удержание вызова"
               >
-                <Icon name={hold ? 'play' : 'pause'} size="x36" />
-              </Button>
+                <Box>
+                  <Icon name={hold ? 'play' : 'pause'} size="x36" />
+                </Box>
+
+                <Box>
+                  <small>Удержание</small>
+                </Box>
+                <Box>
+                  <small>вызова</small>
+                </Box>
+              </Box>
               {/* <Tooltip  placement="bottom-start"> Удержание вызова </Tooltip> */}
               {!displayCall.transferControl ? (
                 <Fragment>
                   {!displayCall.inTransfer ? (
                     <Fragment>
-                      <Button
-                        square
-                        size="x64"
+                      <Box
+                        size="x90"
+                        fontSize="x12"
+                        lineHeight="1.25"
+                        color="info"
+                        is={Button}
                         margin="x1"
                         disabled={
                           !displayCall.allowTransfer || !displayCall.inCall
@@ -314,12 +371,24 @@ export const PhoneBlock = ({
                         }
                         onClick={handleCallTransfer}
                       >
-                        <Icon name="arrow-jump" size="x36" />
-                      </Button>
+                        <Box>
+                          <Icon name="arrow-jump" size="x36" />
+                        </Box>
 
-                      <Button
-                        square
-                        size="x64"
+                        <Box>
+                          <small>Перевод</small>
+                        </Box>
+                        <Box>
+                          <small>звонка</small>
+                        </Box>
+                      </Box>
+
+                      <Box
+                        size="x90"
+                        fontSize="x12"
+                        lineHeight="1.25"
+                        color="info"
+                        is={Button}
                         margin="x1"
                         disabled={
                           !displayCall.allowTransfer || !displayCall.inCall
@@ -328,30 +397,62 @@ export const PhoneBlock = ({
                         }
                         onClick={() => handleCallAttendedTransfer('transfer')}
                       >
-                        <Icon name="arrow-loop" size="x36" />
-                      </Button>
+                        <Box>
+                          <Icon name="arrow-loop" size="x36" />
+                        </Box>
+                        <Box>
+                          <small>Сопр.</small>
+                        </Box>
+                        <Box>
+                          <small>перевод</small>
+                        </Box>
+                      </Box>
                     </Fragment>
                   ) : (
-                    <Button
-                      square
-                      size="x64"
+                    <Box
+                      size="x90"
+                      fontSize="x12"
+                      lineHeight="1.25"
+                      color="info"
+                      is={Button}
                       margin="x1"
                       onClick={() => handleCallAttendedTransfer('cancel')}
                     >
-                      <Icon name="cancel" size="x36" />
-                    </Button>
+                      <Box>
+                        <Icon name="cancel" size="x36" />
+                      </Box>
+
+                      <Box>
+                        <small>Отменить</small>
+                      </Box>
+                      <Box>
+                        <small>перевод</small>
+                      </Box>
+                    </Box>
                   )}
                 </Fragment>
               ) : (
-                <Button
-                  square
-                  size="x64"
+                <Box
+                  size="x90"
+                  fontSize="x12"
+                  lineHeight="1.25"
+                  color="info"
+                  is={Button}
                   margin="x1"
                   disabled={displayCall.allowFinishTransfer ? false : true}
                   onClick={() => handleCallAttendedTransfer('finish')}
                 >
-                  <Icon name="arrow-collapse" size="x36" />
-                </Button>
+                  <Box>
+                    <Icon name="arrow-collapse" size="x36" />
+                  </Box>
+
+                  <Box>
+                    <small>Завершить</small>
+                  </Box>
+                  <Box>
+                    <small>перевод</small>
+                  </Box>
+                </Box>
               )}
             </Box>
             <Box display="flex" justifyContent="center">

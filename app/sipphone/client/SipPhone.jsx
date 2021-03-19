@@ -25,9 +25,17 @@ import {
   Option,
   Label,
   StatusBullet,
+  Badge,
 } from '@rocket.chat/fuselage'
 
+import { getStatusSIP, getMissedSIP } from './lib/streamer'
+
 export const SipPhone = () => {
+  //const { status } = useSip()
+
+  const [sipStatus, setSipStatus] = useState('offline')
+  const [missed, setMissed] = useState(0)
+
   const sipPhoneRoute = useRoute('sipphone')
   const showSipPhone = useSetting('SIPPhone_Enable')
   const sipDomain = useSetting('SIPPhone_domain')
@@ -36,13 +44,7 @@ export const SipPhone = () => {
 
   const [isView, setIsView] = useState(false)
   const [isPhone, setIsPhone] = useState(false)
-  const handleSipPhone = useMutableCallback(() => sipPhoneRoute.push({}))
-  /*const handleSipPhone = (event) => {
 
-        console.log("Click Call111:");
-        //document.getElementsByClassName('sipphone-box')[0].style.visibility = 'hidden';
-
-  };*/
   if (!showSipPhone || !sipDomain || !wsServers) {
     console.log('Не определены параметры SIP')
     return
@@ -58,25 +60,7 @@ export const SipPhone = () => {
     })
   }
 
-  // console.log('Meteor.userId()')
-  // console.log(Meteor.user.ipPhone)
-  // console.log(Meteor.user)
-
   const handleCall = (event) => {
-    //event.preventDefault();
-    /*AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AudioContext();*/
-    // var notification = new Notification('Notification title', {
-    //   icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-    //   body: "Hey there! You've been notified!",
-    //   requireInteraction: true, //Постоянно отображается
-    //   //actions: [{ action: 'archive', title: 'Archive' }],
-    // })
-    // notification.onclick = function () {
-    //   window.open('http://stackoverflow.com/a/13328397/1269037')
-    // }
-
-    //console.log('Click Telephone isView', isView)
     if (
       document.getElementsByClassName('sipphone-box')[0].style.display ===
         'flex' &&
@@ -97,9 +81,18 @@ export const SipPhone = () => {
         'rc-old main-content content-background-color'
       )[0].style.display = 'none'
       setIsView(true)
+      setMissed(0)
     }
     //event.persist();
   }
+
+  const handleMissed = () => {
+    console.log('GET MISSED')
+    setMissed(missed + 1)
+  }
+
+  getStatusSIP(setSipStatus)
+  getMissedSIP(handleMissed)
 
   return (
     <Box
@@ -116,7 +109,16 @@ export const SipPhone = () => {
             <Avatar size="x16" url="icons/call-icon.svg" />
           </Box>
           <Sidebar.Item.Title>
-            <StatusBullet status="online" /> &nbsp;&nbsp;Телефон
+            <Box display="inline-flex">
+              <Box marginInlineEnd="x10">
+                <StatusBullet status={sipStatus} /> &nbsp;&nbsp;Телефон
+              </Box>
+              {missed > 0 ? (
+                <Box size="x5">
+                  <Badge variant="danger">{missed}</Badge>
+                </Box>
+              ) : null}
+            </Box>
           </Sidebar.Item.Title>
         </Sidebar.Item.Content>
       </Sidebar.Item>

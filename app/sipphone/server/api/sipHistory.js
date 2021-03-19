@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { API } from '../../../api/server/api'
-import { SipHistoryCollection } from '../../db/SipHistory'
+import { SipHistoryCollection } from '../methods/sipHistory'
 
 API.v1.addRoute(
 	'sip.getHistory',
@@ -16,7 +16,7 @@ API.v1.addRoute(
 				{
 					userId: this.userId,
 				},
-				{ limit: 20, sort: { createdAt: -1 } }
+				{ limit: 30, sort: { createdAt: -1 } }
 			).fetch()
 			// Meteor.runAsUser(this.userId, () => {
 			// 	msg = Meteor.call('getSipHistory', {})
@@ -35,3 +35,14 @@ API.v1.addRoute(
 		},
 	}
 )
+
+// export const streamer = new Meteor.Streamer('sip')
+
+// console.log('Start STREAMER SERVER')
+// streamer.allowRead('all')
+// streamer.allowWrite('all')
+
+// streamer.on('message', function (sipStatus) {
+// 	console.log('sipStatus: ' + sipStatus)
+// 	streamer.emit('message1', sipStatus)
+// })

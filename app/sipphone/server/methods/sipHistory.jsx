@@ -2,10 +2,11 @@ import { Mongo } from 'meteor/mongo'
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 //import { SipHistoryCollection } from './../../client/api/SipHistory';
-import { SipHistoryCollection } from '../../db/SipHistory'
+//import { SipHistoryCollection } from '../../db/SipHistory'
 import { DDPRateLimiter } from 'meteor/ddp-rate-limiter'
 
 //export const SipHistoryCollection = new Mongo.Collection('siphistory');
+export const SipHistoryCollection = new Mongo.Collection('sip_history')
 
 Meteor.methods({
   'siphistory.insert'(status, direction, number) {

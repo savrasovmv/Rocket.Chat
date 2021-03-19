@@ -37,6 +37,8 @@ export const KeypadButton = ({ value, handleName, style = 'key-button' }) => {
 export const KeypadBlock = ({ viewKeyPad = false, handlePressKey }) => {
   return viewKeyPad ? (
     <Box
+      bg="neutral-500"
+      p="x3"
       style={{
         position: 'absolute',
         zIndex: '3',

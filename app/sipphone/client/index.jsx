@@ -1,4 +1,5 @@
 import './adapter'
+import './SipContext'
 import './SipPhone'
 import './api/SipHistory'
 import './subscribe'

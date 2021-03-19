@@ -12,29 +12,6 @@ import {
   Icon,
 } from '@rocket.chat/fuselage'
 
-//import './main.css';
-
-// export const SettingsButton = ({ isSettings, setIsSettings }) => {
-//   const handleSettingsButton = (event) => {
-//     //console.log(isSettings)
-//     if (isSettings) {
-//       isSettings = false
-//     } else {
-//       isSettings = true
-//     }
-
-//     setIsSettings(isSettings)
-//   }
-
-//   return (
-//     <Box>
-//       <Button square value={isSettings} onClick={handleSettingsButton}>
-//         <Icon name="cog" size="x20" />
-//       </Button>
-//     </Box>
-//   )
-// }
-
 export const NavBar = ({
   connectingPhone,
   connectedPhone,

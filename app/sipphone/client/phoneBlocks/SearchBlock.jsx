@@ -28,7 +28,7 @@ export const LineSearchBlock = ({
         justifyContent="space-between"
         flexDirection="row"
         maxWidth={600}
-        minWidth={300}
+        minWidth={500}
         onClick={(e) => handleSearchCall(number, e)}
       >
         <Box display="flex">{name} </Box>

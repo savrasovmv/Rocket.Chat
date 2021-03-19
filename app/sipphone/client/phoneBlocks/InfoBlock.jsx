@@ -19,12 +19,6 @@ const LineInfoBlock = ({ displayCall, duration }) => {
     return (
       <Fragment>
         <Box display="flex" flexDirection="column" m="x10">
-          <Box m="x5" fontSize="x14">
-            {displayCall.inTransfer ? 'inTransfer' : 'not inTransfer'}
-            {displayCall.allowAttendedTransfer
-              ? 'Allow Transfer'
-              : 'Not Allow Transfer'}
-          </Box>
           {displayCall.hold ? (
             <Box m="x5" fontSize="x18">
               На удержании
