@@ -737,8 +737,11 @@ export const SoftPhone = ({
   const handleEndCall = (event) => {
     //event.persist();
     //flowRoute.hungup(event.currentTarget.value);
-    /*console.log("activeChannelNumber");
-        console.log(activeChannelNumber);*/
+    console.log('activeChannelNumber', activeChannelNumber)
+    console.log(
+      'sessionId',
+      localStatePhone.displayCalls[activeChannelNumber].sessionId
+    )
 
     //Meteor.call('siphistory.insert', "22222222");
     flowRoute.hungup(

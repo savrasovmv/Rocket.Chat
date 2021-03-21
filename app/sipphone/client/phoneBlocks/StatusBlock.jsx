@@ -21,9 +21,9 @@ export const StatusBlock = ({
   useEffect(() => {
     if (!connectingPhone) {
       setStatus(connectedPhone ? 'online' : 'offline')
-      if (!connectedPhone) {
-        notify('Не удалось подключиться к серверу телефонии')
-      }
+      // if (!connectedPhone) {
+      //   notify('Не удалось подключиться к серверу телефонии')
+      // }
     } else {
       setStatus(false)
     }
