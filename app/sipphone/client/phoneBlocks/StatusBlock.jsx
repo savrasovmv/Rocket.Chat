@@ -10,12 +10,20 @@ import {
 } from '@rocket.chat/fuselage'
 
 import { setStatusSIP } from './../lib/streamer'
-export const StatusBlock = ({ connectingPhone, connectedPhone, ipPhone }) => {
+export const StatusBlock = ({
+  connectingPhone,
+  connectedPhone,
+  ipPhone,
+  notify,
+}) => {
   const [status, setStatus] = useState('offline')
 
   useEffect(() => {
     if (!connectingPhone) {
       setStatus(connectedPhone ? 'online' : 'offline')
+      if (!connectedPhone) {
+        notify('Не удалось подключиться к серверу телефонии')
+      }
     } else {
       setStatus(false)
     }

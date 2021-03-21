@@ -223,7 +223,7 @@ export const PhoneBlock = ({
           onChange={handleSearch}
         />
 
-        {!inCall ? (
+        {!inCall && localStatePhone.connectedPhone ? (
           <Button primary success onClick={handleCall} minWidth="x100" mis="x5">
             {' '}
             <Icon name="phone" size="x20" />

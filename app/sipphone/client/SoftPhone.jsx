@@ -1088,6 +1088,7 @@ export const SoftPhone = ({
           isSettings={isSettings}
           setIsSettings={setIsSettings}
           ipPhone={ipPhone}
+          notify={notify}
         />
 
         {notificationState.open ? (
