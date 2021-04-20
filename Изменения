@@ -4,12 +4,21 @@
 meteor npm install jssip
 meteor npm install lodash
 
+##########################################################
+Добавлены модули в
+importPacketge.js
+в каталогах Client  и  server
+import '../app/sipphone/server';
+import '../app/videobridge-call/server';
+
+
+##########################################################
 
 
 
 ##########################################################
 ##########################################################
-# 
+#
 # Для отображения доп инфы по сотруднику (Должность, тел и т.п ##########
 	company
 	physicalDeliveryOfficeName АУПТюмень
@@ -24,9 +33,9 @@ meteor npm install lodash
 
 app/ldap/server/sync.js
 
-		const whitelistedUserFields = [	'email', 
-										'name', 
-										'customFields', 
+		const whitelistedUserFields = [	'email',
+										'name',
+										'customFields',
 										'company',
 										'physicalDeliveryOfficeName',
 										'department',

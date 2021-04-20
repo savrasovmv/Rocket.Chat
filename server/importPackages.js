@@ -114,3 +114,4 @@ import '../app/livechat/server';
 import '../app/custom/server';
 import '../app/authentication/server';
 import '../app/sipphone/server';
+import '../app/videobridge-call/server';

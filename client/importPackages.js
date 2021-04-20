@@ -97,3 +97,4 @@ import '../app/meteor-autocomplete/client';
 import '../app/theme/client';
 import '../app/custom/client';
 import '../app/sipphone/client';
+import '../app/videobridge-call/client';

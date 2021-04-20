@@ -15,6 +15,7 @@ createTemplateForComponent('sidebarHeader', () => import('../../../client/sideba
 createTemplateForComponent('sidebarChats', () => import('../../../client/sidebar/RoomList'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
 createTemplateForComponent('sipPhone', () => import('../../sipphone/client/SipPhone'), { renderContainerView: () => HTML.DIV({ style: 'display: flex; flex: 1 1 auto;' }) });// eslint-disable-line new-cap
 createTemplateForComponent('SipPage', () => import('../../sipphone/client/SipPage'), { renderContainerView: () => HTML.DIV({ class: 'sipphone-box' }) });// eslint-disable-line new-cap
+createTemplateForComponent('JitsiCall', () => import('../../videobridge-call/client/JitsiCall'), { renderContainerView: () => HTML.DIV({ class: 'jitsicall-box' }) });// eslint-disable-line new-cap
 
 Template.sideNav.helpers({
 	flexTemplate() {

@@ -1,0 +1,18 @@
+.flex-tab2 {
+	.video-chat2 {
+		ul {
+			li {
+				margin-bottom: 20px;
+			}
+		}
+	}
+}
+
+.video-chat2 {
+	.main-video2 {
+		iframe {
+			width: 100%;
+			min-height: 299px;
+		}
+	}
+}

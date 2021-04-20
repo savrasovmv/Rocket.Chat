@@ -1,7 +1,8 @@
 .sipphone-box {
 	position: relative;
-	display: none;
 	z-index: 999;
+
+	display: none;
 
 	display: none;
 	flex-direction: column;
@@ -10,9 +11,10 @@
 	width: 80vw;
 
 	height: 100%;
+
 	background-color: white;
 
-	/*position: absolute;
+	/* position: absolute;
   left: 20%;
   right: 0px;
   top: 0px;
@@ -21,10 +23,11 @@
   display: none;
   background-color: white;
   border: 1px solid #ddd;
-  z-index: 999999;*/
+  z-index: 999999; */
 
-	/*position: sticky;*/
+	/* position: sticky; */
 }
+
 @media (width <= 780px) {
 	.sipphone-box {
 		width: 100vw;
@@ -98,13 +101,16 @@
 }
 
 .button {
-	font-weight: bold;
-	font-size: 1em;
-	border: none;
-	color: white;
-	box-shadow: 2px solid rgba(111, 41, 97, 0.5);
 	padding: 5px;
+
 	cursor: pointer;
+
+	color: white;
+	border: none;
+	box-shadow: 2px solid rgba(111, 41, 97, 0.5);
+
+	font-size: 1em;
+	font-weight: bold;
 }
 
 .sip-navbar-container {
@@ -112,22 +118,28 @@
 	flex-direction: row;
 	justify-content: space-between;
 }
+
 .sip-navbar-item {
-	padding: 10px;
-	background-color: rgba(111, 41, 97, 0.3);
-	border: 2px solid rgba(111, 41, 97, 0.5);
 	flex: 1 1 auto;
+
+	padding: 10px;
+
+	border: 2px solid rgba(111, 41, 97, 0.5);
+	background-color: rgba(111, 41, 97, 0.3);
 }
 
 .sip-header {
-	flex-grow: 1;
-	white-space: nowrap;
+	position: relative;
+
 	overflow: hidden;
+
+	padding: 15px;
+
+	white-space: nowrap;
 	text-overflow: ellipsis;
 
-	padding: 15px 15px 15px 15px;
-	position: relative;
-	box-shadow: 0 1px 0px #ddd;
+	box-shadow: 0 1px 0 #dddddd;
+	flex-grow: 1;
 }
 
 .sip-bar {
@@ -136,10 +148,12 @@
 }
 
 .sip-bar h1 {
-	font-size: 1.5em;
-	margin: 0;
 	display: inline-block;
+
+	margin: 0;
 	margin-right: 1em;
+
+	font-size: 1.5em;
 }
 
 .sip-online: {
@@ -153,152 +167,190 @@
 
 .key-button {
 	position: relative;
+
 	display: inline-block;
+
 	width: 4em;
 	height: 4em;
-	line-height: 2em;
-	vertical-align: middle;
+
 	text-align: center;
+	vertical-align: middle;
 	text-decoration: none;
-	color: #000;
-	outline: none;
+
+	color: #000000;
 	border-radius: 5px;
-	box-shadow: 0 0 0 1px #ddd inset, 0 1px 1px #fff;
+	outline: none;
+	box-shadow: 0 0 0 1px #dddddd inset, 0 1px 1px #ffffff;
+
+	line-height: 2em;
 }
+
 .key-button-big {
 	position: relative;
+
 	display: inline-block;
+
 	width: 4em;
 	height: 2em;
-	line-height: 2em;
-	vertical-align: middle;
+
 	text-align: center;
+	vertical-align: middle;
 	text-decoration: none;
-	color: #000;
-	outline: none;
+
+	color: #000000;
 	border-radius: 5px;
-	box-shadow: 0 0 0 1px #ddd inset, 0 1px 1px #fff;
+	outline: none;
+	box-shadow: 0 0 0 1px #dddddd inset, 0 1px 1px #ffffff;
+
+	line-height: 2em;
 }
+
 .key-button:hover {
 	background: #dcdcdc;
-	box-shadow: 0 0 0 1px #aaa inset, 0 1px 1px #aaa;
+	box-shadow: 0 0 0 1px #aaaaaa inset, 0 1px 1px #aaaaaa;
 }
+
 .key-button:active {
 	background: none;
-	box-shadow: 0 0 0 1px #bbb inset, 0 1px 3px rgba(0, 0, 0, 0.5) inset,
-		0 1px 2px #fff;
+	box-shadow:
+		0 0 0 1px #bbbbbb inset,
+		0 1px 3px rgba(0, 0, 0, 0.5) inset,
+		0 1px 2px #ffffff;
 }
 
 .icon {
 	position: absolute;
 	top: 40%;
 	left: 50%;
-	height: 50%;
-	transform: translate(-50%, -50%);
-	width: 10px;
-	height: 10px;
+
 	display: block;
+
+	width: 10px;
+	height: 50%;
+	height: 10px;
+
+	transform: translate(-50%, -50%);
 }
 
 .flex-row-room {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
-	align-items: stretch;
-	/*margin: 15px;*/
+
+	/* margin: 15px; */
 	min-width: 100%;
+	align-items: stretch;
+	justify-content: center;
 }
 
 .room-button {
 	flex: 1 100%;
-	font-size: 14px;
+
 	width: 100%;
 	height: 40px;
-	padding: 16px 16px;
+	padding: 16px;
 
-	/*border: 1px solid #e5e5e5;
+	font-size: 14px;
+
+	/* border: 1px solid #e5e5e5;
    color: transparent-light;
 
    text-decoration: none;
    vertical-align: middle;
    text-align: center;
-   line-height: 1.5*/
+   line-height: 1.5 */
 }
 
-/*.flex-row-room:hover {
+/* .flex-row-room:hover {
   background: #140f09;
   color: #d3d3d3;
 }
 */
 
 .panel-button11 {
-	padding: 16px 32px;
-	word-wrap: break-word;
 	position: relative;
+
 	display: inline-block;
+
 	width: 6em;
 	height: 6em;
-	line-height: 2em;
-	vertical-align: middle;
+	padding: 16px 32px;
+
 	text-align: center;
+	vertical-align: middle;
 	text-decoration: none;
-	color: #000;
-	outline: none;
+	word-wrap: break-word;
+
+	color: #000000;
 	border-radius: 5px;
-	box-shadow: 0 0 0 1px #ddd inset, 0 1px 1px #fff;
+	outline: none;
+	box-shadow: 0 0 0 1px #dddddd inset, 0 1px 1px #ffffff;
+
+	line-height: 2em;
 }
 
 .panel-button {
 	width: 80px;
 	height: 80px;
+
+	text-align: center;
+	vertical-align: middle;
+
+	/* font-family: helvetica, serif; */
+	text-decoration: none;
+
+	/* -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0; */
+
+	/* text-shadow: #575454 0 1px 0; */
+	color: #575454;
 	border: 1px solid #e5e5e5;
+
+	/* padding: 12px 24px; */
+	-webkit-border-radius: 1px;
+	-moz-border-radius: 1px;
+	border-radius: 1px;
 	background: #f7f7f7;
-	background: -webkit-gradient(
-		linear,
-		left top,
-		left bottom,
-		from(#f7f7f7),
-		to(#3e779d)
-	);
+	background:
+		-webkit-gradient(
+			linear,
+			left top,
+			left bottom,
+			from(#f7f7f7),
+			to(#3e779d)
+		);
 	background: -webkit-linear-gradient(top, #f7f7f7, #f7f7f7);
 	background: -moz-linear-gradient(top, #f7f7f7, #f7f7f7);
 	background: -ms-linear-gradient(top, #f7f7f7, #f7f7f7);
 	background: -o-linear-gradient(top, #f7f7f7, #f7f7f7);
 	background-image: -ms-linear-gradient(top, #f7f7f7 0%, #f7f7f7 100%);
-	/*padding: 12px 24px;*/
-	-webkit-border-radius: 1px;
-	-moz-border-radius: 1px;
-	border-radius: 1px;
-	/* -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-   -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
-   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;*/
-	/*text-shadow: #575454 0 1px 0;*/
-	color: #575454;
+
 	font-size: 12px;
-	/*font-family: helvetica, serif;*/
-	text-decoration: none;
-	vertical-align: middle;
-	text-align: center;
 	line-height: 1.5;
 }
 
 .panel-button7 {
-	background-color: white;
-	border: none;
-	color: #33333;
-	padding: 16px 32px;
-	text-align: center;
-	text-decoration: none;
 	display: inline-block;
-	font-size: 12px;
+
 	margin: 4px 2px;
+	padding: 16px 32px;
+
+	cursor: pointer;
 	-webkit-transition-duration: 0.4s; /* Safari */
 	transition-duration: 0.4s;
-	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+
+	color: #33333;
+	border: none;
+	background-color: white;
+
+	font-size: 12px;
 }
+
 .panel-button:hover {
+	color: #000000;
 	background: #d4d4d4;
-	color: #000;
 }
 
 .panel-button-min {
@@ -312,9 +364,9 @@
 }
 
 .panel-button4 {
-	background-color: white;
 	color: black;
 	border: 2px solid #e7e7e7;
+	background-color: white;
 }
 
 .panel-button4:hover {
@@ -322,39 +374,45 @@
 }
 
 .call-button {
-	text-decoration: none;
-	vertical-align: middle;
-	border: 1px solid #419444;
-	color: #d7fad8;
 	width: 80px;
-	background: #4caf50; /* Green */
+
+	/* border: 1px solid #429645; */
+	margin: 2px;
+
+	vertical-align: middle;
+	text-decoration: none;
+
+	color: #d7fad8;
+	border: 1px solid #419444;
 	-webkit-border-radius: 1px;
 	-moz-border-radius: 1px;
 	border-radius: 1px;
+	background: #4caf50; /* Green */
 
-	/*border: 1px solid #429645;*/
-	margin: 2px;
 	font-size: 14px;
 }
 
 .call-button:hover {
-	background: #429645;
 	color: black;
+	background: #429645;
 }
 
 .end-button {
-	text-decoration: none;
-	vertical-align: middle;
-	border: 1px solid #d9000e;
-	color: #d7fad8;
 	width: 80px;
-	background: #f50213;
+
+	/* border: 1px solid #429645; */
+	margin: 2px;
+
+	vertical-align: middle;
+	text-decoration: none;
+
+	color: #d7fad8;
+	border: 1px solid #d9000e;
 	-webkit-border-radius: 1px;
 	-moz-border-radius: 1px;
 	border-radius: 1px;
+	background: #f50213;
 
-	/*border: 1px solid #429645;*/
-	margin: 2px;
 	font-size: 14px;
 }
 
@@ -364,37 +422,45 @@
 
 .input-field {
 	width: 50%;
+	padding: 7px 0;
+
+	transition: border-color 0.2s;
+
+	color: $white;
 	border: 2px solid #e7e7e7;
 	border-bottom: 2px solid $gray;
 	outline: 0;
-	font-size: 1.3rem;
-	color: $white;
-	padding: 7px 0;
 	background: transparent;
-	transition: border-color 0.2s;
+
+	font-size: 1.3rem;
 }
 
 .info-block {
-	color: #575454;
-	font-size: 14px;
-	/*font-family: helvetica, serif;*/
-	text-decoration: none;
-	vertical-align: middle;
 	text-align: center;
+	vertical-align: middle;
+
+	/* font-family: helvetica, serif; */
+	text-decoration: none;
+
+	color: #575454;
+
+	font-size: 14px;
 	line-height: 1.5;
 }
 
 .flex-row {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
-	align-items: stretch;
+
 	margin: 5px;
+	align-items: stretch;
+	justify-content: center;
 }
 
 .flex-block-phone {
 	flex-grow: 2;
 }
+
 .flex-block-settings {
 	flex-grow: 1;
 }
@@ -402,82 +468,93 @@
 .flex-container-keypad {
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
 	flex-direction: row | row-reverse | column | column-reverse;
+	justify-content: center;
 }
 
 .flex-column {
 	display: -webkit-flex;
-	-webkit-flex-direction: column;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
-	justify-content: center;
-	align-items: stretch;
-	/*margin: 15px;*/
+
+	/* margin: 15px; */
 	width: 100%;
+	align-items: stretch;
+	justify-content: center;
 }
 
 .sipSettings select {
-	appearance: none;
-
-	background-color: transparent;
+	width: 100%;
+	margin: 0;
 
 	padding: 0 1em 0 0;
-	margin: 0;
-	width: 100%;
+	padding: 7px 0;
 
 	cursor: inherit;
-	line-height: inherit;
+	transition: border-color 0.2s;
+
+	color: $white;
 
 	border-bottom: 2px solid $gray;
 	outline: 0;
-
-	color: $white;
-	padding: 7px 0;
 	background: transparent;
-	transition: border-color 0.2s;
+
+	background-color: transparent;
+
+	line-height: inherit;
+	appearance: none;
 }
 
 .sipSettings label {
-	width: 100px; /* Ширина */
-	text-align: right; /* Выравниваем по правому краю */
 	float: left; /* Выстраиваем элементы рядом */
+
+	width: 100px; /* Ширина */
 	margin-right: 10px; /* Расстояние от текста до текстового поля */
+
+	text-align: right; /* Выравниваем по правому краю */
+
 	line-height: 30px; /* Выравниваем по высоте */
 }
 
 .sipSettings table {
 	width: 100%;
 	height: 100%;
+
 	border: 1px solid #333333;
 }
 
 /* Style the tab */
 .tab-sipline {
 	overflow: hidden;
-	border: 0px solid #ccc;
-	/*background-color: #f1f1f1;*/
+
+	border: 0 solid #cccccc;
+
+	/* background-color: #f1f1f1; */
 }
 
 /* Style the buttons that are used to open the tab content */
 .tab-sipline button {
-	background-color: inherit;
 	float: left;
+
+	padding: 14px 16px;
+
+	cursor: pointer;
+	transition: 0.3s;
+
 	border: none;
 	outline: none;
-	cursor: pointer;
-	padding: 14px 16px;
-	transition: 0.3s;
+	background-color: inherit;
 }
 
 /* Change background color of buttons on hover */
 .tab-sipline button:hover {
-	background-color: #ddd;
+	background-color: #dddddd;
 }
 
 /* Create an active/current tablink class */
 .tab-sipline button.active {
-	border: 1px solid #ccc;
+	border: 1px solid #cccccc;
 }
 
 .tab-sipline-incall {
@@ -487,8 +564,10 @@
 /* Style the tab content */
 .tab-sip-content {
 	display: block;
+
 	padding: 6px 12px;
-	border: 1px solid #ccc;
+
+	border: 1px solid #cccccc;
 	border-top: none;
 }
 
@@ -496,40 +575,50 @@
 	display: block;
 }
 
-/* CSS  Всплывающие сообщения*/
+/* CSS  Всплывающие сообщения */
 .toast {
+	position: relative;
+
+	display: block;
 	overflow: hidden;
-	font-size: 0.875rem;
-	background-color: #02acec;
-	background-clip: padding-box;
+
+	padding: 0.75rem 2rem 0.75rem 0.75rem;
+
+	word-break: break-word;
+
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 0.25rem;
+	background-color: #02acec;
+	background-clip: padding-box;
 	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+
+	font-size: 0.875rem;
 	backdrop-filter: blur(10px);
-	display: block;
-	position: relative;
-	padding: 0.75rem 2rem 0.75rem 0.75rem;
 	overflow-wrap: break-word;
-	word-break: break-word;
 }
 
 .toast__close {
 	position: absolute;
 	top: 0;
 	right: 10px;
-	padding: 0;
-	background-color: transparent;
-	border: 0;
-	cursor: pointer;
+
 	float: right;
+
+	margin: 0;
+	padding: 0;
+
+	cursor: pointer;
+
+	opacity: 0.6;
+	color: #000000;
+	border: 0;
+	border-radius: 0;
+	background-color: transparent;
+	text-shadow: 0 1px 0 #ffffff;
+
+	font-family: inherit;
 	font-size: 1.5rem;
 	font-weight: 700;
 	line-height: 1;
-	color: #000;
-	text-shadow: 0 1px 0 #fff;
-	opacity: 0.6;
 	appearance: button;
-	margin: 0;
-	font-family: inherit;
-	border-radius: 0;
 }

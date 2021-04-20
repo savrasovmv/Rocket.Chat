@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor'
 
 import { Push } from '../../../push/server/push'
 
+
+
 export const streamerSipStatus = new Meteor.Streamer('sip')
 streamerSipStatus.allowRead('logged')
 streamerSipStatus.allowWrite('logged')
@@ -31,3 +33,4 @@ streamerSipStatus.on('setMissedSIP', function (value) {
 		// Push.send(options)
 	}
 })
+
