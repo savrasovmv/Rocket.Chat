@@ -1,4 +1,4 @@
-import './stylesheets/video2.css';
+//import './stylesheets/video2.css';
 import './views/videoFlexTab2.html';
 import './views/videoFlexTab2';
 import './tabBar';
