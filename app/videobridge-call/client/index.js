@@ -6,4 +6,4 @@ import './actionLink';
 import '../lib/messageType';
 import './JitsiCall'
 import './adapter'
-import './jitsiCall.css'
+import './stylesheets/jitsiCall.css'
