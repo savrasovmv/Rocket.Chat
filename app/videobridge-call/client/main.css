@@ -12,16 +12,19 @@
 	background-color: red; */
 
 	position: absolute;
-  left: 40%;
-  right: 0px;
-  top: 40px;
-  bottom: 0px;
-  width: 20%;
-  height: 10%;
-  display: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  z-index: 999999;
+	z-index: 999999;
+	top: 40px;
+	right: 0;
+	bottom: 0;
+	left: 40%;
+
+	display: none;
+
+	width: 20%;
+	height: 10%;
+
+	border: 1px solid #dddddd;
+	background-color: white;
 
 	/* position: sticky; */
 }
