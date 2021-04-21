@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import {render} from 'react-dom';
 import { useStableArray } from '@rocket.chat/fuselage-hooks';
 import { Option, Badge } from '@rocket.chat/fuselage';
 
@@ -7,8 +8,15 @@ import { addAction, ToolboxActionConfig } from '../../../client/views/room/lib/T
 import { useTranslation } from '../../../client/contexts/TranslationContext';
 import Header from '../../../client/components/Header';
 
+import { sendClickJitsiCall } from '../lib/streamer'
+
 const handleClick = () => {
-	document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
+	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
+	console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
+	const rid = Session.get('openedRoom');
+	const userId = Meteor.userId()
+	sendClickJitsiCall(userId, rid)
+
 }
 
 
@@ -37,6 +45,7 @@ addAction('jitsi_call', ({ room }) => {
 		action: handleClick,
 		//template: 'videoFlexTab2',
 		order: live ? -1 : 0,
+		//renderAction: (props): React.ReactNode => <JitsiCall handleCall={true} {...props}/>
 		// renderAction: (props): React.ReactNode => <Header.ToolBoxAction {...props}>
 		// 	{live && <Header.Badge title={t('Started_a_video_call')} variant='primary'>!</Header.Badge>}
 		// </Header.ToolBoxAction>,

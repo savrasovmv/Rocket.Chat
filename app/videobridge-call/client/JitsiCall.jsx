@@ -1,66 +1,140 @@
 import React, { useState, Fragment, createRef,useEffect } from 'react'
 import { Meteor } from 'meteor/meteor'
-import { streamerJitsiCall } from './../lib/streamer'
+import { streamerJitsiCall, sendAnswerJitsiCall } from './../lib/streamer'
+import { CallOutView } from './CallOutView'
+import { CallInView } from './CallInView'
+import {createMeetURL} from './../lib/createMeet'
+import { info } from 'toastr'
 
-const ringer = createRef() //элемент для рингтона
+// const ringer = createRef() //элемент для рингтона
 
 
 export const JitsiCall = () => {
-    console.log("++++++++++++++++++++++++++++++++")
+    console.log("JitsiCall render")
+
+    const [isMeet, setIsMeet] = useState(false)
     const [inCall, setInCall] = useState(false)
+    const [outCall, setOutCall] = useState(false)
     const [infoCall, setInfoCall] = useState({
         jitsiUrl: '',
 		userId: '',
 		roomId: ''
     })
-    const steamName = Meteor.userId() + '/JitsiCall'
-	streamerJitsiCall.on(steamName, function (value) {
-		console.log('JitsiCall of Server: ' + value)
-		//const newWindow = window.open(value.jitsi_url, "jitsiRoom");
-        setInCall(true)
-        setInfoCall({
-            jitsiUrl: value.jitsiUrl,
-            userId: value.userId,
-            roomId: value.roomId
-        })
-        ringer.current.play();
-	})
 
-    const handleAnswer= () => {
-        ringer.current.pause();
-    }
+    // useEffect(() => {
+    //     console.log('INIT CONNECTIONS')
 
-    const handleReject= () => {
-        ringer.current.pause();
-    }
+    //     try {
+
+    //       ringer.current.src = '/ringing.mp3'
+    //       ringer.current.loop = true
+    //     } catch (e) {
+    //         console.log(e)
+    //     }
+    //   }, [])
+
+
     useEffect(() => {
-        console.log('INIT CONNECTIONS')
+         //const steamName = Meteor.userId() + '/JitsiCall'
+        streamerJitsiCall.on(Meteor.userId() + '/JitsiCall', function (value) {
+            console.log('JitsiCall of Server: ' + JSON.stringify(value))
+            //const newWindow = window.open(value.jitsi_url, "jitsiRoom");
+            if (value.caller) {
+                setOutCall(true)
+            } else {
+                setInCall(true)
+            }
 
-        try {
+            setInfoCall({
+                userId: value.userId,
+                roomId: value.roomId
+            })
+            document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
 
-          ringer.current.src = '/ringing.mp3'
-          ringer.current.loop = true
-        } catch (e) {
-            console.log(e)
+        })
+
+        //const steamAnswerName = Meteor.userId() + '/AnswerJitsiCall'
+        streamerJitsiCall.on(Meteor.userId() + '/AnswerJitsiCall', function (value) {
+            console.log('AnswerJitsiCall of Server: ' + JSON.stringify(value))
+            document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
+            setIsMeet(true)
+        })
+
+        streamerJitsiCall.on(Meteor.userId() + '/RejectJitsiCall', function (value) {
+            console.log('RejectJitsiCall of Server: ' + JSON.stringify(value))
+            document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
+            setInCall(false)
+            setOutCall(false)
+            setIsMeet(false)
+        })
+
+
+
+    }, [])
+
+
+    const answerJitsiMeet= () => {
+        sendAnswerJitsiCall(infoCall.userId, infoCall.roomId)
+    }
+
+    const rejectJitsiMeet= () => {
+        sendRejectJitsiCall(infoCall.userId, infoCall.roomId)
+        setInCall(false)
+        setOutCall(false)
+        setIsMeet(false)
+
+    }
+
+
+
+    const openWindowsJitsiMeet = () => {
+        // const newWindow = window.open(jitsiUrl, infoCall.roomId);
+        // return newWindow.focus();
+        createMeetURL(infoCall.roomId)
+        .then((resolve) => {
+            //setIsMeet(true)
+            const newWindow = window.open(resolve, infoCall.roomId);
+            if (newWindow) {
+                const closeInterval = setInterval(() => {
+                    if (newWindow.closed === false) {
+                        return;
+                    }
+                    setIsMeet(false)
+                    clearInterval(closeInterval);
+                }, 300);
+                return newWindow.focus();
+            }
+
+        })
+
+
+    }
+
+    useEffect(() => {
+
+        if (isMeet) {
+            openWindowsJitsiMeet()
+        } else {
+            setInCall(false)
+            setOutCall(false)
         }
-      }, [])
+
+
+    },[isMeet])
+
+    // const handleReject= () => {
+    //     ringer.current.pause();
+    // }
+
+    console.log("isMeet", isMeet)
 
     //const newWindow = window.open(`${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`, jitsiRoom);
     return (
             <div>
-                {inCall ? (
-                        <div>
-                            Входящий вызов от {infoCall.userId}
-                            <div>{infoCall.jitsiUrl} </div>
-                            <div><button onClick={handleAnswer}>Принять</button></div>
-                            <div><button onClick={handleReject}>Отклонить</button></div>
-                        </div>
+                {inCall ? <CallInView answerJitsiMeet={answerJitsiMeet} rejectJitsiMeet={rejectJitsiMeet}/>: null }
+                {outCall ? <CallOutView/>: null }
 
-                     ) : null
-                }
-                <div hidden>
-                    <audio preload="auto" ref={ringer} />
-                </div>
+
             </div>
     )
 }

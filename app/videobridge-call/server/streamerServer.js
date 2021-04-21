@@ -8,6 +8,8 @@ import {
 	Users,
 } from '../../models'
 import {streamerJitsiCall} from '../lib/streamer'
+//import {createMeetURL} from './../lib/createMeet'
+import {generateMeetURL} from './methods/jitsiGenerateToken'
 
 streamerJitsiCall.allowRead('logged')
 streamerJitsiCall.allowWrite('logged')
@@ -56,5 +58,79 @@ streamerJitsiCall.on('sendJitsiCallToServer', function (value) {
 
 		})
 
+	}
+})
+
+
+streamerJitsiCall.on('sendClickJitsiCall', function (value) {
+	console.log("------------------- sendClickJitsiCall-----------------")
+	console.log("------value", value)
+	console.log("--------------------------------------------------")
+	if (value.userId && value.roomId) {
+		console.log('++++++++++++++++++++++++++++++++++++++++++')
+		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+			fields: { 'u._id': 1 },
+			sort: { 'u.username': 1 },
+		})
+
+		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+		members.map((id) => {
+			console.log('STREEM to USER_ID', id)
+			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+			streamerJitsiCall.emit(id + '/JitsiCall', value)
+
+
+		})
+
+	}
+})
+
+
+streamerJitsiCall.on('sendAnswerJitsiCall', function (value) {
+	console.log("------------------- sendAnswerJitsiCall-----------------")
+	console.log("------value", value)
+	console.log("--------------------------------------------------")
+	if (value.userId && value.roomId) {
+		console.log('++++++++++++++++++++++++++++++++++++++++++')
+		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+			fields: { 'u._id': 1 },
+			sort: { 'u.username': 1 },
+		})
+
+		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+
+
+
+		members.map((id) => {
+			console.log('STREEM to USER_ID', id)
+			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+			streamerJitsiCall.emit(id + '/AnswerJitsiCall', value)
+		})
+	}
+})
+
+streamerJitsiCall.on('sendRejectJitsiCall', function (value) {
+	console.log("------------------- sendRejectJitsiCall-----------------")
+	console.log("------value", value)
+	console.log("--------------------------------------------------")
+	if (value.userId && value.roomId) {
+		console.log('++++++++++++++++++++++++++++++++++++++++++')
+		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+			fields: { 'u._id': 1 },
+			sort: { 'u.username': 1 },
+		})
+
+		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+
+
+
+		members.map((id) => {
+			console.log('STREEM to USER_ID', id)
+			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+			streamerJitsiCall.emit(id + '/RejectJitsiCall', value)
+		})
 	}
 })
