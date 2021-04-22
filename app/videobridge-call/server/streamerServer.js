@@ -7,7 +7,7 @@ import {
 	Integrations,
 	Users,
 } from '../../models'
-import {streamerJitsiCall} from '../lib/streamer'
+import {streamerJitsiCall, streamName } from '../lib/streamer'
 //import {createMeetURL} from './../lib/createMeet'
 import {generateMeetURL} from './methods/jitsiGenerateToken'
 
@@ -132,5 +132,172 @@ streamerJitsiCall.on('sendRejectJitsiCall', function (value) {
 			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
 			streamerJitsiCall.emit(id + '/RejectJitsiCall', value)
 		})
+	}
+})
+
+
+// value = {
+// 	type : ["start", "ask", "accepted", "init", "cancel", "answer","reject", "connect", "stop", "error"],
+//	initUserId: initUserId,
+//	userId: userId,
+//	roomId: roomId,
+//	count: count
+// 	members: [
+// 			{
+//	 			userId: userId,
+// 				answered: true,
+// 				accepted: true
+// 			}
+// 		],
+// }
+
+
+streamerJitsiCall.on(streamName, function (value) {
+	//Обязательные параметры type, roomId, userId
+
+	console.log("------------------- CallJitsi-----------------")
+	console.log("------value", value)
+	console.log("--------------------------------------------------")
+
+	let valueToCaller = {}
+	let valueToUser = {}
+
+
+	if (value.type && value.userId && value.roomId) {
+		switch(value.type) {
+			case 'start':
+				//Отправляем инициатору данные о участиках конференции
+				//Опрашиваем юзера о готовности принять вызов. отправляем ему ask
+
+				const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+					fields: { 'u._id': 1 },
+					sort: { 'u.username': 1 },
+				})
+
+				const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+				console.log('+++++++++++++++++++ members', members)
+				const count = members.length
+				console.log('+++++++++++++++++++ count', count)
+				if (members) {
+					valueToCaller = {
+						type: "start",
+						roomId: value.roomId,
+						initUserId: value.userId,
+						count: count,
+						members: []
+					}
+					members.map((id) => {
+						valueToCaller.members.push(
+							{
+								userId: id,
+								status: false,
+							}
+						)
+					})
+					valueToUser = {
+						type: "ask",
+						roomId: value.roomId,
+						initUserId: value.userId
+					}
+					members.map((id) => {
+						console.log('STREEM to USER_ID', id)
+						if (id == value.userId) {
+							streamerJitsiCall.emit(id + '/'+ streamName, valueToCaller) //Данные для иницивтора вызова
+						} else {
+							streamerJitsiCall.emit(id + '/'+ streamName, valueToUser) //Запрос о готовности клиента
+						}
+					})
+
+
+
+				}
+
+				break
+
+			case 'accepted':
+				//Юзер ответил что принял ask и готов принять вызов
+				//входняе параметры type, roomId, initUserId, userId
+				if (value.initUserId) {
+
+					valueToUsers = {
+						type: 'init',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+					}
+
+					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Отправка инициатору
+					streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Отправка ответивщему accepted
+				}
+
+				break
+
+			case 'cancel':
+				//Если инициатор отменил вызов
+				// Параметры type, roomId, userId, members
+				if (value.members) {
+					valueToUsers = {
+						type: 'cancel',
+						roomId: value.roomId,
+						initUserId: value.userId,
+					}
+					value.members.map((m) => {
+						console.log('STREEM to USER_ID', m)
+						streamerJitsiCall.emit(m.userId + '/'+ streamName, valueToUsers) //Отмена вызова
+					})
+				}
+
+				break
+
+			case 'reject':
+				// Если юзер отклонил входящий вызов
+				// Параметры type, roomId, userId, initUserId
+				if (value.initUserId) {
+					valueToUsers = {
+						type: 'reject',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+						rejectUserId: value.userId, //юзер который отказлся принять вызов
+					}
+					console.log('STREEM to USER_ID')
+					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Отказ от принятия входящего вызова
+				}
+
+				break
+
+			case 'answer':
+				// Если юзер принял входящий вызов
+				// Параметры type, roomId, userId, initUserId
+				if (value.initUserId) {
+					valueToUsers = {
+						type: 'connect',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+						answerUserId: value.userId, //юзер который принял входящий вызов
+					}
+					console.log('STREEM to USER_ID')
+					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
+					streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
+				}
+
+				break
+
+			case 'busy':
+				// Если юзер занят, когда идет другая конференция
+				// Параметры type, roomId, userId, initUserId
+				if (value.initUserId) {
+					valueToUsers = {
+						type: 'busy',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+						busyUserId: value.userId, //юзер который занят
+					}
+					console.log('STREEM to USER_ID')
+					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Ответ занят Вызывающему юзеру
+				}
+
+				break
+
+
+		}
 	}
 })

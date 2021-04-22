@@ -8,14 +8,12 @@ import { addAction, ToolboxActionConfig } from '../../../client/views/room/lib/T
 import { useTranslation } from '../../../client/contexts/TranslationContext';
 import Header from '../../../client/components/Header';
 
-import { sendClickJitsiCall } from '../lib/streamer'
+import { sendStartCallJitsiToServer } from '../lib/streamer'
 
 const handleClick = () => {
 	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
 	console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
-	const rid = Session.get('openedRoom');
-	const userId = Meteor.userId()
-	sendClickJitsiCall(userId, rid)
+	sendStartCallJitsiToServer()
 
 }
 

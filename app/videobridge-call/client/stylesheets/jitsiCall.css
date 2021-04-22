@@ -13,18 +13,16 @@
 
 	position: absolute;
 	z-index: 999999;
-	top: 40px;
-	right: 0;
-	bottom: 0;
+	top: 5%;
 	left: 40%;
 
 	display: none;
 
-	width: 20%;
-	height: 10%;
+	/* width: 20%;
+	height: 10%; */
 
-	border: 1px solid #dddddd;
-	background-color: white;
+	/* border: 1px solid #dddddd;
+	background-color: white; */
 
 	/* position: sticky; */
 }
