@@ -280,6 +280,22 @@ streamerJitsiCall.on(streamName, function (value) {
 				}
 
 				break
+			case 'afterAnswer':
+				// Если юзер принял входящий вызов, когда уже идет конференция
+				// Параметры type, roomId, userId, initUserId, lateUserId
+				if (value.initUserId && value.lateUserId) {
+					valueToUsers = {
+						type: 'connect',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+						answerUserId: value.initUserId, //юзер который принял входящий вызов
+					}
+					console.log('STREEM to USER_ID')
+					//Отправляем только опоздавшему юзеру
+					streamerJitsiCall.emit(value.lateUserId + '/'+ streamName, valueToUsers) //Начать конференцию опоздавщему юзеру
+				}
+
+				break
 
 			case 'busy':
 				// Если юзер занят, когда идет другая конференция

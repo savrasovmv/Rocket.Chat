@@ -59,9 +59,11 @@ export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => 
 
     const [avatarUrl, setAvatarUrl] = useState(false)
     const [info, setInfo] = useState(false)
+    const [usersStatusInfo, setUsersStatusInfo] = useState([])
     // const handleReject= () => {
     //     ringer.current.pause();
     // }
+    const {members} = infoCall
 
     useEffect(() => {
         console.log('INIT CallerView')
@@ -75,6 +77,43 @@ export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => 
         }
         ringer.current.play();
       }, [])
+
+    const setRejectStatus = (userId) => {
+        console.log('setRejectStatus')
+        if (userId) {
+            const result = APIClient.v1.get('users.info', { userId: userId })
+                result.then((resolve) => {
+                    console.log('setRejectStatus users.info', resolve)
+
+                    setUsersStatusInfo(prevState => [
+                        prevState,
+                        {
+                            userName: resolve.user.name,
+                            status: 'Отклонил'
+                        }
+                    ])
+
+                })
+
+
+        }
+    }
+
+
+    useEffect(() => {
+        console.log('members+++++++++++++++++++++')
+        members.map((m) => {
+            if (m.status === 'reject') {
+                setRejectStatus(m.userId)
+            }
+        })
+
+    }, [members])
+
+    useEffect(() => {
+        console.log('setUsersStatusInfo', usersStatusInfo)
+
+    }, [usersStatusInfo])
 
     useEffect(() => {
         if (infoCall.roomId) {
@@ -127,11 +166,38 @@ export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => 
     return (
         <Fragment>
             <Modal>
-                <Modal.Header>
+                {/* <Modal.Header>
                 <Modal.Title>Исходящий вызов</Modal.Title>
-                </Modal.Header>
+                </Modal.Header> */}
                 <Modal.Content>
-                    <Box>
+                <Box display="flex" flexDirection="column" pbs='x20'>
+                    <Box textAlign='center' fontSize="x16" pbe='x20'>
+                        {info.roomName ? 'Конференция' : 'Исходящий вызов'}
+                    </Box>
+                    <Box display="flex" flexDirection="row">
+                        <Box verticalAlign='middle'>
+                            {info.avatarUrl ? (
+                                <Avatar url={info.avatarUrl} size='x48' />
+                            ):null}
+                        </Box>
+                        <Box pis='x15'>
+                            <Label pbe='x8' fontSize="x16">
+                                {info.name ? info.name : null }
+                            </Label>
+                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                {info.title ? info.title : null }
+                            </Box>
+                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                {info.department ? info.department : null }
+                            </Box>
+
+                        </Box>
+
+                    </Box>
+
+                </Box>
+
+                    {/* <Box>
                         {info.avatarUrl ? (
                             <Avatar url={info.avatarUrl} size='x48' />
                         ):null}
@@ -144,26 +210,47 @@ export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => 
                     </Box>
                     <Box>
                         {info.department ? info.department : null }
-                    </Box>
-                    {membersStatus.map((me) => {
-                        <Box key={me.userId}>
-                            {me.userId} - {me.status}
-                        </Box>
+                    </Box> */}
+
+
+                    {usersStatusInfo.map((s, key) => {
+                        return (
+                            <Box key={key}>
+                                {s.userName} - {s.status}
+                            </Box>
+                        )
                     })}
 
 
                 </Modal.Content>
                 <Modal.Footer>
                     {status === 'reject' ? (
-                        <Box color='danger'>
+                        <Box color='danger' textAlign='center'>
                             Пользователь отклонил вызов
                         </Box>
 
-                    ): (
+                    ): null}
+                    {status === 'notAnswer' ? (
+                        <Box color='danger' textAlign='center'>
+                            Пользователь не отвечает
+                        </Box>
+
+                    ): null
+                    }
+                    {status === 'busy' ? (
+                        <Box color='danger' textAlign='center'>
+                            Пользователь занят
+                        </Box>
+
+                    ): null
+                    }
+                    {status === 'outCall' ? (
                         <ButtonGroup align='end'>
                             <Button onClick={() => handleCancel()}>Отменить</Button>
                         </ButtonGroup>
-                    )}
+
+                    ): null
+                    }
 
                 </Modal.Footer>
             </Modal>

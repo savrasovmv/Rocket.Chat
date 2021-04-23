@@ -126,11 +126,61 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
     return (
         <Fragment>
         <Modal>
-            <Modal.Header>
-            <Modal.Title>Входящий вызов</Modal.Title>
-            </Modal.Header>
+            {/* <Modal.Header>
+            <Modal.Title>
+                {info.roomName ? 'Конференция' : 'Входящий вызов'}
+
+            </Modal.Title>
+            </Modal.Header> */}
             <Modal.Content>
-                    <Box>
+
+                <Box display="flex" flexDirection="column" pbs='x20'>
+                    <Box textAlign='center' fontSize="x16" pbe='x20'>
+                        {info.roomName ? 'Конференция' : 'Входящий вызов'}
+                    </Box>
+
+                    {info.roomName ? (
+                        <Fragment>
+                            <Box textAlign='center'>
+                                <Label pi="x20" fontSize="x18" >
+                                    {info.roomName}
+                                </Label>
+
+                            </Box>
+                            <Box fontStyle='italic' fontSize='x12'>
+                                Инициатор:
+                            </Box>
+                        </Fragment>
+                    ):null}
+
+
+                    <Box display="flex" flexDirection="row" >
+                        <Box verticalAlign='middle'>
+                            {info.avatarUrl ? (
+                                <Avatar url={info.avatarUrl} size='x48' />
+                            ):null}
+                        </Box>
+                        <Box pis='x15'>
+                            <Label pbe='x8' fontSize="x16">
+                                {info.name ? info.name : null }
+                            </Label>
+                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                {info.title ? info.title : null }
+                            </Box>
+                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                {info.department ? info.department : null }
+                            </Box>
+
+                        </Box>
+
+                    </Box>
+
+                </Box>
+
+
+
+
+                    {/* <Box>
                         {info.roomName ? (
                             <Label m="x10" fontSize="x16">
                                 Конференция
@@ -157,7 +207,7 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
                     </Box>
                     <Box>
                         {info.department ? info.department : null }
-                    </Box>
+                    </Box> */}
             </Modal.Content>
             <Modal.Footer>
             <ButtonGroup align='center'>

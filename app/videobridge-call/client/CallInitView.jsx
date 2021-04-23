@@ -16,13 +16,16 @@ import {
 const ringerIn = createRef() //элемент для рингтона
 
 // Вид инициализации вызова
-export const CallInitView = () => {
+export const CallInitView = ({status}) => {
 
 
     return (
-        <Box>
+        <Box width='x300' minWidth='x300' minHeight='x150' bg='surface'  p='x16' m='x16' textAlign='center' elevation='1' border='2px solid neutral-500' verticalAlign='middle'>
             Соединение
-            <Throbber />
+            <Throbber p='x16'/>
+            {status==='notInit' ? (
+                <Box p='x16' color='danger' textAlign='center'> Не удалось подключится. Абонент недоступен </Box>
+            ):null}
         </Box>
     )
 

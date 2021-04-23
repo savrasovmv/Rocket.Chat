@@ -26,6 +26,8 @@ const userID = Meteor.userId()
 export const JitsiCall = () => {
     console.log("JitsiCall render")
 
+
+
     const [isMeet, setIsMeet] = useState(false)
     const [inCall, setInCall] = useState(false)
     const [outCall, setOutCall] = useState(false)
@@ -37,6 +39,20 @@ export const JitsiCall = () => {
 		members: [],
         count: 0
     })
+
+    const setDefaulState = () => {
+        setInfoCall({
+            roomId: '',
+            initUserId: '',
+            members: [],
+            count: 0
+        })
+        setIsMeet(false)
+        setInCall(false)
+        setOutCall(false)
+        setStatus(false)
+        setMembersStatus([])
+    }
 
     // useEffect(() => {
     //     console.log('INIT CONNECTIONS')
@@ -102,73 +118,57 @@ export const JitsiCall = () => {
                 case 'ask':
                     //Юзеру прищел запрос на попытку вызова
                     console.log('CallJitsi ASK')
-                    //Если юзер свободен, то ответ accepted, иначе busy
-                    if (!status) {
-                        valueToServer = {
-                            type: 'accepted',
-                            roomId: value.roomId,
-                            userId: userID,
-                            initUserId: value.initUserId
-                        }
-                        streamerJitsiCall.emit(streamName, valueToServer)
-                    } else {
-                        sendBusy(value)
-                    }
+                    setMembersStatus(value)
+
+                    // valueToServer = {
+                    //     type: 'accepted',
+                    //     roomId: value.roomId,
+                    //     userId: userID,
+                    //     initUserId: value.initUserId
+                    // }
+                    // streamerJitsiCall.emit(streamName, valueToServer)
+
                     break
                 case 'init':
                     //Инициализация вызова
                     console.log('CallJitsi INIT')
-                    //Если юзер свободен, то ответ accepted, иначе busy
-                    if (!status) {
-                        if (value.initUserId === userID) {
-                            //setOutCall(true)
-                            setStatus('outCall')
-                        } else {
-                            //setInCall(true)
-                            setStatus('inCall')
-                            setInfoCall(value)
-                        }
-                    } else {
-                        sendBusy(value)
-                    }
+                    setMembersStatus(value)
+                    // //Если юзер свободен, то ответ accepted, иначе busy
+                    // if (!status) {
+                    //     if (value.initUserId === userID) {
+                    //         //setOutCall(true)
+                    //         setStatus('outCall')
+                    //     } else {
+                    //         //setInCall(true)
+                    //         setStatus('inCall')
+                    //         setInfoCall(value)
+                    //     }
+                    // } else {
+                    //     sendBusy(value)
+                    // }
                     break
 
                 case 'cancel':
                     //Отмена вызова
+                    console.log('infoCall on func cancel ', infoCall)
                     setStatus(false)
                     break
 
                 case 'reject':
                     //Отклонил вызов
                     console.log('reject ', value)
-                    if (infoCall.count === 2) {
-                        setStatus('reject')
-                    } else {
-                        console.log('Это конференция', infoCall.members)
-                        infoCall.members.map((m) => {
-                            console.log('m ', m)
-                            if (m.userId === value.rejectUserId) {
-                                m.status = 'reject'
-
-                                setMembersStatus( [
-                                    {
-                                        userId: m.userId,
-                                        status: 'reject'
-                                    }
-                                ]
-                                )
-
-
-
-
-                            }
-                        })
-                    }
+                    //rejectFromUsers(value)
+                    setMembersStatus(value)
                     break
 
                 case 'connect':
                     //Соединение
                     setStatus('connect')
+                    break
+
+                case 'busy':
+                    //Абонент занят
+                    setStatus('busy')
                     break
 
             }
@@ -220,6 +220,7 @@ export const JitsiCall = () => {
 
     const handleAnswer = () => {
         //Прием звонка
+        //afterAnswer для подключения к уже идущей конференции
         console.log('handleAnswer')
         valueToServer = {
             type: 'answer',
@@ -245,6 +246,95 @@ export const JitsiCall = () => {
 
     }
 
+    const rejectFromUsers = (value) => {
+        if (infoCall.count == 2) {
+            setStatus('reject')
+        } else {
+            console.log('Это групповой вызов', infoCall.members)
+            console.log("rejectFromUsers infoCall", infoCall)
+            setInfoCall((prevState) => ({
+                ...prevState,
+                members: _.map(infoCall.members, (m) =>
+                    m.userId === value.rejectUserId
+                        ? {
+                            ...m,
+                            status: 'reject'
+                        }
+                         : m
+                ),
+
+            }))
+
+        }
+    }
+
+    const busyFromUsers = (value) => {
+        if (infoCall.count == 2) {
+            setStatus('busy')
+        } else {
+            console.log('Это групповой вызов', infoCall.members)
+            console.log("rejectFromUsers infoCall", infoCall)
+            setInfoCall((prevState) => ({
+                ...prevState,
+                members: _.map(infoCall.members, (m) =>
+                    m.userId === value.rejectUserId
+                        ? {
+                            ...m,
+                            status: 'busy'
+                        }
+                         : m
+                ),
+
+            }))
+
+        }
+    }
+
+    const initFromUsers = (value) => {
+        //Инициализируем вызов
+        if (value.initUserId === userID) {
+            setStatus('outCall')
+        } else {
+            setStatus('inCall')
+            setInfoCall(value)
+        }
+    }
+
+    const askFromUsers = (value) => {
+        //Если юзер свободен, то ответ accepted
+        console.log('askFromUsers')
+        console.log('askFromUsers status', status)
+
+        if (status) {
+            console.log('askFromUsers status', status)
+
+            //Если звонок поступил в идущую конференцию и я инициатор то отправляем afterAnswer
+            if (value.roomId === infoCall.roomId && infoCall.initUserId === userID){
+                console.log('Конференция УЖЕ ИДУТ')
+
+                //подменяем инициатора как опоздавшего
+                valueToServer = {
+                    type: 'afterAnswer',
+                    roomId: infoCall.roomId,
+                    userId: userID,
+                    initUserId: infoCall.initUserId,
+                    lateUserId: value.userId
+                }
+                streamerJitsiCall.emit(streamName, valueToServer)
+            }
+        } else {
+            valueToServer = {
+                        type: 'accepted',
+                        roomId: value.roomId,
+                        userId: userID,
+                        initUserId: value.initUserId
+                    }
+            streamerJitsiCall.emit(streamName, valueToServer)
+
+        }
+
+    }
+
     useEffect(() => {
 
         if (isMeet) {
@@ -260,34 +350,101 @@ export const JitsiCall = () => {
     useEffect(() => {
 
         console.log('membersStatus ', membersStatus)
+        if (membersStatus.type === 'reject'){
+            rejectFromUsers(membersStatus)
+        }
+        if (membersStatus.type === 'busy'){
+            busyFromUsers(membersStatus)
+        }
+        if (membersStatus.type === 'init') {
+            initFromUsers(membersStatus)
+        }
+        if (membersStatus.type === 'ask') {
+            askFromUsers(membersStatus)
+        }
 
 
     },[membersStatus])
 
     useEffect(() => {
+
+        console.log('infoCall ', infoCall)
+
+
+    },[infoCall])
+
+
+
+    useEffect(() => {
         console.log('status ', status)
+
         if (status) {
             document.getElementsByClassName('jitsicall-box')[0].style.display = 'inline-block'
         } else {
-            setInCall(false)
-            setOutCall(false)
+            console.log('infoCall в эфекте при отмене', infoCall)
+            setDefaulState()
             document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
+        }
+        if (status === 'start') {
+            const startInterval = setInterval(() => {
+                setStatus('notInit')
+                clearInterval(startInterval);
+            }, 10000);
+        }
+        if (status === 'notInit') {
+            setTimeout(() => {
+                setStatus(false)
+            }, [3000])
+
+
+        }
+        if (status === 'notAnswer') {
+            setTimeout(() => {
+                if (infoCall.count === 2) {
+                    setStatus(false)
+                }
+            }, [5000])
         }
         if (status === 'outCall') {
             setOutCall(true)
+            const outCallInterval = setInterval(() => {
+                console.log('outCallInterval')
+                if (status === 'outCall') {
+                    setStatus('notAnswer')
+                    clearInterval(outCallInterval);
+                }
+            }, 10000);
+
         }
         if (status === 'inCall') {
             setInCall(true)
+            const inCallInterval = setInterval(() => {
+                if (status === 'inCall') {
+                    setStatus(false)
+                    clearInterval(inCallInterval);
+                }
+            }, 10000);
+
         }
         if (status === 'reject') {
             setTimeout(() => {
-            setStatus(false)
-        }, [3000])
+                if (infoCall.count === 2) {
+                    setStatus(false)
+                }
+            }, [3000])
         }
         if (status === 'connect') {
             setInCall(false)
             setOutCall(false)
             openWindowsJitsiMeet()
+
+        }
+        if (status === 'busy') {
+            setTimeout(() => {
+                if (infoCall.count === 2) {
+                    setStatus(false)
+                }
+            }, [3000])
 
         }
 
@@ -304,7 +461,7 @@ export const JitsiCall = () => {
     //const newWindow = window.open(`${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`, jitsiRoom);
     return (
             <Box>
-                {status==='start' ? <CallInitView/> : null}
+                {status==='start' || status==='notInit' ? <CallInitView status={status}/> : null}
                 {inCall ? <CallInView infoCall={infoCall} handleAnswer={handleAnswer} handleReject={handleReject}/>: null }
                 {outCall ? <CallOutView status={status} membersStatus={membersStatus} infoCall={infoCall} handleCancel={handleCancel}/>: null }
 
