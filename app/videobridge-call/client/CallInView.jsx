@@ -15,51 +15,13 @@ import {
     Avatar
   } from '@rocket.chat/fuselage'
 import { APIClient } from '../../utils/client'
+import { settings } from '../../settings';
 
+timeOutCall = settings.get('JitsiCall_timeOutCall')
 
 const ringerIn = createRef() //элемент для рингтона
 
-// Вид звонка ВЫЗЫВАЕМОГО
-// export const CallInView = ({answerJitsiMeet, rejectJitsiMeet}) => {
-
-
-
-//     const handleAnswer= () => {
-//         ringerIn.current.pause();
-//         answerJitsiMeet()
-
-//     }
-//     const handleReject= () => {
-//         ringerIn.current.pause();
-//         rejectJitsiMeet()
-//     }
-
-//     useEffect(() => {
-//         console.log('INIT CalledView')
-
-//         try {
-
-//           ringerIn.current.src = '/ringing.mp3'
-//           ringerIn.current.loop = true
-//         } catch (e) {
-//             console.log(e)
-//         }
-//         ringerIn.current.play();
-//       }, [])
-
-//     return (
-//         <div>
-//             <div>Входящий вызов</div>
-//             <button onClick={()=>handleAnswer()}>Принять</button>
-//             <button onClick={handleReject}>Отмена</button>
-//             <div hidden>
-//                 <audio preload="auto" ref={ringerIn} />
-//             </div>
-//         </div>
-//     )
-
-// }
-
+Notification.requestPermission()
 
 export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
     const [info, setInfo] = useState({
@@ -71,7 +33,33 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
         roomName: false
     })
 
+    const viewNotification = () => {
+        console.log(" viewNotification +++++++++++++++++++++++")
 
+            console.log("+++++++++++++++++++++++", info)
+            const notification = new Notification('Входящий вызов', {
+                requireInteraction: true, //Постоянно отображается
+                icon: '/call-icon.png',
+                body: `Входящий вызов: ${
+                    info.name
+                }`,
+            })
+
+
+        // notification.onclick = function () {
+        //     document.getElementsByClassName('sipphone-box')[0].style.display =
+        //     'flex'
+        //     document.getElementsByClassName(
+        //     'rc-old main-content content-background-color'
+        //     )[0].style.display = 'none'
+
+        //     handleAnswer(payload.id)
+        //     window.parent.focus()
+        //     window.focus() // just in case, older browsers
+
+        //     this.close()
+        // }
+    }
 
     useEffect(() => {
         console.log('INIT CalledView')
@@ -84,6 +72,7 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
             console.log(e)
         }
         ringerIn.current.play();
+
       }, [])
 
       useEffect(() => {
@@ -115,6 +104,26 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
             })
             Promise.all([result1, result2]).then((res) => {
                 setInfo(value)
+                //viewNotification()
+
+                var body = value.roomName ? value.roomName + '\n' : ''
+                body += value.name ? value.name+ '\n' : ''
+                body += value.title ? value.title+ '\n' : ''
+
+                const notification = new Notification('Входящий вызов', {
+                    requireInteraction: true, //Постоянно отображается
+                    icon: value.avatarUrl,
+                    body:
+                        `${body}`
+
+                    ,
+                })
+                notification.onclick = function () {
+                    window.parent.focus()
+                    window.focus() // just in case, older browsers
+                    this.close()
+                }
+                setTimeout(notification.close.bind(notification), timeOutCall);
             });
 
 

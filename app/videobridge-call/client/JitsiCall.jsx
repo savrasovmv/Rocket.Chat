@@ -18,185 +18,448 @@ import {
     Label,
     Throbber
   } from '@rocket.chat/fuselage'
+  import { settings } from '../../settings';
 
 // const ringer = createRef() //элемент для рингтона
 
 const userID = Meteor.userId()
+
+var openWindows = {}
+var timer = {}
+
+timeOutInit = settings.get('JitsiCall_timeOutInit')
+timeOutCall = settings.get('JitsiCall_timeOutCall')
+timeOutNotifi = settings.get('JitsiCall_timeOutNotifi')
 
 export const JitsiCall = () => {
     console.log("JitsiCall render")
 
 
 
-    const [isMeet, setIsMeet] = useState(false)
-    const [inCall, setInCall] = useState(false)
-    const [outCall, setOutCall] = useState(false)
-    const [status, setStatus] = useState(false)
-    const [membersStatus, setMembersStatus] = useState([])
-    const [infoCall, setInfoCall] = useState({
-        roomId: '',
-		initUserId: '',
-		members: [],
-        count: 0
-    })
+    const [meetInfo, setMeetInfo] = useState([])
+    const [response, setResponse] = useState()
+    const [signal, setSignal] = useState()
 
-    const setDefaulState = () => {
-        setInfoCall({
-            roomId: '',
-            initUserId: '',
-            members: [],
-            count: 0
-        })
-        setIsMeet(false)
-        setInCall(false)
-        setOutCall(false)
-        setStatus(false)
-        setMembersStatus([])
-    }
 
-    // useEffect(() => {
-    //     console.log('INIT CONNECTIONS')
 
-    //     try {
+    // const [isMeet, setIsMeet] = useState([])
+    // const [inCall, setInCall] = useState(false)
+    // const [outCall, setOutCall] = useState(false)
+    // const [status, setStatus] = useState(false)
+    // const [membersStatus, setMembersStatus] = useState([])
+    // const [infoCall, setInfoCall] = useState({
+    //     roomId: '',
+	// 	initUserId: '',
+	// 	members: [],
+    //     count: 0
+    // })
 
-    //       ringer.current.src = '/ringing.mp3'
-    //       ringer.current.loop = true
-    //     } catch (e) {
-    //         console.log(e)
-    //     }
-    //   }, [])
+    // const setDefaulState = () => {
+    //     setInfoCall({
+    //         roomId: '',
+    //         initUserId: '',
+    //         members: [],
+    //         count: 0
+    //     })
+    //    // setIsMeet([])
+    //     setInCall(false)
+    //     setOutCall(false)
+    //     setStatus(false)
+    //     setMembersStatus([])
+    // }
+
 
 
     useEffect(() => {
-         //const steamName = Meteor.userId() + '/JitsiCall'
-
-         // streamerJitsiCall.on(Meteor.userId() + '/JitsiCall', function (value) {
-        //     console.log('JitsiCall of Server: ' + JSON.stringify(value))
-        //     //const newWindow = window.open(value.jitsi_url, "jitsiRoom");
-        //     if (value.caller) {
-        //         setOutCall(true)
-        //     } else {
-        //         setInCall(true)
-        //     }
-
-        //     setInfoCall({
-        //         userId: value.userId,
-        //         roomId: value.roomId
-        //     })
-        //     document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
-
-        // })
-
-        // //const steamAnswerName = Meteor.userId() + '/AnswerJitsiCall'
-        // streamerJitsiCall.on(Meteor.userId() + '/AnswerJitsiCall', function (value) {
-        //     console.log('AnswerJitsiCall of Server: ' + JSON.stringify(value))
-        //     document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
-        //     setIsMeet(true)
-        // })
-
-        // streamerJitsiCall.on(Meteor.userId() + '/RejectJitsiCall', function (value) {
-        //     console.log('RejectJitsiCall of Server: ' + JSON.stringify(value))
-        //     document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
-        //     setInCall(false)
-        //     setOutCall(false)
-        //     setIsMeet(false)
-        // })
-
-
         streamerJitsiCall.on(userID + '/' + streamName, function (value) {
             if (!value.type) {
                 return
             }
             console.log("CallJitsi ", value)
-            switch(value.type) {
-                case 'start':
-                    //Юзер нажал на вызов, полуает данные о конференции с сервера
-                    console.log('CallJitsi START')
-                    setInfoCall(value)
-                    setStatus('start')
-                    break
-                case 'ask':
-                    //Юзеру прищел запрос на попытку вызова
-                    console.log('CallJitsi ASK')
-                    setMembersStatus(value)
-
-                    // valueToServer = {
-                    //     type: 'accepted',
-                    //     roomId: value.roomId,
-                    //     userId: userID,
-                    //     initUserId: value.initUserId
-                    // }
-                    // streamerJitsiCall.emit(streamName, valueToServer)
-
-                    break
-                case 'init':
-                    //Инициализация вызова
-                    console.log('CallJitsi INIT')
-                    setMembersStatus(value)
-                    // //Если юзер свободен, то ответ accepted, иначе busy
-                    // if (!status) {
-                    //     if (value.initUserId === userID) {
-                    //         //setOutCall(true)
-                    //         setStatus('outCall')
-                    //     } else {
-                    //         //setInCall(true)
-                    //         setStatus('inCall')
-                    //         setInfoCall(value)
-                    //     }
-                    // } else {
-                    //     sendBusy(value)
-                    // }
-                    break
-
-                case 'cancel':
-                    //Отмена вызова
-                    console.log('infoCall on func cancel ', infoCall)
-                    setStatus(false)
-                    break
-
-                case 'reject':
-                    //Отклонил вызов
-                    console.log('reject ', value)
-                    //rejectFromUsers(value)
-                    setMembersStatus(value)
-                    break
-
-                case 'connect':
-                    //Соединение
-                    setStatus('connect')
-                    break
-
-                case 'busy':
-                    //Абонент занят
-                    setStatus('busy')
-                    break
-
-            }
-
+            setResponse(value)
         })
-
-
-
     }, [])
 
 
 
-    const openWindowsJitsiMeet = () => {
+    const setStatusMeet = (value) => {
+        console.log('SetStatus ', value)
+        console.log('prev meetInfo ', meetInfo)
+
+        const res = meetInfo.find((item) => item.roomId === value.roomId)
+
+        if (res) {
+            if (value.status === res.status) {
+                console.log('Такой статус уже установлен')
+                return
+
+            }
+            //Проверка после таймаута инициализации
+            if (value.status === 'checkInit' && res.status === 'start') {
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: 'notInit'
+
+                    } : item
+                ))
+                setSignal({type: 'notInit', roomId: res.roomId})
+                return
+            }
+
+            if (value.status === 'outCall' && res.status === 'start') {
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: value.status
+
+                    } : item
+                ))
+                setSignal({type: 'outCall', roomId: res.roomId})
+                return
+            }
+
+            if (value.status === 'checkAnswer' && res.status === 'outCall') {
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: 'notAnswer'
+
+                    } : item
+                ))
+                setSignal({type: 'notAnswer', roomId: res.roomId})
+                return
+            }
+
+            if (value.status === 'checkAnswer' && res.status === 'inCall') {
+                deleteMeet(value.roomId)
+                return
+            }
+
+            if (value.status === 'reject' && res.status === 'outCall' && res.count === 2) {
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: 'reject',
+                        roomId: ''  //обнуляем Id, если вдруг юзер сразу перезвонит, а у нас еще уведомление висит
+
+                    } : item
+                ))
+                setSignal({type: 'reject', roomId: res.roomId})
+                return
+            }
+            if (value.status === 'connected' || value.status === 'connection') {
+                clearTimeout(timer[res.roomId])
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: value.status
+
+                    } : item
+                ))
+                return
+            }
+
+            //Если возникла ошибка при открытии окна конференции
+            if (value.status === 'errorOpenWindows' && res.status !== 'connection'){
+                setMeetInfo(_.map(meetInfo, (item) =>
+                    item.roomId === value.roomId ? {
+                        ...item,
+                        status: value.status
+
+                    } : item
+                ))
+            }
+
+            // if (value.status === 'connection' && res.status === 'outCall') {
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: 'connection'
+
+            //         } : item
+            //     ))
+            //     return
+            // }
+            // if (value.status === 'connection' && res.status === 'inCall') {
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: 'connection'
+
+            //         } : item
+            //     ))
+            //     return
+            // }
+            // if (value.status === 'connected' && res.status === 'connection') {
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: 'connected'
+
+            //         } : item
+            //     ))
+            //     setSignal({type: 'deleteTimer', roomId: res.roomId})
+            //     return
+            // }
+
+
+            // if (value.status === 'notAnswer' && res.count > 2) {
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             members: _.map(item.members, (m) =>
+            //                 m.status === false ? {
+            //                     ...m,
+            //                     status: 'notAnswer'
+            //                 } : m
+            //             )
+            //         } : item
+
+            //     ))
+            //     return
+            // }
+
+            // if (value.status === 'outCall' && res.status === 'start') {
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: value.status
+
+            //         } : item
+            //     ))
+            //     setSignal({type: 'outCall', roomId: res.roomId})
+            //     return
+            // }
+            // //Если статус подключение или подключен не позволять изменять статус приходящий по таймауту, типо notAnswer
+            // if (res.status !== 'connected' && res.status !== 'connection'){
+            //     console.log('Текущий статус', res.status)
+            //     console.log('Устанавливаем статус', value.status)
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: value.status
+
+            //         } : item
+            //     ))
+            // }
+            // if (value.status === 'connected' && res.status === 'connection'){
+            //     console.log('Переключаем статус на подключенный')
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: value.status
+
+            //         } : item
+            //     ))
+            // }
+            // //Если возникла ошибка при открытии окна конференции
+            // if (value.status === 'errorOpenWindows' && res.status !== 'connection'){
+            //     setMeetInfo(_.map(meetInfo, (item) =>
+            //         item.roomId === value.roomId ? {
+            //             ...item,
+            //             status: value.status
+
+            //         } : item
+            //     ))
+            // }
+
+        }
+
+
+
+        // if (value.status === 'notInit') {
+        //     setTimeout(() => {
+        //         deleteMeet(value.roomId)
+        //     }, [timeOutNotifi])
+
+        // }
+        // if (value.status === 'reject') {
+        //     setTimeout(() => {
+        //         deleteMeet(value.roomId)
+        //     }, [timeOutNotifi])
+
+        // }
+        // if (value.status === 'notAnswer') {
+        //     console.log('TimeOut notAnswer Start')
+        //     setTimeout(() => {
+        //         console.log('TimeOut notAnswer Start 2')
+        //         deleteMeet(value.roomId)
+        //     }, [timeOutNotifi])
+        // }
+
+        // if (value.status === 'outCall') {
+        //     console.log('TimeOut OutCall Start')
+        //     setTimeout(() => {
+        //         console.log('TimeOut OutCall Start 1')
+        //         const res = meetInfo.find((item) => item.roomId === value.roomId)
+        //         console.log('TimeOut OutCall res', res)
+        //         if (res.status === 'outCall') {
+        //             console.log('TimeOut OutCall Start 2')
+        //             setStatusMeet({roomId: value.roomId, status: 'notAnswer'})
+        //         }
+        //     }, [timeOutCall])
+
+        // }
+        // if (value.status === 'inCall') {
+        //     setTimeout(() => {
+        //         const res = meetInfo.find((item) => item.roomId === value.roomId)
+        //         if (res.status === 'inCall') {
+        //             deleteMeet(value.roomId)
+        //         }
+        //     }, [timeOutCall])
+
+        // }
+    }
+
+    const setStatusMeetMembers = (value) => {
+        //value={roomId, membersUserId, statusUserId}
+        setMeetInfo(_.map(meetInfo, (item) =>
+            item.roomId === value.roomId ? {
+                ...item,
+                members: _.map(item.members, (m) =>
+                    m.userId === value.membersUserId ? {
+                        ...m,
+                        status: value.statusUser
+                    } : m
+                )
+            } : item
+
+        ))
+
+
+    }
+
+
+
+
+    const startMeet = (value) => {
+        value.status = 'start'
+        const res = meetInfo.find((item) => item.roomId === value.roomId)
+        if (!res) {
+            setMeetInfo((prevState) => ([...prevState, value]))
+            setSignal({type: 'start', roomId: value.roomId})
+        } else {
+            alert('Конференция уже открыта')
+        }
+
+    }
+
+    const deleteMeet = (roomId) => {
+        console.log('deleteMeet roomId', roomId)
+        setMeetInfo(meetInfo.filter((item) => item.roomId !== roomId ))
+
+    }
+
+    const askFromUsers = (value) => {
+        //Если конференции еще нет, то ответ accepted
+        //  если уже идет, то инициатор отправит коннект опоздавшему
+        console.log('askFromUsers')
+        const res = meetInfo.find((item) => item.roomId === value.roomId)
+        console.log('askFromUsers res', res)
+        if (res) {
+            //подменяем инициатора как опоздавшего
+            console.log('Конференция уже идет')
+            //Если я инициатор то отправлю подключение опоздавшему, иначе ничего не отвечаем на ask
+            if (res.initUserId === userID){
+                console.log('askFromUsers SEND TO AfterAnswer')
+                valueToServer = {
+                    type: 'afterAnswer',
+                    roomId: value.roomId,
+                    userId: userID,
+                    initUserId: res.initUserId,
+                    lateUserId: value.initUserId //Опоздвший юзер
+                }
+                console.log('valueToServer', valueToServer)
+                streamerJitsiCall.emit(streamName, valueToServer)
+                //Устанавливаем статус для опоздавшего пользователя
+                setStatusMeetMembers({
+                    roomId: value.roomId,
+                    membersUserId: value.initUserId, //Опоздвший юзер
+                    statusUser: 'answer'
+                })
+            }
+        } else {
+            //Если конференции еще нет то отвечаем что согласны на вызов
+            console.log('Если конференции еще нет то отвечаем что согласны на вызов')
+            valueToServer = {
+                type: 'accepted',
+                roomId: value.roomId,
+                userId: userID,
+                initUserId: value.initUserId
+            }
+            streamerJitsiCall.emit(streamName, valueToServer)
+        }
+    }
+
+
+    const initFromUsers = (value) => {
+        //Инициализируем вызов
+        //Если я инициатор то открываем Исходящий звонок, иначе Входящий вызов
+        if (value.initUserId === userID) {
+            setStatusMeet({roomId: value.roomId, status: 'outCall'})
+        } else {
+            value.status = 'inCall'
+            setMeetInfo((prevState) => ([...prevState, value]))
+            setSignal({type: 'inCall', roomId: value.roomId})
+
+        }
+    }
+
+    const cancelFromUsers = (value) => {
+        //Отмена входящего звонка
+        if (value.roomId) {
+            //Удаляем конференцию
+            deleteMeet(value.roomId)
+            clearTimeout(timer[value.roomId])
+            //setMeetInfo(meetInfo.filter((item) => item.roomId !== value.roomId))
+        }
+    }
+
+    const rejectFromUsers = (value) => {
+        //Юзер отклонил входящий звонок
+        const res = meetInfo.find((item) => item.roomId === value.roomId)
+        if (res.count === 2) {
+            //Меняем статус конференции на reject
+            setStatusMeet({roomId: value.roomId, status: 'reject'})
+        } else {
+            //Изменяем статус у участника конференции
+            setStatusMeetMembers({
+                                    roomId: value.roomId,
+                                    membersUserId: value.rejectUserId,
+                                    statusUser: 'reject'
+                                })
+        }
+    }
+
+    const openWindowsJitsiMeet = (roomId) => {
         // const newWindow = window.open(jitsiUrl, infoCall.roomId);
         // return newWindow.focus();
-        createMeetURL(infoCall.roomId)
+        createMeetURL(roomId)
         .then((resolve) => {
             //setIsMeet(true)
-            const newWindow = window.open(resolve, infoCall.roomId);
-            if (newWindow) {
+            openWindows[roomId] = window.open(resolve, roomId);
+            if (openWindows[roomId]) {
+                setResponse({type: 'setStatus', roomId: roomId, status: 'connected'})
+
                 const closeInterval = setInterval(() => {
-                    if (newWindow.closed === false) {
+                    if (typeof openWindows[roomId].closed === 'undefined') {
+                        clearInterval(closeInterval);
+                    }
+                    if (openWindows[roomId].closed === false) {
                         return;
                     }
-                    setIsMeet(false)
                     clearInterval(closeInterval);
+                    delete openWindows[roomId]
+                    value = {
+                        type: 'deleteMeet',
+                        roomId: roomId
+                    }
+                    setResponse(value)
                 }, 300);
-                return newWindow.focus();
+                return openWindows[roomId].focus();
+            } else {
+                setResponse({type: 'setStatus', roomId: roomId, status: 'errorOpenWindows'})
             }
 
         })
@@ -204,266 +467,450 @@ export const JitsiCall = () => {
 
     }
 
-    const handleCancel = () => {
+    const connectFromUsers = (value) => {
+        //Инициализируем подключение к конференции
+        if (value.roomId) {
+            const res = meetInfo.find((item) => item.roomId === value.roomId)
+            if (res) {
+                //if (res.status !== 'connection' && res.status !== 'connected') {
+                if (res.status === 'inCall' || res.status === 'outCall') {
+                    setStatusMeet({roomId: value.roomId, status: 'connection'})
+                    openWindowsJitsiMeet(value.roomId)
+                }
+                if (res.initUserId === userID) {
+                    setStatusMeetMembers({
+                        roomId: value.roomId,
+                        membersUserId: value.answerUserId,
+                        statusUser: 'answer'
+                    })
+                }
+            }
+
+        }
+    }
+
+    const afterConnectFromUsers = (value) => {
+        //Инициализируем подключение к конференции опоздавшего
+        if (value.roomId) {
+            value.status = 'connection'
+            //Заменяем стартовую конференцию на идущую
+            setMeetInfo(_.map(meetInfo, (item) =>
+                item.roomId === value.roomId ? value : item
+            ))
+            openWindowsJitsiMeet(value.roomId)
+
+        }
+    }
+
+
+
+
+
+    useEffect(() => {
+
+        if (response){
+
+            switch(response.type){
+
+                case 'start': //Начало создания конференции, сервер вернул инфо об учасниках и т.п
+                    startMeet(response)
+                break
+                case 'ask': //Запрос на начало конференции
+                    askFromUsers(response)
+                break
+                case 'init': //Инициализация вызова
+                    initFromUsers(response)
+                break
+                case 'cancel':
+                    cancelFromUsers(response)
+                break
+                case 'reject':
+                    rejectFromUsers(response)
+                break
+                case 'connect':
+                    connectFromUsers(response)
+                break
+                case 'afterConnect':  //Подключение опоздавшего к уже идущей конференции
+                    afterConnectFromUsers(response)
+                break
+                case 'deleteMeet':
+                    deleteMeet(response.roomId)
+                break
+                case 'setStatus':
+                    setStatusMeet(response)
+                break
+
+
+
+            }
+        }
+
+
+    }, [response])
+
+
+
+    useEffect(() => {
+
+        if (signal){
+
+            console.log('Signal ', signal)
+
+            switch(signal.type){
+
+                case 'start': //Начало создания конференции, сервер вернул инфо об учасниках и т.п
+                    timer[signal.roomId] = setTimeout(() => {
+                        setSignal({type: 'finishStart', roomId: signal.roomId})
+                    }, [timeOutInit])
+                break
+                case 'finishStart': //Начало создания конференции, сервер вернул инфо об учасниках и т.п
+                    setStatusMeet({roomId: signal.roomId, status: 'checkInit'})
+                break
+                case 'notInit':
+                    setTimeout(() => {
+                        setSignal({type: 'finishNotInit', roomId: signal.roomId})
+                    }, [timeOutNotifi])
+                break
+                case 'finishNotInit':
+                    deleteMeet(signal.roomId)
+                break
+                case 'outCall': //Задержка исходящива вызова
+                    clearTimeout(timer[signal.roomId])
+                    timer[signal.roomId] = setTimeout(() => {
+                        setSignal({type: 'finishOutCall', roomId: signal.roomId})
+                    }, [timeOutCall])
+                break
+                case 'finishOutCall':
+                    setStatusMeet({roomId: signal.roomId, status: 'checkAnswer'})
+                break
+                case 'notAnswer': //Задержка показа уведомления пользователь не ответил
+                    setTimeout(() => {
+                        setSignal({type: 'finishNotAnswer', roomId: signal.roomId})
+                    }, [timeOutNotifi])
+                break
+                case 'finishNotAnswer':
+                    deleteMeet(signal.roomId)
+                break
+                case 'inCall': //Задержка входящего вызова
+                    timer[signal.roomId] = setTimeout(() => {
+                        setSignal({type: 'finishInCall', roomId: signal.roomId})
+                    }, [timeOutCall])
+                break
+                case 'finishInCall':
+                    setStatusMeet({roomId: signal.roomId, status: 'checkAnswer'})
+                break
+                case 'reject': //Задержка показа уведомления пользователь отклонил вызов
+                    clearTimeout(timer[signal.roomId])
+                    setTimeout(() => {
+                        setSignal({type: 'finishReject', roomId: signal.roomId})
+                    }, [timeOutNotifi])
+                break
+                case 'finishReject':
+                    //deleteMeet(signal.roomId)
+                    deleteMeet('')
+                break
+                case 'deleteTimer':
+                    clearTimeout(timer[signal.roomId])
+                break
+
+
+            }
+        }
+
+
+    }, [signal])
+
+
+
+
+
+
+
+    const handleCancel = (roomId) => {
         //Отмена звонка
         console.log('handleCancel')
-        valueToServer = {
-            type: 'cancel',
-            roomId: infoCall.roomId,
-            userId: userID,
-            initUserId: userID,
-            members: infoCall.members
+        const res = meetInfo.find((item) => item.roomId === roomId)
+        if (res) {
+            valueToServer = {
+                type: 'cancel',
+                roomId: roomId,
+                userId: userID,
+                initUserId: userID,
+                members: res.members
+            }
+            streamerJitsiCall.emit(streamName, valueToServer)
         }
-        streamerJitsiCall.emit(streamName, valueToServer)
+        deleteMeet(roomId)
+        clearTimeout(timer[roomId])
 
     }
 
-    const handleAnswer = () => {
+    const handleAnswer = (roomId) => {
         //Прием звонка
         //afterAnswer для подключения к уже идущей конференции
+        const res = meetInfo.find((item) => item.roomId === roomId)
         console.log('handleAnswer')
-        valueToServer = {
-            type: 'answer',
-            roomId: infoCall.roomId,
-            userId: userID,
-            initUserId: infoCall.initUserId,
+        if (res) {
+            valueToServer = {
+                type: 'answer',
+                roomId: res.roomId,
+                userId: userID,
+                initUserId: res.initUserId,
+            }
+            streamerJitsiCall.emit(streamName, valueToServer)
         }
-        streamerJitsiCall.emit(streamName, valueToServer)
+
 
     }
 
-    const handleReject = () => {
+    const handleReject = (roomId) => {
         //Отклонил звонк
         console.log('handleReject')
-        valueToServer = {
-            type: 'reject',
-            roomId: infoCall.roomId,
-            userId: userID,
-            initUserId: infoCall.initUserId,
-        }
-        streamerJitsiCall.emit(streamName, valueToServer)
-        setStatus(false)
-
-    }
-
-    const rejectFromUsers = (value) => {
-        if (infoCall.count == 2) {
-            setStatus('reject')
-        } else {
-            console.log('Это групповой вызов', infoCall.members)
-            console.log("rejectFromUsers infoCall", infoCall)
-            setInfoCall((prevState) => ({
-                ...prevState,
-                members: _.map(infoCall.members, (m) =>
-                    m.userId === value.rejectUserId
-                        ? {
-                            ...m,
-                            status: 'reject'
-                        }
-                         : m
-                ),
-
-            }))
-
-        }
-    }
-
-    const busyFromUsers = (value) => {
-        if (infoCall.count == 2) {
-            setStatus('busy')
-        } else {
-            console.log('Это групповой вызов', infoCall.members)
-            console.log("rejectFromUsers infoCall", infoCall)
-            setInfoCall((prevState) => ({
-                ...prevState,
-                members: _.map(infoCall.members, (m) =>
-                    m.userId === value.rejectUserId
-                        ? {
-                            ...m,
-                            status: 'busy'
-                        }
-                         : m
-                ),
-
-            }))
-
-        }
-    }
-
-    const initFromUsers = (value) => {
-        //Инициализируем вызов
-        if (value.initUserId === userID) {
-            setStatus('outCall')
-        } else {
-            setStatus('inCall')
-            setInfoCall(value)
-        }
-    }
-
-    const askFromUsers = (value) => {
-        //Если юзер свободен, то ответ accepted
-        console.log('askFromUsers')
-        console.log('askFromUsers status', status)
-
-        if (status) {
-            console.log('askFromUsers status', status)
-
-            //Если звонок поступил в идущую конференцию и я инициатор то отправляем afterAnswer
-            if (value.roomId === infoCall.roomId && infoCall.initUserId === userID){
-                console.log('Конференция УЖЕ ИДУТ')
-
-                //подменяем инициатора как опоздавшего
-                valueToServer = {
-                    type: 'afterAnswer',
-                    roomId: infoCall.roomId,
-                    userId: userID,
-                    initUserId: infoCall.initUserId,
-                    lateUserId: value.userId
-                }
-                streamerJitsiCall.emit(streamName, valueToServer)
-            }
-        } else {
+        const res = meetInfo.find((item) => item.roomId === roomId)
+        if (res) {
             valueToServer = {
-                        type: 'accepted',
-                        roomId: value.roomId,
-                        userId: userID,
-                        initUserId: value.initUserId
-                    }
+                type: 'reject',
+                roomId: res.roomId,
+                userId: userID,
+                initUserId: res.initUserId,
+            }
             streamerJitsiCall.emit(streamName, valueToServer)
-
         }
+        deleteMeet(roomId)
 
     }
 
-    useEffect(() => {
-
-        if (isMeet) {
-            openWindowsJitsiMeet()
-        } else {
-            setInCall(false)
-            setOutCall(false)
-        }
 
 
-    },[isMeet])
+    // const busyFromUsers = (value) => {
+    //     if (infoCall.count == 2) {
+    //         setStatus('busy')
+    //     } else {
+    //         console.log('Это групповой вызов', infoCall.members)
+    //         console.log("rejectFromUsers infoCall", infoCall)
+    //         setInfoCall((prevState) => ({
+    //             ...prevState,
+    //             members: _.map(infoCall.members, (m) =>
+    //                 m.userId === value.rejectUserId
+    //                     ? {
+    //                         ...m,
+    //                         status: 'busy'
+    //                     }
+    //                      : m
+    //             ),
 
-    useEffect(() => {
+    //         }))
 
-        console.log('membersStatus ', membersStatus)
-        if (membersStatus.type === 'reject'){
-            rejectFromUsers(membersStatus)
-        }
-        if (membersStatus.type === 'busy'){
-            busyFromUsers(membersStatus)
-        }
-        if (membersStatus.type === 'init') {
-            initFromUsers(membersStatus)
-        }
-        if (membersStatus.type === 'ask') {
-            askFromUsers(membersStatus)
-        }
-
-
-    },[membersStatus])
-
-    useEffect(() => {
-
-        console.log('infoCall ', infoCall)
+    //     }
+    // }
 
 
-    },[infoCall])
+
+
 
 
 
     useEffect(() => {
-        console.log('status ', status)
+        console.log('meetInfo ', meetInfo)
+        const res = meetInfo.find((item) => item.status !== 'connected')
 
-        if (status) {
+        if (res) {
             document.getElementsByClassName('jitsicall-box')[0].style.display = 'inline-block'
         } else {
-            console.log('infoCall в эфекте при отмене', infoCall)
-            setDefaulState()
             document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
         }
-        if (status === 'start') {
-            const startInterval = setInterval(() => {
-                setStatus('notInit')
-                clearInterval(startInterval);
-            }, 10000);
-        }
-        if (status === 'notInit') {
-            setTimeout(() => {
-                setStatus(false)
-            }, [3000])
+
+        // meetInfo.map((value) => {
+        //     if (value.status === 'notInit') {
+        //         setTimeout(() => {
+        //             deleteMeet(value.roomId)
+        //         }, [timeOutNotifi])
+
+        //     }
+        //     if (value.status === 'reject') {
+        //         setTimeout(() => {
+        //             deleteMeet(value.roomId)
+        //         }, [timeOutNotifi])
+
+        //     }
+        //     if (value.status === 'notAnswer') {
+        //         console.log('TimeOut notAnswer Start')
+        //         setTimeout(() => {
+        //             console.log('TimeOut notAnswer Start 2')
+        //             setResponse({type: 'deleteMeet', roomId: value.roomId})
+        //             //deleteMeet(value.roomId)
+        //         }, [timeOutNotifi])
+        //     }
+
+        //     if (value.status === 'outCall') {
+        //         console.log('TimeOut OutCall Start')
+        //         setTimeout(() => {
+        //             console.log('TimeOut OutCall Start 1')
+        //             setResponse({type: 'setStatus', roomId: value.roomId, status: 'notAnswer'})
+        //         }, [timeOutCall])
+
+        //     }
+        //     if (value.status === 'inCall') {
+        //         setTimeout(() => {
+        //             const res = meetInfo.find((item) => item.roomId === value.roomId)
+        //             if (res.status === 'inCall') {
+        //                 setResponse({type: 'deleteMeet', roomId: value.roomId})
+        //             }
+        //         }, [timeOutCall])
+
+        //     }
+        // })
 
 
-        }
-        if (status === 'notAnswer') {
-            setTimeout(() => {
-                if (infoCall.count === 2) {
-                    setStatus(false)
-                }
-            }, [5000])
-        }
-        if (status === 'outCall') {
-            setOutCall(true)
-            const outCallInterval = setInterval(() => {
-                console.log('outCallInterval')
-                if (status === 'outCall') {
-                    setStatus('notAnswer')
-                    clearInterval(outCallInterval);
-                }
-            }, 10000);
+    },[meetInfo])
 
-        }
-        if (status === 'inCall') {
-            setInCall(true)
-            const inCallInterval = setInterval(() => {
-                if (status === 'inCall') {
-                    setStatus(false)
-                    clearInterval(inCallInterval);
-                }
-            }, 10000);
+    // useEffect(() => {
 
-        }
-        if (status === 'reject') {
-            setTimeout(() => {
-                if (infoCall.count === 2) {
-                    setStatus(false)
-                }
-            }, [3000])
-        }
-        if (status === 'connect') {
-            setInCall(false)
-            setOutCall(false)
-            openWindowsJitsiMeet()
+    //     console.log('membersStatus ', membersStatus)
+    //     if (membersStatus.type === 'reject'){
+    //         rejectFromUsers(membersStatus)
+    //     }
+    //     if (membersStatus.type === 'busy'){
+    //         busyFromUsers(membersStatus)
+    //     }
+    //     if (membersStatus.type === 'init') {
+    //         initFromUsers(membersStatus)
+    //     }
+    //     if (membersStatus.type === 'ask') {
+    //         askFromUsers(membersStatus)
+    //     }
+    //     if (membersStatus.type === 'deleteMeet') {
+    //         deleteMeet(membersStatus)
+    //     }
 
-        }
-        if (status === 'busy') {
-            setTimeout(() => {
-                if (infoCall.count === 2) {
-                    setStatus(false)
-                }
-            }, [3000])
 
-        }
+    // },[membersStatus])
+
+    // useEffect(() => {
+
+    //     console.log('infoCall ', infoCall)
+
+
+    // },[infoCall])
 
 
 
-    },[status])
+    // useEffect(() => {
+    //     console.log('status ', status)
+
+    //     if (status) {
+    //         document.getElementsByClassName('jitsicall-box')[0].style.display = 'inline-block'
+    //     } else {
+    //         console.log('infoCall в эфекте при отмене', infoCall)
+    //         setDefaulState()
+    //         document.getElementsByClassName('jitsicall-box')[0].style.display = 'none'
+    //     }
+    //     if (status === 'start') {
+    //         const startInterval = setInterval(() => {
+    //             setStatus('notInit')
+    //             clearInterval(startInterval);
+    //         }, 10000);
+    //     }
+    //     if (status === 'notInit') {
+    //         setTimeout(() => {
+    //             setStatus(false)
+    //         }, [3000])
+
+
+    //     }
+    //     if (status === 'notAnswer') {
+    //         setTimeout(() => {
+    //             if (infoCall.count === 2) {
+    //                 setStatus(false)
+    //             }
+    //         }, [5000])
+    //     }
+    //     if (status === 'outCall') {
+    //         setOutCall(true)
+    //         const outCallInterval = setInterval(() => {
+    //             console.log('outCall'Interval')
+    //             if (status === 'outCall') {
+    //                 setStatus('notAnswer')
+    //                 clearInterval(outCallInterval);
+    //             }
+    //         }, 10000);
+
+    //     }
+    //     if (status === 'inCall') {
+    //         setInCall(true)
+    //         const inCallInterval = setInterval(() => {
+    //             if (status === 'inCall') {
+    //                 setStatus(false)
+    //                 clearInterval(inCallInterval);
+    //             }
+    //         }, 10000);
+
+    //     }
+    //     if (status === 'reject') {
+    //         setTimeout(() => {
+    //             if (infoCall.count === 2) {
+    //                 setStatus(false)
+    //             }
+    //         }, [3000])
+    //     }
+    //     if (status === 'connect') {
+    //         setInCall(false)
+    //         setOutCall(false)
+    //         openWindowsJitsiMeet()
+
+    //     }
+    //     if (status === 'busy') {
+    //         setTimeout(() => {
+    //             if (infoCall.count === 2) {
+    //                 setStatus(false)
+    //             }
+    //         }, [3000])
+
+    //     }
+
+
+
+    // },[status])
 
     // const handleReject= () => {
     //     ringer.current.pause();
     // }
 
-    console.log("isMeet", isMeet)
+   // console.log("isMeet", isMeet)
 
     //const newWindow = window.open(`${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`, jitsiRoom);
     return (
             <Box>
-                {status==='start' || status==='notInit' ? <CallInitView status={status}/> : null}
-                {inCall ? <CallInView infoCall={infoCall} handleAnswer={handleAnswer} handleReject={handleReject}/>: null }
-                {outCall ? <CallOutView status={status} membersStatus={membersStatus} infoCall={infoCall} handleCancel={handleCancel}/>: null }
+                {meetInfo.map((item, key) => {
+                    return (
+                        <Box key={key}>
+                            {item.status==='start' || item.status==='notInit' || item.status==='errorOpenWindows' ?
+                                (
+                                    <CallInitView status={item.status}/>
+                                ): null
+                            }
+                            {item.status==='outCall' ||  item.status==='notAnswer' ||  item.status==='reject' ?
+                                (
+                                    <CallOutView
+                                        infoCall={item}
+                                        handleCancel={() => handleCancel(item.roomId)}
+                                    />
+                                ): null
+                            }
+                            {item.status==='inCall' ?
+                                (
+                                    <CallInView
+                                        infoCall={item}
+                                        handleAnswer={() => handleAnswer(item.roomId)}
+                                        handleReject={() => handleReject(item.roomId)}
+                                    />
+                                ): null
+                            }
+
+                        </Box>
+                    )
+                })}
+
 
 
             </Box>

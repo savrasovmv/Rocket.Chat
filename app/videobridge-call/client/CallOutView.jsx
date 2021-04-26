@@ -55,7 +55,7 @@ const ringer = createRef() //элемент для рингтона
 
 // }
 
-export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => {
+export const CallOutView = ({infoCall, handleCancel}) => {
 
     const [avatarUrl, setAvatarUrl] = useState(false)
     const [info, setInfo] = useState(false)
@@ -63,7 +63,7 @@ export const CallOutView = ({status, membersStatus, infoCall, handleCancel}) => 
     // const handleReject= () => {
     //     ringer.current.pause();
     // }
-    const {members} = infoCall
+    const {members, status} = infoCall
 
     useEffect(() => {
         console.log('INIT CallerView')

@@ -186,13 +186,17 @@ streamerJitsiCall.on(streamName, function (value) {
 						count: count,
 						members: []
 					}
+
+					//Добавляем участников, исключая инициатора
 					members.map((id) => {
-						valueToCaller.members.push(
-							{
-								userId: id,
-								status: false,
-							}
-						)
+						if (id !== value.userId) {
+							valueToCaller.members.push(
+								{
+									userId: id,
+									status: false,
+								}
+							)
+						}
 					})
 					valueToUser = {
 						type: "ask",
@@ -285,7 +289,7 @@ streamerJitsiCall.on(streamName, function (value) {
 				// Параметры type, roomId, userId, initUserId, lateUserId
 				if (value.initUserId && value.lateUserId) {
 					valueToUsers = {
-						type: 'connect',
+						type: 'afterConnect',
 						roomId: value.roomId,
 						initUserId: value.initUserId,
 						answerUserId: value.initUserId, //юзер который принял входящий вызов

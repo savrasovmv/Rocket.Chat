@@ -10,10 +10,16 @@ import Header from '../../../client/components/Header';
 
 import { sendStartCallJitsiToServer } from '../lib/streamer'
 
+import { modal, call } from '../../ui-utils/client';
+
 const handleClick = () => {
 	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
 	console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
 	sendStartCallJitsiToServer()
+	const rid = Session.get('openedRoom');
+	if (Meteor.status().connected) {
+		return call('jitsiCall:sendMessage', rid);
+	}
 
 }
 

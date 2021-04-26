@@ -131,6 +131,30 @@ Meteor.startup(function() {
 				i18nLabel: 'Jitsi_Limit_Token_To_Room',
 				public: true,
 			});
+			this.add('JitsiCall_timeOutInit', 10000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время ожидания инициализации подключение (мс)',
+				public: true,
+			});
+			this.add('JitsiCall_timeOutCall', 10000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время звонка (мс)',
+				public: true,
+			});
+			this.add('JitsiCall_timeOutNotifi', 3000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время показа сообщений отказ или неудачного подключений (мс)',
+				public: true,
+			});
 		});
 	});
 });

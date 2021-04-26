@@ -7,6 +7,30 @@ Meteor.startup(function() {
 	MessageTypes.registerType({
 		id: 'jitsi_call_started2',
 		system: true,
-		message: TAPi18n.__('Started_a_video_call'),
+		message: TAPi18n.__('Вызов конференции'),
+	});
+});
+
+Meteor.startup(function() {
+	MessageTypes.registerType({
+		id: 'jitsi_call_finished',
+		system: true,
+		message: TAPi18n.__('Вызов завершен'),
+	});
+});
+
+Meteor.startup(function() {
+	MessageTypes.registerType({
+		id: 'jitsi_call_canceled',
+		system: true,
+		message: TAPi18n.__('Отменил вызов'),
+	});
+});
+
+Meteor.startup(function() {
+	MessageTypes.registerType({
+		id: 'jitsi_call_reject',
+		system: true,
+		message: TAPi18n.__('Отклонил вызов'),
 	});
 });
