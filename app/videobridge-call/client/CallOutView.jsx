@@ -20,40 +20,9 @@ import { APIClient } from '../../utils/client'
 
 
 
-const ringer = createRef() //элемент для рингтона
-
-// Вид звонка ЗВОНЯЩЕГО
-// export const CallOutView = () => {
+const ringerJitsiOut = createRef() //элемент для рингтона
 
 
-//     const handleReject= () => {
-//         ringer.current.pause();
-//     }
-
-//     useEffect(() => {
-//         console.log('INIT CallerView')
-
-//         try {
-
-//           ringer.current.src = '/callerRington.mp3'
-//           ringer.current.loop = true
-//         } catch (e) {
-//             console.log(e)
-//         }
-//         ringer.current.play();
-//       }, [])
-
-//     return (
-//         <div>
-//             <div>Вызываю</div>
-//             <button onClick={handleReject}>Отмена</button>
-//             <div hidden>
-//                 <audio preload="auto" ref={ringer} />
-//             </div>
-//         </div>
-//     )
-
-// }
 
 export const CallOutView = ({infoCall, handleCancel}) => {
 
@@ -68,14 +37,14 @@ export const CallOutView = ({infoCall, handleCancel}) => {
     useEffect(() => {
         console.log('INIT CallerView')
 
-        try {
+        // try {
 
-          ringer.current.src = '/callerRington.mp3'
-          ringer.current.loop = true
-        } catch (e) {
-            console.log(e)
-        }
-        ringer.current.play();
+        //   ringerJitsiOut.current.src = '/callerRington.mp3'
+        //   ringerJitsiOut.current.loop = true
+        // } catch (e) {
+        //     console.log(e)
+        // }
+        // ringerJitsiOut.current.play();
       }, [])
 
     const setRejectStatus = (userId) => {
@@ -110,10 +79,6 @@ export const CallOutView = ({infoCall, handleCancel}) => {
 
     }, [members])
 
-    useEffect(() => {
-        console.log('setUsersStatusInfo', usersStatusInfo)
-
-    }, [usersStatusInfo])
 
     useEffect(() => {
         if (infoCall.roomId) {
@@ -158,6 +123,14 @@ export const CallOutView = ({infoCall, handleCancel}) => {
 
         }
 
+        try {
+            ringerJitsiOut.current.src = '/callerRington.mp3'
+            ringerJitsiOut.current.loop = true
+            ringerJitsiOut.current.play();
+          } catch (e) {
+              console.log(e)
+          }
+
     }, [])
 
 
@@ -196,22 +169,6 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                     </Box>
 
                 </Box>
-
-                    {/* <Box>
-                        {info.avatarUrl ? (
-                            <Avatar url={info.avatarUrl} size='x48' />
-                        ):null}
-                        <Label m="x10" fontSize="x16">
-                            {info.name ? info.name : null }
-                        </Label>
-                    </Box>
-                    <Box>
-                        {info.title ? info.title : null }
-                    </Box>
-                    <Box>
-                        {info.department ? info.department : null }
-                    </Box> */}
-
 
                     {usersStatusInfo.map((s, key) => {
                         return (
@@ -255,8 +212,8 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                 </Modal.Footer>
             </Modal>
             <div hidden>
-            <audio preload="auto" ref={ringer} />
-        </div>
+                <audio preload="auto" ref={ringerJitsiOut} />
+            </div>
         </Fragment>
     )
 

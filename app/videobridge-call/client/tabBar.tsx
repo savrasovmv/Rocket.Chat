@@ -16,10 +16,7 @@ const handleClick = () => {
 	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
 	console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
 	sendStartCallJitsiToServer()
-	const rid = Session.get('openedRoom');
-	if (Meteor.status().connected) {
-		return call('jitsiCall:sendMessage', rid);
-	}
+
 
 }
 
@@ -44,10 +41,11 @@ addAction('jitsi_call', ({ room }) => {
 	return useMemo(() => (enabled ? {
 		groups,
 		id: 'jitsi_call',
-		title: 'Call',
+		title: 'Вызов',
 		icon: 'phone',
 		action: handleClick,
 		//template: 'videoFlexTab2',
+		label: 'Вызов',
 		order: live ? -1 : 0,
 		//renderAction: (props): React.ReactNode => <JitsiCall handleCall={true} {...props}/>
 		// renderAction: (props): React.ReactNode => <Header.ToolBoxAction {...props}>

@@ -17,13 +17,16 @@ import {
 import { APIClient } from '../../utils/client'
 import { settings } from '../../settings';
 
-timeOutCall = settings.get('JitsiCall_timeOutCall')
+//const timeOutCall = settings.get('JitsiCall_timeOutCall')
 
-const ringerIn = createRef() //элемент для рингтона
+//const ringerJitsiIn = createRef() //элемент для рингтона
 
 Notification.requestPermission()
 
-export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
+export const CallInView = ({infoCall, handleAnswer, handleReject, timeOutCall}) => {
+
+    console.log('CallInView render')
+
     const [info, setInfo] = useState({
         name: false,
         title: false,
@@ -32,6 +35,8 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
         avatarUrl: false,
         roomName: false
     })
+
+    const ringerJitsiIn = createRef() //элемент для рингтона
 
     const viewNotification = () => {
         console.log(" viewNotification +++++++++++++++++++++++")
@@ -61,17 +66,24 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
         // }
     }
 
+
+
+
+
     useEffect(() => {
         console.log('INIT CalledView')
+        // try {
 
-        try {
+        //     ringerJitsiIn.current.src = '/ringing.mp3'
+        //     ringerJitsiIn.current.loop = true
+        //   } catch (e) {
+        //       console.log(e)
+        //   }
 
-          ringerIn.current.src = '/ringing.mp3'
-          ringerIn.current.loop = true
-        } catch (e) {
-            console.log(e)
-        }
-        ringerIn.current.play();
+        // ringerJitsiIn.current.play();
+
+
+
 
       }, [])
 
@@ -128,6 +140,17 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
 
 
         }
+
+        try {
+
+                ringerJitsiIn.current.src = '/ringing.mp3'
+                ringerJitsiIn.current.loop = true
+                ringerJitsiIn.current.play();
+            } catch (e) {
+                console.log(e)
+            }
+
+
 
 
       }, [])
@@ -220,15 +243,15 @@ export const CallInView = ({infoCall, handleAnswer, handleReject}) => {
             </Modal.Content>
             <Modal.Footer>
             <ButtonGroup align='center'>
-                <Button onClick={() => handleAnswer()} success>Принять</Button>
-                <Button onClick={() => handleReject()} danger>Отклонить</Button>
+                <Button onClick={() => handleAnswer()} primary success>Принять</Button>
+                <Button onClick={() => handleReject()} primary danger>Отклонить</Button>
 
             </ButtonGroup>
 
             </Modal.Footer>
         </Modal>
         <div hidden>
-            <audio preload="auto" ref={ringerIn} />
+            <audio preload="auto" ref={ringerJitsiIn} />
         </div>
 
         </Fragment>

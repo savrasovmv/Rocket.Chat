@@ -201,7 +201,8 @@ streamerJitsiCall.on(streamName, function (value) {
 					valueToUser = {
 						type: "ask",
 						roomId: value.roomId,
-						initUserId: value.userId
+						initUserId: value.userId,
+						count: count
 					}
 					members.map((id) => {
 						console.log('STREEM to USER_ID', id)
@@ -227,6 +228,7 @@ streamerJitsiCall.on(streamName, function (value) {
 						type: 'init',
 						roomId: value.roomId,
 						initUserId: value.initUserId,
+						count: value.count
 					}
 
 					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Отправка инициатору
@@ -281,6 +283,8 @@ streamerJitsiCall.on(streamName, function (value) {
 					console.log('STREEM to USER_ID')
 					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
 					streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
+					//Говорим что ответили на другом устройстве
+					streamerJitsiCall.emit(value.userId + '/'+ streamName, {type: 'answer', roomId: value.roomId}) //Закончить вызов если ответивший имеет несколько запущенных клиентов
 				}
 
 				break
@@ -297,6 +301,20 @@ streamerJitsiCall.on(streamName, function (value) {
 					console.log('STREEM to USER_ID')
 					//Отправляем только опоздавшему юзеру
 					streamerJitsiCall.emit(value.lateUserId + '/'+ streamName, valueToUsers) //Начать конференцию опоздавщему юзеру
+				}
+
+				break
+
+			case 'endMeet':
+				// Авто закрытие окна конференции
+				if (value.userIdToSendEnd) {
+					valueToUsers = {
+						type: 'closeWindowsMeet',
+						roomId: value.roomId,
+					}
+					console.log('STREEM to USER_ID closeWindowsMeet')
+					//Отправляем только опоздавшему юзеру
+					streamerJitsiCall.emit(value.userIdToSendEnd + '/'+ streamName, valueToUsers) //Закрыть окно конференции
 				}
 
 				break

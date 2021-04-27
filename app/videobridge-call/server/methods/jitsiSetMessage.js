@@ -9,7 +9,7 @@ import { canSendMessage } from '../../../authorization/server';
 import { SystemLogger } from '../../../logger/server';
 
 Meteor.methods({
-	'jitsiCall:sendMessage': (rid) => {
+	'jitsiCall:sendMessage': (rid, messageName='jitsi_call_started2') => {
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'jitsiCall:updateTimeout' });
 		}
@@ -29,13 +29,13 @@ Meteor.methods({
 			const currentTime = new Date().getTime();
 
 				metrics.messagesSent.inc(); // TODO This line needs to be moved to it's proper place. See the comments on: https://github.com/RocketChat/Rocket.Chat/pull/5736
+				const mess = {
+					msg: '111 Входящий вызов'
 
-				const message = Messages.createWithTypeRoomIdMessageAndUser('jitsi_call_started2', rid, '', Meteor.user(), {
-					// actionLinks: [
-					// 	{ icon: 'icon-videocam', label: TAPi18n.__('Click_to_join'), method_id: 'joinJitsiCall2', params: '' },
-					// ],
-				});
-				message.msg = TAPi18n.__('Входящий вызов');
+				};
+
+				const message = Messages.createWithTypeRoomIdMessageAndUser(messageName, rid, '', Meteor.user(), {});
+				//message.msg = TAPi18n.__('Входящий вызов');
 				callbacks.run('afterSaveMessage', message, { ...room});
 
 		} catch (error) {
