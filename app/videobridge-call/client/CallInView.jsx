@@ -209,37 +209,6 @@ export const CallInView = ({infoCall, handleAnswer, handleReject, timeOutCall}) 
 
                 </Box>
 
-
-
-
-                    {/* <Box>
-                        {info.roomName ? (
-                            <Label m="x10" fontSize="x16">
-                                Конференция
-                            {info.roomName ? info.roomName : null }
-                        </Label>
-                        ):null}
-
-                    </Box>
-                    {info.roomName ? (
-                        <Box>Инициатор</Box>
-                        ) :null}
-
-                    <Box>
-
-                        {info.avatarUrl ? (
-                            <Avatar url={info.avatarUrl} size='x48' />
-                        ):null}
-                        <Label m="x10" fontSize="x16">
-                            {info.name ? info.name : null }
-                        </Label>
-                    </Box>
-                    <Box>
-                        {info.title ? info.title : null }
-                    </Box>
-                    <Box>
-                        {info.department ? info.department : null }
-                    </Box> */}
             </Modal.Content>
             <Modal.Footer>
             <ButtonGroup align='center'>

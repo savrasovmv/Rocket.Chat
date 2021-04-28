@@ -27,7 +27,7 @@ export const CallInitView = ({status}) => {
                 <Box p='x16' color='danger' textAlign='center'> Не удалось подключится. Абонент недоступен </Box>
             ):null}
             {status==='errorOpenWindows' ? (
-                <Box p='x16' color='danger' textAlign='center'> Не возможно открыть окно конференции </Box>
+                <Box p='x16' color='danger' textAlign='center'> Не возможно открыть окно конференции. Проверьте разрешения на открытия всплывающих окон и повторите попытку </Box>
             ):null}
         </Box>
     )

@@ -155,6 +155,14 @@ Meteor.startup(function() {
 				i18nLabel: 'Время показа сообщений отказ или неудачного подключений (мс)',
 				public: true,
 			});
+			this.add('JitsiCall_Show_AllMessage', true, {
+				type: 'boolean',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Показывать все сообщения при звонке (Начало, завершение и т.п)',
+				public: true,
+			});
 		});
 	});
 });

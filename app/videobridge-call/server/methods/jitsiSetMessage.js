@@ -9,7 +9,7 @@ import { canSendMessage } from '../../../authorization/server';
 import { SystemLogger } from '../../../logger/server';
 
 Meteor.methods({
-	'jitsiCall:sendMessage': (rid, messageName='jitsi_call_started2') => {
+	'jitsiCall:sendMessage': (rid, messageName='jitsi_call_started2', value = {text:'Звонок ', time:''}) => {
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'jitsiCall:updateTimeout' });
 		}
@@ -34,8 +34,8 @@ Meteor.methods({
 
 				};
 
-				const message = Messages.createWithTypeRoomIdMessageAndUser(messageName, rid, '', Meteor.user(), {});
-				//message.msg = TAPi18n.__('Входящий вызов');
+				const message = Messages.createWithTypeRoomIdMessageAndUser(messageName, rid, '', Meteor.user(), value);
+				//message.msg = time;
 				callbacks.run('afterSaveMessage', message, { ...room});
 
 		} catch (error) {

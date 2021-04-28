@@ -184,7 +184,8 @@ streamerJitsiCall.on(streamName, function (value) {
 						roomId: value.roomId,
 						initUserId: value.userId,
 						count: count,
-						members: []
+						members: [],
+						date: new Date()
 					}
 
 					//Добавляем участников, исключая инициатора

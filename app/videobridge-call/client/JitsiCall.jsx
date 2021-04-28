@@ -20,6 +20,8 @@ import {
   } from '@rocket.chat/fuselage'
   import { settings } from '../../settings';
   import { call } from '../../ui-utils/client';
+  import { useFormatDateAndTime } from '../../../client/hooks/useFormatDateAndTime'
+  import moment from 'moment';
 
 // const ringer = createRef() //элемент для рингтона
 
@@ -45,8 +47,11 @@ export const JitsiCall = () => {
     const [timeOutInit, setTimeOutInit] = useState(5000)
     const [timeOutCall, setTimeOutCall] = useState(60000)
     const [timeOutNotifi, setTimeOutNotifi] = useState(3000)
+    const [showAllMessage, setShowAllMessage] = useState(false) //Показывать все сообщения о статусе разговора
 
     console.log("JitsiCall timeOutCall", timeOutCall)
+
+    const formatDate = useFormatDateAndTime()
 
 
     useEffect(() => {
@@ -60,6 +65,7 @@ export const JitsiCall = () => {
         setTimeOutInit(settings.get('JitsiCall_timeOutInit'))
         setTimeOutCall(settings.get('JitsiCall_timeOutCall'))
         setTimeOutNotifi(settings.get('JitsiCall_timeOutNotifi'))
+        setShowAllMessage(settings.get('JitsiCall_Show_AllMessage'))
 
     }, [])
 
@@ -116,7 +122,19 @@ export const JitsiCall = () => {
             }
 
             if (value.status === 'checkAnswer' && res.status === 'inCall') {
-                deleteMeet(value.roomId)
+                if (res.count === 2) {
+                    deleteMeet(value.roomId)
+                } else {
+                    setMeetInfo(_.map(meetInfo, (item) =>
+                        item.roomId === value.roomId ? {
+                            ...item,
+                            status: 'waiting'  //В ожидании, когда звонок поступил из конференции
+
+                        } : item
+                    ))
+
+                }
+
                 return
             }
 
@@ -148,7 +166,8 @@ export const JitsiCall = () => {
                 setMeetInfo(_.map(meetInfo, (item) =>
                     item.roomId === value.roomId ? {
                         ...item,
-                        status: value.status
+                        status: value.status,
+                        date: new Date()
 
                     } : item
                 ))
@@ -256,8 +275,10 @@ export const JitsiCall = () => {
             if (res) {
                 if (res.status === 'start') {
                     setStatusMeet({roomId: value.roomId, status: 'outCall'})
-                    if (Meteor.status().connected) {
-                        return call('jitsiCall:sendMessage', value.roomId);
+                    if (showAllMessage) {
+                        if (Meteor.status().connected) {
+                            return call('jitsiCall:sendMessage', value.roomId);
+                        }
                     }
                 }
             }
@@ -368,6 +389,14 @@ export const JitsiCall = () => {
                         membersUserId: value.answerUserId,
                         statusUser: 'answer'
                     })
+                    if (res.count > 2) {
+                        if (Meteor.status().connected) {
+                            call('jitsiCall:sendMessage', res.roomId, 'jitsi_call_call', {text:'Конференция начата ', time: ''});
+                        }
+
+                    }
+
+
                 }
             }
 
@@ -387,14 +416,51 @@ export const JitsiCall = () => {
         }
     }
 
+    const sendMessageEndMeet = (roomId, dateStart, count=2) => {
+        if (roomId && dateStart) {
+            var end = moment(new Date()); //todays date
+            var start = moment(dateStart); // another date
+            var duration = moment.duration(end.diff(start));
+            var hour = Math.floor(duration.hours());
+            var minut = Math.floor(duration.minutes());
+            var sec = Math.floor(duration.seconds());
+            var time = " "
+            time += hour>0 ? hour + " ч, " : ""
+            time += minut>0 ? minut + " мин, " : ""
+            time += sec>0 ? sec + " с" : ""
+            //+ hour + " ч, " + minut + " мин, " + sec + " с"
+            console.log("Продолжительность конференции", time)
+            if (showAllMessage) {
+                if (Meteor.status().connected) {
+                    call('jitsiCall:sendMessage', roomId, 'jitsi_call_finished', {text:'Вызов завершен', time: time});
+                }
+            } else {
+                if (count > 2) {
+                    if (Meteor.status().connected) {
+                        call('jitsiCall:sendMessage', roomId, 'jitsi_call_call', {text:'Конференция окончена ', time: time});
+                    }
+                } else {
+                    if (Meteor.status().connected) {
+                        call('jitsiCall:sendMessage', roomId, 'jitsi_call_call', {text:'Звонок ', time: time});
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
     const endMeet = (roomId) => {
         //Конец конференции
         if (roomId) {
             const res = meetInfo.find((item) => item.roomId === roomId)
             if (res) {
-                if (Meteor.status().connected && res.initUserId === userID) {
-                        call('jitsiCall:sendMessage', roomId, 'jitsi_call_finished');
+                if (res.initUserId === userID) {
+                    sendMessageEndMeet(res.roomId, res.date, res.count)
                 }
+
+
                 if (res.count === 2) {
                     if (res.initUserId === userID && res.members.length>0 ) {
                         streamerJitsiCall.emit(streamName, {type: 'endMeet', roomId: res.roomId, userId: userID, userIdToSendEnd: res.members[0].userId})
@@ -403,6 +469,7 @@ export const JitsiCall = () => {
                     }
 
                 }
+
             }
             deleteMeet(roomId)
         }
@@ -414,12 +481,15 @@ export const JitsiCall = () => {
         if (roomId) {
             const res = meetInfo.find((item) => item.roomId === roomId)
             if (res) {
-                if (Meteor.status().connected && res.initUserId === userID) {
-                    call('jitsiCall:sendMessage', roomId, 'jitsi_call_finished');
-                }
+                sendMessageEndMeet(res.roomId, res.date, res.count)
                 if (typeof openWindows[roomId] !== 'undefined') {
                     clearInterval(closeInterval[roomId]);
-                    openWindows[roomId].close()
+                    try {
+                        openWindows[roomId].close()
+                    } catch (e) {
+                        console.log('Ошибка при попытки закрытия окна', e)
+                    }
+
                 }
 
                 deleteMeet(roomId)
@@ -567,8 +637,14 @@ export const JitsiCall = () => {
         }
         deleteMeet(roomId)
         clearTimeout(timer[roomId])
-        if (Meteor.status().connected) {
-            call('jitsiCall:sendMessage', roomId, 'jitsi_call_canceled');
+        if (showAllMessage) {
+            if (Meteor.status().connected) {
+                call('jitsiCall:sendMessage', roomId, 'jitsi_call_canceled');
+            }
+        } else {
+            if (Meteor.status().connected) {
+                call('jitsiCall:sendMessage', roomId, 'jitsi_call_notanswer');
+            }
         }
 
     }
@@ -647,7 +723,7 @@ export const JitsiCall = () => {
                                     />
                                 ): null
                             }
-                            {item.status==='inCall' ?
+                            {item.status==='inCall' || item.status==='waiting' ?
                                 (
                                     <CallInView
                                         infoCall={item}
