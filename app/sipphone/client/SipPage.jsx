@@ -7,7 +7,7 @@ import { APIClient } from '../../utils/client'
 import { WebSocketInterface } from 'jssip'
 import { SipProvider, useSip } from './SipContext'
 
-console.log('Start STREAMER')
+//console.log('Start STREAMER')
 
 export const SipPage = () => {
   const [config, setConfig] = useState(false)
@@ -21,7 +21,7 @@ export const SipPage = () => {
 
   //.log('SipPage start')
   if (!showSipPhone || !sipDomain || !wsServers) {
-    console.log('SipPage Не определены параметры SIP')
+    //console.log('SipPage Не определены параметры SIP')
     return <div></div>
   }
 

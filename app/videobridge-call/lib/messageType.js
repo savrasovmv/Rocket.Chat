@@ -12,7 +12,7 @@ Meteor.startup(function() {
 		message: 'jitsi_call_call',
 		render(message) {
 		//data(message) {
-			console.log('message ', message)
+			//console.log('message ', message)
 			return `<svg class="rc-icon" aria-hidden="true"><use xlink:href="#icon-phone"></use></svg> <span style="color:rgba(0, 0, 0, 80%); font-weight:bold;font-size:115%"> ${ message.text} </span> ${ message.time}`
 			//${ message.msg}
 		},

@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import { Meteor } from 'meteor/meteor'
 
 import { Mongo } from 'meteor/mongo'
@@ -46,7 +46,7 @@ export const SipPhone = () => {
   const [isPhone, setIsPhone] = useState(false)
 
   if (!showSipPhone || !sipDomain || !wsServers) {
-    console.log('Не определены параметры SIP')
+    //console.log('Не определены параметры SIP')
     return
   }
   if (!isPhone) {
@@ -91,8 +91,11 @@ export const SipPhone = () => {
     setMissed(missed + 1)
   }
 
-  getStatusSIP(setSipStatus)
-  getMissedSIP(handleMissed)
+  useEffect(() => {
+    getStatusSIP(setSipStatus)
+    getMissedSIP(handleMissed)
+
+  },[])
 
   return (
     <Box

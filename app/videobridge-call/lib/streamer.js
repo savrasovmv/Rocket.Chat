@@ -74,7 +74,7 @@ export const streamName = 'CallJitsi'
 
 
 export const sendStartCallJitsiToServer = () => {
-	console.log("----------- sendStartCallJitsiToServer-----------")
+	//console.log("----------- sendStartCallJitsiToServer-----------")
 	const rid = Session.get('openedRoom');
 	const userId = Meteor.userId()
 	const valueToServer = {

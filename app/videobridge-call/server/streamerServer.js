@@ -14,143 +14,6 @@ import {generateMeetURL} from './methods/jitsiGenerateToken'
 streamerJitsiCall.allowRead('logged')
 streamerJitsiCall.allowWrite('logged')
 
-streamerJitsiCall.on('sendJitsiCallToServer', function (value) {
-	console.log("------------------- sendJitsiCallToServer-----------------")
-	console.log("------value", value)
-	console.log("--------------------------------------------------")
-	if (value.jitsiUrl && value.userId && value.roomId) {
-		console.log('++++++++++++++++++++++++++++++++++++++++++')
-		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
-			fields: { 'u._id': 1 },
-			sort: { 'u.username': 1 },
-			//skip: offset,
-			//limit: count,
-		})
-
-		//const total = subscriptions.count();
-		console.log('++++++++++++++++++++++++++++++++++++++++++')
-		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
-		// const users = Users.find(
-		// 	{ _id: { $in: members } },
-		// 	{
-		// 		fields: {
-		// 			_id: 1,
-		// 			username: 1,
-		// 			name: 1,
-		// 			status: 1,
-		// 			statusText: 1,
-		// 			utcOffset: 1,
-		// 		},
-		// 		sort: { username: sort.username != null ? sort.username : 1 },
-		// 	}
-		// ).fetch()
-		// console.log('++++++++++++++++++++++++++++++++++++++++++members', users)
-		members.map((id) => {
-			if (id!==value.userId) {
-				console.log('STREEM to USER_ID', id)
-
-				//let steamName = id + '/getJitsiCall'
-				streamerJitsiCall.emit(id + '/JitsiCall', value)
-
-			}
-
-
-		})
-
-	}
-})
-
-
-streamerJitsiCall.on('sendClickJitsiCall', function (value) {
-	console.log("------------------- sendClickJitsiCall-----------------")
-	console.log("------value", value)
-	console.log("--------------------------------------------------")
-	if (value.userId && value.roomId) {
-		console.log('++++++++++++++++++++++++++++++++++++++++++')
-		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
-			fields: { 'u._id': 1 },
-			sort: { 'u.username': 1 },
-		})
-
-		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
-		members.map((id) => {
-			console.log('STREEM to USER_ID', id)
-			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
-			streamerJitsiCall.emit(id + '/JitsiCall', value)
-
-
-		})
-
-	}
-})
-
-
-streamerJitsiCall.on('sendAnswerJitsiCall', function (value) {
-	console.log("------------------- sendAnswerJitsiCall-----------------")
-	console.log("------value", value)
-	console.log("--------------------------------------------------")
-	if (value.userId && value.roomId) {
-		console.log('++++++++++++++++++++++++++++++++++++++++++')
-		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
-			fields: { 'u._id': 1 },
-			sort: { 'u.username': 1 },
-		})
-
-		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
-
-
-
-		members.map((id) => {
-			console.log('STREEM to USER_ID', id)
-			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
-			streamerJitsiCall.emit(id + '/AnswerJitsiCall', value)
-		})
-	}
-})
-
-streamerJitsiCall.on('sendRejectJitsiCall', function (value) {
-	console.log("------------------- sendRejectJitsiCall-----------------")
-	console.log("------value", value)
-	console.log("--------------------------------------------------")
-	if (value.userId && value.roomId) {
-		console.log('++++++++++++++++++++++++++++++++++++++++++')
-		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
-			fields: { 'u._id': 1 },
-			sort: { 'u.username': 1 },
-		})
-
-		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
-
-
-
-		members.map((id) => {
-			console.log('STREEM to USER_ID', id)
-			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
-			streamerJitsiCall.emit(id + '/RejectJitsiCall', value)
-		})
-	}
-})
-
-
-// value = {
-// 	type : ["start", "ask", "accepted", "init", "cancel", "answer","reject", "connect", "stop", "error"],
-//	initUserId: initUserId,
-//	userId: userId,
-//	roomId: roomId,
-//	count: count
-// 	members: [
-// 			{
-//	 			userId: userId,
-// 				answered: true,
-// 				accepted: true
-// 			}
-// 		],
-// }
-
 
 streamerJitsiCall.on(streamName, function (value) {
 	//Обязательные параметры type, roomId, userId
@@ -175,9 +38,9 @@ streamerJitsiCall.on(streamName, function (value) {
 				})
 
 				const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-				console.log('+++++++++++++++++++ members', members)
+				//console.log('+++++++++++++++++++ members', members)
 				const count = members.length
-				console.log('+++++++++++++++++++ count', count)
+				//console.log('+++++++++++++++++++ count', count)
 				if (members) {
 					valueToCaller = {
 						type: "start",
@@ -265,7 +128,7 @@ streamerJitsiCall.on(streamName, function (value) {
 						initUserId: value.initUserId,
 						rejectUserId: value.userId, //юзер который отказлся принять вызов
 					}
-					console.log('STREEM to USER_ID')
+					//console.log('STREEM to USER_ID')
 					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Отказ от принятия входящего вызова
 				}
 
@@ -281,7 +144,7 @@ streamerJitsiCall.on(streamName, function (value) {
 						initUserId: value.initUserId,
 						answerUserId: value.userId, //юзер который принял входящий вызов
 					}
-					console.log('STREEM to USER_ID')
+					//console.log('STREEM to USER_ID')
 					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
 					streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
 					//Говорим что ответили на другом устройстве
@@ -299,7 +162,7 @@ streamerJitsiCall.on(streamName, function (value) {
 						initUserId: value.initUserId,
 						answerUserId: value.initUserId, //юзер который принял входящий вызов
 					}
-					console.log('STREEM to USER_ID')
+					//console.log('STREEM to USER_ID')
 					//Отправляем только опоздавшему юзеру
 					streamerJitsiCall.emit(value.lateUserId + '/'+ streamName, valueToUsers) //Начать конференцию опоздавщему юзеру
 				}
@@ -313,12 +176,30 @@ streamerJitsiCall.on(streamName, function (value) {
 						type: 'closeWindowsMeet',
 						roomId: value.roomId,
 					}
-					console.log('STREEM to USER_ID closeWindowsMeet')
+					//console.log('STREEM to USER_ID closeWindowsMeet')
 					//Отправляем только опоздавшему юзеру
 					streamerJitsiCall.emit(value.userIdToSendEnd + '/'+ streamName, valueToUsers) //Закрыть окно конференции
 				}
 
-				break
+			break
+
+			case 'endMeetConference':
+				// Окончание не начавшейся конференции
+				if (value.members) {
+					valueToUsers = {
+						type: 'endMeet',
+						roomId: value.roomId,
+					}
+					//console.log('STREEM to USER_ID endMeetConference')
+					value.members.map((u) => {
+						//console.log('STREEM to USER_ID', u.userId)
+						if (u.userId !== value.userId) {
+							streamerJitsiCall.emit(u.userId + '/'+ streamName, valueToUsers) //Данные для участников не ответившей конференции
+						}
+					})
+				}
+
+			break
 
 			case 'busy':
 				// Если юзер занят, когда идет другая конференция
@@ -330,7 +211,7 @@ streamerJitsiCall.on(streamName, function (value) {
 						initUserId: value.initUserId,
 						busyUserId: value.userId, //юзер который занят
 					}
-					console.log('STREEM to USER_ID')
+					//console.log('STREEM to USER_ID')
 					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Ответ занят Вызывающему юзеру
 				}
 
@@ -340,3 +221,143 @@ streamerJitsiCall.on(streamName, function (value) {
 		}
 	}
 })
+
+
+
+
+// streamerJitsiCall.on('sendJitsiCallToServer', function (value) {
+// 	console.log("------------------- sendJitsiCallToServer-----------------")
+// 	console.log("------value", value)
+// 	console.log("--------------------------------------------------")
+// 	if (value.jitsiUrl && value.userId && value.roomId) {
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++')
+// 		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+// 			fields: { 'u._id': 1 },
+// 			sort: { 'u.username': 1 },
+// 			//skip: offset,
+// 			//limit: count,
+// 		})
+
+// 		//const total = subscriptions.count();
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++')
+// 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+// 		// const users = Users.find(
+// 		// 	{ _id: { $in: members } },
+// 		// 	{
+// 		// 		fields: {
+// 		// 			_id: 1,
+// 		// 			username: 1,
+// 		// 			name: 1,
+// 		// 			status: 1,
+// 		// 			statusText: 1,
+// 		// 			utcOffset: 1,
+// 		// 		},
+// 		// 		sort: { username: sort.username != null ? sort.username : 1 },
+// 		// 	}
+// 		// ).fetch()
+// 		// console.log('++++++++++++++++++++++++++++++++++++++++++members', users)
+// 		members.map((id) => {
+// 			if (id!==value.userId) {
+// 				console.log('STREEM to USER_ID', id)
+
+// 				//let steamName = id + '/getJitsiCall'
+// 				streamerJitsiCall.emit(id + '/JitsiCall', value)
+
+// 			}
+
+
+// 		})
+
+// 	}
+// })
+
+
+// streamerJitsiCall.on('sendClickJitsiCall', function (value) {
+// 	console.log("------------------- sendClickJitsiCall-----------------")
+// 	console.log("------value", value)
+// 	console.log("--------------------------------------------------")
+// 	if (value.userId && value.roomId) {
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++')
+// 		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+// 			fields: { 'u._id': 1 },
+// 			sort: { 'u.username': 1 },
+// 		})
+
+// 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+// 		members.map((id) => {
+// 			console.log('STREEM to USER_ID', id)
+// 			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+// 			streamerJitsiCall.emit(id + '/JitsiCall', value)
+
+
+// 		})
+
+// 	}
+// })
+
+
+// streamerJitsiCall.on('sendAnswerJitsiCall', function (value) {
+// 	console.log("------------------- sendAnswerJitsiCall-----------------")
+// 	console.log("------value", value)
+// 	console.log("--------------------------------------------------")
+// 	if (value.userId && value.roomId) {
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++')
+// 		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+// 			fields: { 'u._id': 1 },
+// 			sort: { 'u.username': 1 },
+// 		})
+
+// 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+
+
+
+// 		members.map((id) => {
+// 			console.log('STREEM to USER_ID', id)
+// 			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+// 			streamerJitsiCall.emit(id + '/AnswerJitsiCall', value)
+// 		})
+// 	}
+// })
+
+// streamerJitsiCall.on('sendRejectJitsiCall', function (value) {
+// 	console.log("------------------- sendRejectJitsiCall-----------------")
+// 	console.log("------value", value)
+// 	console.log("--------------------------------------------------")
+// 	if (value.userId && value.roomId) {
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++')
+// 		const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+// 			fields: { 'u._id': 1 },
+// 			sort: { 'u.username': 1 },
+// 		})
+
+// 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+// 		console.log('++++++++++++++++++++++++++++++++++++++++++members', members)
+
+
+
+// 		members.map((id) => {
+// 			console.log('STREEM to USER_ID', id)
+// 			value.caller = id==value.userId ? true : false //true - Звонящий. false - Вызываемый
+// 			streamerJitsiCall.emit(id + '/RejectJitsiCall', value)
+// 		})
+// 	}
+// })
+
+
+// value = {
+// 	type : ["start", "ask", "accepted", "init", "cancel", "answer","reject", "connect", "stop", "error"],
+//	initUserId: initUserId,
+//	userId: userId,
+//	roomId: roomId,
+//	count: count
+// 	members: [
+// 			{
+//	 			userId: userId,
+// 				answered: true,
+// 				accepted: true
+// 			}
+// 		],
+// }

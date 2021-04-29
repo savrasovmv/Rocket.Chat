@@ -25,23 +25,22 @@ Notification.requestPermission()
 
 export const CallInView = ({infoCall, handleAnswer, handleReject, timeOutCall}) => {
 
-    console.log('CallInView render')
+    //console.log('CallInView render')
 
     const [info, setInfo] = useState({
+        type: 'Звонок',
         name: false,
         title: false,
         department: false,
         username: false,
         avatarUrl: false,
-        roomName: false
     })
+
+    const [openNotifi, setOpenNotifi] = useState(false)
 
     const ringerJitsiIn = createRef() //элемент для рингтона
 
     const viewNotification = () => {
-        console.log(" viewNotification +++++++++++++++++++++++")
-
-            console.log("+++++++++++++++++++++++", info)
             const notification = new Notification('Входящий вызов', {
                 requireInteraction: true, //Постоянно отображается
                 icon: '/call-icon.png',
@@ -71,159 +70,129 @@ export const CallInView = ({infoCall, handleAnswer, handleReject, timeOutCall}) 
 
 
     useEffect(() => {
-        console.log('INIT CalledView')
-        // try {
+        if (openNotifi) {
+            var body = info.name ? info.name+ '\n' : ''
+            body += info.title ? info.title+ '\n' : ''
 
-        //     ringerJitsiIn.current.src = '/ringing.mp3'
-        //     ringerJitsiIn.current.loop = true
-        //   } catch (e) {
-        //       console.log(e)
-        //   }
-
-        // ringerJitsiIn.current.play();
-
-
-
-
-      }, [])
+            const notification = new Notification(info.type, {
+                requireInteraction: true, //Постоянно отображается
+                icon: info.avatarUrl,
+                body:
+                    `${body}`
+                ,
+            })
+            notification.onclick = function () {
+                window.parent.focus()
+                window.focus() // just in case, older browsers
+                this.close()
+            }
+            setTimeout(notification.close.bind(notification), timeOutCall);
+        }
+      }, [openNotifi])
 
       useEffect(() => {
         if (infoCall.roomId && infoCall.initUserId) {
-            console.log('infoCall', infoCall)
-            const value = {
-                name: false,
-                title: false,
-                department: false,
-                username: false,
-                avatarUrl: false,
-                roomName: false
-            }
-            const result1 = APIClient.v1.get('users.info', { userId: infoCall.initUserId })
-            result1.then((resolve) => {
-                    value.name = resolve.user.name
-                    value.title = resolve.user.title
-                    value.department = resolve.user.department
-                    value.username = resolve.user.username
-                    value.avatarUrl = '/avatar/'+resolve.user.username
-            })
-            const result2 = APIClient.v1.get('rooms.info', { roomId: infoCall.roomId })
-            result2.then((resolve) => {
-                if (resolve.room.usersCount>2) {
-                    value.roomName = resolve.room.fname
-
-                }
-
-            })
-            Promise.all([result1, result2]).then((res) => {
-                setInfo(value)
-                //viewNotification()
-
-                var body = value.roomName ? value.roomName + '\n' : ''
-                body += value.name ? value.name+ '\n' : ''
-                body += value.title ? value.title+ '\n' : ''
-
-                const notification = new Notification('Входящий вызов', {
-                    requireInteraction: true, //Постоянно отображается
-                    icon: value.avatarUrl,
-                    body:
-                        `${body}`
-
-                    ,
+            //Если участников два, то показываем инфу о юзере иначе о конференции
+            if (infoCall.count === 2) {
+                const result1 = APIClient.v1.get('users.info', { userId: infoCall.initUserId })
+                result1.then((resolve) => {
+                    setInfo({
+                        type: 'Звонок',
+                        name: resolve.user.name,
+                        title: resolve.user.title,
+                        department: resolve.user.department,
+                        username: resolve.user.username,
+                        avatarUrl:  '/avatar/'+resolve.user.username,
+                    })
+                    setOpenNotifi(true)
                 })
-                notification.onclick = function () {
-                    window.parent.focus()
-                    window.focus() // just in case, older browsers
-                    this.close()
-                }
-                setTimeout(notification.close.bind(notification), timeOutCall);
-            });
-
-
+                result1.catch((reject) => {
+                    setOpenNotifi(true)
+                })
+            } else {
+                const result2 = APIClient.v1.get('rooms.info', { roomId: infoCall.roomId })
+                result2.then((resolve) => {
+                    setInfo({
+                        type: 'Конференция',
+                        name: resolve.room.fname,
+                        title: false,
+                        department: false,
+                        username: false,
+                        avatarUrl:  '/avatar/room/'+resolve.room._id,
+                        })
+                })
+                result2.catch((reject) => {
+                    setInfo({
+                        type: 'Конференция',
+                        name: false,
+                        title: false,
+                        department: false,
+                        username: false,
+                        avatarUrl: false,
+                        })
+                    setOpenNotifi(true)
+                })
+            }
         }
-
         try {
-
                 ringerJitsiIn.current.src = '/ringing.mp3'
                 ringerJitsiIn.current.loop = true
                 ringerJitsiIn.current.play();
             } catch (e) {
                 console.log(e)
             }
-
-
-
-
       }, [])
+
+
+
+    useEffect(() => {
+        if (infoCall.status === 'waiting') {
+            ringerJitsiIn.current.pause();
+        }
+    }, [infoCall])
 
     return (
         <Fragment>
-        <Modal>
-            {/* <Modal.Header>
-            <Modal.Title>
-                {info.roomName ? 'Конференция' : 'Входящий вызов'}
+            <Modal>
+                <Modal.Content>
+                    <Box display="flex" flexDirection="column" pbs='x20'>
+                        <Box textAlign='center' fontSize="x16" pbe='x20' className={infoCall.status === 'waiting'? 'textmeet-blink' : null}>
+                            {info.type} {infoCall.status === 'waiting' ? ' Online': null}
+                        </Box>
 
-            </Modal.Title>
-            </Modal.Header> */}
-            <Modal.Content>
-
-                <Box display="flex" flexDirection="column" pbs='x20'>
-                    <Box textAlign='center' fontSize="x16" pbe='x20'>
-                        {info.roomName ? 'Конференция' : 'Входящий вызов'}
-                    </Box>
-
-                    {info.roomName ? (
-                        <Fragment>
-                            <Box textAlign='center'>
-                                <Label pi="x20" fontSize="x18" >
-                                    {info.roomName}
+                        <Box display="flex" flexDirection="row" >
+                            <Box verticalAlign='middle'>
+                                {info.avatarUrl ? (
+                                    <Avatar url={info.avatarUrl} size='x48' />
+                                ):null}
+                            </Box>
+                            <Box pis='x15'>
+                                <Label pbe='x8' fontSize="x16">
+                                    {info.name ? info.name : null }
                                 </Label>
-
+                                <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                    {info.title ? info.title : null }
+                                </Box>
+                                <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
+                                    {info.department ? info.department : null }
+                                </Box>
                             </Box>
-                            <Box fontStyle='italic' fontSize='x12'>
-                                Инициатор:
-                            </Box>
-                        </Fragment>
-                    ):null}
-
-
-                    <Box display="flex" flexDirection="row" >
-                        <Box verticalAlign='middle'>
-                            {info.avatarUrl ? (
-                                <Avatar url={info.avatarUrl} size='x48' />
-                            ):null}
                         </Box>
-                        <Box pis='x15'>
-                            <Label pbe='x8' fontSize="x16">
-                                {info.name ? info.name : null }
-                            </Label>
-                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
-                                {info.title ? info.title : null }
-                            </Box>
-                            <Box  fontStyle='italic' fontSize='x12' lineHeight='1'>
-                                {info.department ? info.department : null }
-                            </Box>
-
-                        </Box>
-
                     </Box>
-
-                </Box>
-
-            </Modal.Content>
-            <Modal.Footer>
-            <ButtonGroup align='center'>
-                <Button onClick={() => handleAnswer()} primary success>Принять</Button>
-                <Button onClick={() => handleReject()} primary danger>Отклонить</Button>
-
-            </ButtonGroup>
-
-            </Modal.Footer>
-        </Modal>
-        <div hidden>
-            <audio preload="auto" ref={ringerJitsiIn} />
-        </div>
-
+                </Modal.Content>
+                <Modal.Footer>
+                    <ButtonGroup align='center'>
+                        <Button onClick={() => handleAnswer()} primary success>{infoCall.status === 'inCall' ? 'Принять' : 'Подключиться'}</Button>
+                        <Button onClick={() => handleReject()} primary danger>Отклонить</Button>
+                    </ButtonGroup>
+                </Modal.Footer>
+            </Modal>
+            <div hidden>
+                <audio preload="auto" ref={ringerJitsiIn} />
+            </div>
         </Fragment>
     )
-
 }
+
+
+

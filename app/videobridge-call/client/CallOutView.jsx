@@ -29,23 +29,7 @@ export const CallOutView = ({infoCall, handleCancel}) => {
     const [avatarUrl, setAvatarUrl] = useState(false)
     const [info, setInfo] = useState(false)
     const [usersStatusInfo, setUsersStatusInfo] = useState([])
-    // const handleReject= () => {
-    //     ringer.current.pause();
-    // }
     const {members, status} = infoCall
-
-    useEffect(() => {
-        console.log('INIT CallerView')
-
-        // try {
-
-        //   ringerJitsiOut.current.src = '/callerRington.mp3'
-        //   ringerJitsiOut.current.loop = true
-        // } catch (e) {
-        //     console.log(e)
-        // }
-        // ringerJitsiOut.current.play();
-      }, [])
 
     const setRejectStatus = (userId) => {
         console.log('setRejectStatus')
@@ -61,28 +45,20 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                             status: 'Отклонил'
                         }
                     ])
-
                 })
-
-
         }
     }
 
-
     useEffect(() => {
-        console.log('members+++++++++++++++++++++')
         members.map((m) => {
             if (m.status === 'reject') {
                 setRejectStatus(m.userId)
             }
         })
-
     }, [members])
-
 
     useEffect(() => {
         if (infoCall.roomId) {
-            console.log('infoCall', infoCall)
             let callId // Id вызываемого юзера или группы
             let type
             if (infoCall.count===2) {
@@ -91,17 +67,16 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                     if (user.userId !== infoCall.initUserId) {
                         callId = user.userId
                     }
-
                 })
                 const result = APIClient.v1.get('users.info', { userId: callId })
                 result.then((resolve) => {
+                    console.log(resolve)
                     setInfo({
                         name: resolve.user.name,
                         title: resolve.user.title,
                         department: resolve.user.department,
                         username: resolve.user.username,
                         avatarUrl: '/avatar/'+resolve.user.username
-
                     })
                 })
             }
@@ -145,7 +120,7 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                 <Modal.Content>
                 <Box display="flex" flexDirection="column" pbs='x20'>
                     <Box textAlign='center' fontSize="x16" pbe='x20'>
-                        {info.roomName ? 'Конференция' : 'Исходящий вызов'}
+                        {info.roomName ? 'Конференция' : 'Исходящий звонок'}
                     </Box>
                     <Box display="flex" flexDirection="row">
                         <Box verticalAlign='middle'>

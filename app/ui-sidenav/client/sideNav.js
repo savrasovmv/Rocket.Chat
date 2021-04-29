@@ -17,6 +17,7 @@ createTemplateForComponent('sipPhone', () => import('../../sipphone/client/SipPh
 createTemplateForComponent('SipPage', () => import('../../sipphone/client/SipPage'), { renderContainerView: () => HTML.DIV({ class: 'sipphone-box' }) });// eslint-disable-line new-cap
 createTemplateForComponent('JitsiCall', () => import('../../videobridge-call/client/JitsiCall'), { renderContainerView: () => HTML.DIV({ class: 'jitsicall-box' }) });// eslint-disable-line new-cap
 
+
 Template.sideNav.helpers({
 	flexTemplate() {
 		return SideNav.getFlex().template;

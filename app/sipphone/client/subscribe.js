@@ -1,2 +1,2 @@
 import { Meteor } from 'meteor/meteor'
-Meteor.subscribe('siphistory.lists5')
+//Meteor.subscribe('siphistory.lists5')

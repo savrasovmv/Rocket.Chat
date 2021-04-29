@@ -14,7 +14,7 @@ import { modal, call } from '../../ui-utils/client';
 
 const handleClick = () => {
 	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
-	console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
+	//console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
 	sendStartCallJitsiToServer()
 
 
