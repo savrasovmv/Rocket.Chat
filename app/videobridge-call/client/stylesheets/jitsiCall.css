@@ -12,19 +12,45 @@
 	background-color: red; */
 
 	position: absolute;
-	z-index: 999999;
-	top: 30%;
-	left: 40%;
+	z-index: 999990;
+	/* top: 30%;
+	left: 40%; */
 
 	display: none;
 
-	/* width: 20%;
-	height: 10%; */
+
+	width: 100%;
+	height: 100%;
 
 	/* border: 1px solid #dddddd;
 	background-color: white; */
 
 	/* position: sticky; */
+}
+
+.jitsicall-loading {
+
+
+	position: absolute;
+	z-index: 999999;
+	top: 30%;
+	left: 40%;
+	/* width: 50%;
+	height: 50%; */
+	display: inline-block;
+  	/* backdrop-filter: blur(3px);
+	border-radius: 50%;
+	text-align: center; */
+
+	/* border: 1px solid #dddddd;
+	background-color: white; */
+
+	/* position: sticky; */
+}
+
+.jitsi-container {
+	width: 100%;
+	height: 100%;
 }
 
 @-webkit-keyframes pulsate {

@@ -4,6 +4,28 @@ import { TAPi18n } from 'meteor/rocketchat:tap-i18n';
 import { MessageTypes } from '../../ui-utils';
 
 
+Meteor.startup(function() {
+	MessageTypes.registerType({
+		id: 'jitsi_call_started',
+		system: true,
+		message: 'jitsi_call_started',
+		extraData: {},
+		data(message) {
+			//message.hideActionLinks()
+			return message
+		},
+		render(message) {
+			message.actionLinks = null
+			//message.hideActionLinks()
+			return '<svg class="rc-icon" aria-hidden="true"><use xlink:href="#icon-phone"></use></svg> <span style="color:rgba(0, 0, 0, 80%); font-weight:bold;font-size:115%">Звонок</span>'
+
+		},
+
+	});
+});
+
+
+
 
 Meteor.startup(function() {
 	MessageTypes.registerType({

@@ -1,5 +1,5 @@
 {
 	"globals": {
-		"JitsiMeetExternalAPI": false
+		"JitsiMeetExternalAPI": true
 	}
 }

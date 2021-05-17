@@ -139,7 +139,7 @@ Meteor.startup(function() {
 				i18nLabel: 'Время ожидания инициализации подключение (мс)',
 				public: true,
 			});
-			this.add('JitsiCall_timeOutCall', 10000, {
+			this.add('JitsiCall_timeOutCall', 30000, {
 				type: 'int',
 				enableQuery: [
 					{ _id: 'JitsiCall_Enabled', value: true },

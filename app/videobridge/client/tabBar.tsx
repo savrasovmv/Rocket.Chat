@@ -39,6 +39,7 @@ addAction('bbb_video', ({ room }) => {
 
 addAction('video', ({ room }) => {
 	const enabled = useSetting('Jitsi_Enabled');
+	const enabledJitsiCall = useSetting('JitsiCall_Enabled');
 	const t = useTranslation();
 
 	const enabledChannel = useSetting('Jitsi_Enable_Channels');
@@ -54,7 +55,7 @@ addAction('video', ({ room }) => {
 	const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
 	const live = jitsiTimeout > currentTime || null;
 
-	return useMemo(() => (enabled ? {
+	return useMemo(() => (enabled && !enabledJitsiCall ? {
 		groups,
 		id: 'video',
 		title: 'Call',

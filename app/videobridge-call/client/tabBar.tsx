@@ -8,14 +8,39 @@ import { addAction, ToolboxActionConfig } from '../../../client/views/room/lib/T
 import { useTranslation } from '../../../client/contexts/TranslationContext';
 import Header from '../../../client/components/Header';
 
-import { sendStartCallJitsiToServer } from '../lib/streamer'
+import { connectToMeet } from '../lib/streamer'
 
 import { modal, call } from '../../ui-utils/client';
+
+import { Rooms } from '../../models';
 
 const handleClick = () => {
 	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
 	//console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
-	sendStartCallJitsiToServer()
+
+	// const rid = Session.get('openedRoom');
+	// call('jitsi:updateTimeout', rid);
+
+	if (Session.get('openedRoom')) {
+		const rid = Session.get('openedRoom');
+
+		const room = Rooms.findOne({ _id: rid });
+		const currentTime = new Date().getTime();
+		const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
+
+		if (jitsiTimeout > currentTime) {
+			//instance.tabBar.open('jitsi_call');
+			//ПРИСОЕДИНИТЬСЯ К КОНФЕРЕНЦИИ
+			connectToMeet()
+		} else {
+			// НАЧИНАЕМ КОНФЕРЕНЦИЮ
+			//Устанавливаем локальныу переменную, что бы знать с какого клиента идет вызов
+			localStorage['JitsiCall_'+rid] = true
+			//sendStartCallJitsiToServer()
+			call('jitsi:updateTimeout', rid);
+
+		}
+	}
 
 
 }

@@ -87,6 +87,23 @@ export const sendStartCallJitsiToServer = () => {
 
 }
 
+
+export const connectToMeet = () => {
+	//console.log("----------- sendStartCallJitsiToServer-----------")
+	const rid = Session.get('openedRoom');
+	const userId = Meteor.userId()
+	const valueToServer = {
+		type: 'connect',
+		userId: userId,
+		roomId: rid,
+		initUserId: null
+	}
+	streamerJitsiCall.emit(streamName, valueToServer)
+
+}
+
+
+
 export const sendBusy = (value) => {
 	console.log("----------- sendBusy-----------")
 
