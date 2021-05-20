@@ -187,6 +187,49 @@ Meteor.startup(function() {
 				i18nLabel: 'Jitsi_Limit_Token_To_Room',
 				public: true,
 			});
+
+			//Добавлено для звонков
+			this.add('JitsiCall_Enabled', false, {
+				type: 'boolean',
+				enableQuery: [
+					{ _id: 'Jitsi_Enabled', value: true },
+				],
+				alert: 'Своя доработка, визуализирует звонок со звуком. При изменении требуется перезагрузка',
+				i18nLabel: 'Включить звонки',
+				public: true,
+			});
+			this.add('JitsiCall_timeOutInit', 10000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время ожидания инициализации подключение (мс)',
+				public: true,
+			});
+			this.add('JitsiCall_timeOutCall', 40000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время звонка (мс)',
+				public: true,
+			});
+			this.add('JitsiCall_timeOutNotifi', 3000, {
+				type: 'int',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Время показа сообщений отказ или неудачного подключений (мс)',
+				public: true,
+			});
+			this.add('JitsiCall_Show_Debug', true, {
+				type: 'boolean',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+				],
+				i18nLabel: 'Включить отладку (вывод в консоль системных сообщений)',
+				public: true,
+			});
 		});
 	});
 });

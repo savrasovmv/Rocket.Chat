@@ -15,21 +15,15 @@ import { modal, call } from '../../ui-utils/client';
 import { Rooms } from '../../models';
 
 const handleClick = () => {
-	//document.getElementsByClassName('jitsicall-box')[0].style.display = 'flex'
-	//console.log("JitsiCallClick ++++++++++++++++++++++++++++++++")
-
-	// const rid = Session.get('openedRoom');
-	// call('jitsi:updateTimeout', rid);
 
 	if (Session.get('openedRoom')) {
-		const rid = Session.get('openedRoom');
 
+		const rid = Session.get('openedRoom');
 		const room = Rooms.findOne({ _id: rid });
 		const currentTime = new Date().getTime();
 		const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
 
 		if (jitsiTimeout > currentTime) {
-			//instance.tabBar.open('jitsi_call');
 			//ПРИСОЕДИНИТЬСЯ К КОНФЕРЕНЦИИ
 			connectToMeet()
 		} else {
@@ -37,12 +31,9 @@ const handleClick = () => {
 			//Устанавливаем локальныу переменную, что бы знать с какого клиента идет вызов
 			localStorage['JitsiCall_'+rid] = true
 			//sendStartCallJitsiToServer()
-			call('jitsi:updateTimeout', rid);
-
+			call('jitsi:updateTimeout', rid, 'start');
 		}
 	}
-
-
 }
 
 
@@ -50,7 +41,7 @@ addAction('jitsi_call', ({ room }) => {
 	const enabled = useSetting('JitsiCall_Enabled');
 	const t = useTranslation();
 
-	const enabledChannel = useSetting('JitsiCall_Enable_Channels');
+	const enabledChannel = useSetting('Jitsi_Enable_Channels');
 
 	const groups = useStableArray([
 		'direct',

@@ -73,19 +73,19 @@ export const streamName = 'CallJitsi'
 
 
 
-export const sendStartCallJitsiToServer = () => {
-	//console.log("----------- sendStartCallJitsiToServer-----------")
-	const rid = Session.get('openedRoom');
-	const userId = Meteor.userId()
-	const valueToServer = {
-		type: 'start',
-		userId: userId,
-		roomId: rid,
-		initUserId: userId
-	}
-	streamerJitsiCall.emit(streamName, valueToServer)
+// export const sendStartCallJitsiToServer = () => {
+// 	//console.log("----------- sendStartCallJitsiToServer-----------")
+// 	const rid = Session.get('openedRoom');
+// 	const userId = Meteor.userId()
+// 	const valueToServer = {
+// 		type: 'start',
+// 		userId: userId,
+// 		roomId: rid,
+// 		initUserId: userId
+// 	}
+// 	streamerJitsiCall.emit(streamName, valueToServer)
 
-}
+// }
 
 
 export const connectToMeet = () => {
@@ -104,15 +104,15 @@ export const connectToMeet = () => {
 
 
 
-export const sendBusy = (value) => {
-	console.log("----------- sendBusy-----------")
+// export const sendBusy = (value) => {
+// 	console.log("----------- sendBusy-----------")
 
-	const valueToServer = {
-		type: 'busy',
-		userId: Meteor.userId(),
-		roomId: value.roomId,
-		initUserId: value.initUserId
-	}
-	streamerJitsiCall.emit(streamName, valueToServer)
+// 	const valueToServer = {
+// 		type: 'busy',
+// 		userId: Meteor.userId(),
+// 		roomId: value.roomId,
+// 		initUserId: value.initUserId
+// 	}
+// 	streamerJitsiCall.emit(streamName, valueToServer)
 
-}
+// }

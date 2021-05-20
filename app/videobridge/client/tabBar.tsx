@@ -37,36 +37,37 @@ addAction('bbb_video', ({ room }) => {
 	} : null), [enabled, groups, live, t]);
 });
 
-addAction('video', ({ room }) => {
-	const enabled = useSetting('Jitsi_Enabled');
-	const enabledJitsiCall = useSetting('JitsiCall_Enabled');
-	const t = useTranslation();
+// addAction('video', ({ room }) => {
+// 	const enabled = useSetting('Jitsi_Enabled');
+// 	//Если включены звонки то не отображаем кнопку
+// 	const enabledJitsiCall = useSetting('JitsiCall_Enabled');
+// 	const t = useTranslation();
 
-	const enabledChannel = useSetting('Jitsi_Enable_Channels');
+// 	const enabledChannel = useSetting('Jitsi_Enable_Channels');
 
-	const groups = useStableArray([
-		'direct',
-		'group',
-		'live',
-		enabledChannel && 'channel',
-	].filter(Boolean) as ToolboxActionConfig['groups']);
+// 	const groups = useStableArray([
+// 		'direct',
+// 		'group',
+// 		'live',
+// 		enabledChannel && 'channel',
+// 	].filter(Boolean) as ToolboxActionConfig['groups']);
 
-	const currentTime = new Date().getTime();
-	const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
-	const live = jitsiTimeout > currentTime || null;
+// 	const currentTime = new Date().getTime();
+// 	const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
+// 	const live = jitsiTimeout > currentTime || null;
 
-	return useMemo(() => (enabled && !enabledJitsiCall ? {
-		groups,
-		id: 'video',
-		title: 'Call',
-		icon: 'phone',
-		template: 'videoFlexTab',
-		order: live ? -1 : 0,
-		renderAction: (props): React.ReactNode => <Header.ToolBoxAction {...props}>
-			{live && <Header.Badge title={t('Started_a_video_call')} variant='primary'>!</Header.Badge>}
-		</Header.ToolBoxAction>,
-		renderOption: ({ label: { title, icon }, ...props }: any): React.ReactNode => <Option label={title} title={title} icon={icon} {...props}>
-			{ live && <Badge title={t('Started_a_video_call')} variant='primary'>!</Badge> }
-		</Option>,
-	} : null), [enabled, groups, live, t]);
-});
+// 	return useMemo(() => (enabled && !enabledJitsiCall ? {
+// 		groups,
+// 		id: 'video',
+// 		title: 'Call',
+// 		icon: 'phone',
+// 		template: 'videoFlexTab',
+// 		order: live ? -1 : 0,
+// 		renderAction: (props): React.ReactNode => <Header.ToolBoxAction {...props}>
+// 			{live && <Header.Badge title={t('Started_a_video_call')} variant='primary'>!</Header.Badge>}
+// 		</Header.ToolBoxAction>,
+// 		renderOption: ({ label: { title, icon }, ...props }: any): React.ReactNode => <Option label={title} title={title} icon={icon} {...props}>
+// 			{ live && <Badge title={t('Started_a_video_call')} variant='primary'>!</Badge> }
+// 		</Option>,
+// 	} : null), [enabled, groups, live, t]);
+// });

@@ -66,7 +66,6 @@ Meteor.startup(() => {
         timeOutInit = settings.get('JitsiCall_timeOutInit') || timeOutInit
         timeOutCall = settings.get('JitsiCall_timeOutCall') || timeOutCall
         timeOutNotifi = settings.get('JitsiCall_timeOutNotifi') || timeOutNotifi
-        showAllMessage = settings.get('JitsiCall_Show_AllMessage') || showAllMessage
         showDebug = settings.get('JitsiCall_Show_Debug') || showDebug
         debug('timeOutInit', timeOutInit)
         debug('timeOutCall', timeOutCall)
@@ -106,6 +105,7 @@ export const JitsiCall = () => {
     const [isShowChat, setIsShowChat] = useState(false) //виден ли чат RC
 
     const [loading, setLoading] = useState(true);
+    const [jitsiMembers, setJitsiMembers] = useState([]);
     //const [timeOutInit, setTimeOutInit] = useState(5000)
     //const [timeOutCall, setTimeOutCall] = useState(60000)
     // const [timeOutNotifi, setTimeOutNotifi] = useState(3000)
@@ -139,6 +139,10 @@ export const JitsiCall = () => {
     //     });
     // })
 
+    const addJitsiMembers = (value) => {
+        setJitsiMembers((prevState) => ([...prevState, value]))
+
+    }
 
 
     const showJitsiCallBox = (value=false) => {
@@ -151,42 +155,77 @@ export const JitsiCall = () => {
 
     }
 
+    const getTimeMeet = (dateStart) => {
+        var end = moment(new Date()); //todays date
+        var start = moment(dateStart); // another date
+        var duration = moment.duration(end.diff(start));
+        var hour = Math.floor(duration.hours());
+        var minut = Math.floor(duration.minutes());
+        var sec = Math.floor(duration.seconds());
+        var time = " "
+        time += hour>0 ? hour + " ч, " : ""
+        time += minut>0 ? minut + " мин, " : ""
+        time += sec>0 ? sec + " с" : ""
+        //+ hour + " ч, " + minut + " мин, " + sec + " с"
+        return time
+    }
 
 
 
     const deleteMeet = (roomId) => {
         debug('deleteMeet roomId', roomId)
+        if (jitsiApi[roomId]) {
+            jitsiApi[roomId].dispose();
+        }
         const res = meetInfo.find((item) => item.roomId === roomId)
-        console.log('res', res)
-        // if (!res) {
-        //     return
-        // }
+        //console.log('res', res)
         //Если это инициатор, сбрасываем таймаут конференции
         if (res && res.initUserId === userID) {
             debug('jitsi:deleteTimeout', roomId)
             clearInterval(intervalHandler[roomId])
-            call('jitsi:deleteTimeout', roomId);
+            let time = ""
+            let text = ""
+            if (res.dateStart) {
+                time = getTimeMeet(res.dateStart)
+                text = "Звонок"
+            } else {
+                text = "NotAnswer"
+            }
+            if (res.status === 'reject') {
+                text = 'Звонок отклонен'
+            }
+            call('jitsi:deleteTimeout', {roomId: roomId, text: text, time: time});
         }
         clearInterval(waitingInterval[roomId])
         setMeetInfo(meetInfo.filter((item) => item.roomId !== roomId ))
-        if (jitsiApi[roomId]) {
-            jitsiApi[roomId].dispose();
-        }
 
+        setJitsiMembers([])
 
     }
 
     const setStatusMeetInfo = (value) => {
         debug('setStatusMeetInfo ', value)
+        if (value.roomId && value.status && value.dateStart) {
+            setMeetInfo(_.map(meetInfo, (item) =>
+                item.roomId === value.roomId ? {
+                    ...item,
+                    status: value.status,
+                    dateStart: value.dateStart,
+                } : item
+            ))
+            return
+        }
         if (value.roomId && value.status) {
             setMeetInfo(_.map(meetInfo, (item) =>
                 item.roomId === value.roomId ? {
                     ...item,
                     status: value.status
-
                 } : item
             ))
+            return
         }
+
+
     }
 
     const setStatusMeet = (value) => {
@@ -214,10 +253,6 @@ export const JitsiCall = () => {
                 if (res.initUserId === userID) {
 
                     setStatusMeetInfo({roomId: value.roomId, status: 'notAnswer'})
-
-                    if (Meteor.status().connected) {
-                        call('jitsiCall:sendMessage', value.roomId, 'jitsi_call_notanswer');
-                    }
 
                     setTimeout(() => {
                         deleteMeet(value.roomId)
@@ -252,6 +287,12 @@ export const JitsiCall = () => {
             }
 
             if (value.status === 'answer') {
+                if (res.initUserId === userID) {
+                    //устанавливаем время начала конференции
+                    value.dateStart = new Date()
+
+                }
+
                 setStatusMeetInfo(value)
                 clearTimeout(timer[response.roomId])
                 return
@@ -270,12 +311,6 @@ export const JitsiCall = () => {
                 setStatusMeetInfo(value)
                 return
             }
-
-
-
-
-
-
         }
     }
 
@@ -300,7 +335,6 @@ export const JitsiCall = () => {
         //document.getElementsByClassName('jitsicall-box')[0].style.display = 'inline-block'
 
         debug('startJitsiMeet')
-        //const roomId = Session.get('openedRoom');
         getJitsiParam(roomId)
         .then((resolve) => {
             debug('getJitsiParam resolve: ', resolve)
@@ -310,39 +344,28 @@ export const JitsiCall = () => {
                 jitsiApi[roomId] = new JitsiMeetExternalAPI(domain, options);
                 jitsiApi[roomId].addEventListener('videoConferenceJoined', () => {
                     debug('Api videoConferenceJoined')
-                    //setLoading(false);
                 });
                 jitsiApi[roomId].addEventListener('participantJoined', (value) => {
                     //При подключении участника
                     debug('Api participantJoined', value)
-                    //alert('participantJoined', jitsiApi[roomId].getNumberOfParticipants())
-                    setSignal({roomId: roomId, status: 'answer'})
+                    setSignal({roomId: roomId, status: 'answer', participantJoined: value})
 
                     debug('++++++++++++++++++++++++',jitsiApi[roomId].getNumberOfParticipants())
-                    // if (jitsiApi[roomId].getNumberOfParticipants() === 1){
-                    //     jitsiApi[roomId].dispose();
-                    //     deleteMeet(roomId)
-                    // }
+                    setSignal({roomId: roomId, status: 'addMembers', value: value})
                 });
                 jitsiApi[roomId].addEventListener('participantLeft', (value) => {
                     //При выходе участника
-                    debug('Api participantJoined', value)
-                    //alert('participantJoined', jitsiApi[roomId].getNumberOfParticipants())
-                    //setSignal({roomId: roomId, status: 'answer'})
-
+                    debug('Api participantLeft', value)
                     debug('---------------------------',jitsiApi[roomId].getNumberOfParticipants())
                     if (jitsiApi[roomId].getNumberOfParticipants() === 1){
-                        jitsiApi[roomId].dispose();
+                        //jitsiApi[roomId].dispose();
                         setSignal({roomId: roomId, status: 'finishCall'})
-                        //deleteMeet(roomId)
                     }
                 });
                 jitsiApi[roomId].on('readyToClose', () => {
                     debug('****************Api readyToClose')
-                    //alert('readyToClose')
-                    jitsiApi[roomId].dispose();
+                    //jitsiApi[roomId].dispose();
                     setSignal({roomId: roomId, status: 'finishCall'})
-                    //deleteMeet(roomId)
                 });
                 } catch (error) {
                     console.error('Failed to load Jitsi API', error);
@@ -352,29 +375,15 @@ export const JitsiCall = () => {
     }
 
 
-
-    // const update = async (roomId) => {
-	// 	const { jitsiTimeout } = Rooms.findOne({ _id: roomId }, { fields: { jitsiTimeout: 1 } });
-
-	// 	if (jitsiTimeout && (TimeSync.serverTime() - new Date(jitsiTimeout) + CONSTANTS.TIMEOUT < CONSTANTS.DEBOUNCE)) {
-	// 		return;
-	// 	}
-	// 	if (Meteor.status().connected) {
-    //         debug('update jitsiTimeout', jitsiTimeout)
-	// 		return call('jitsi:updateTimeout', roomId);
-	// 	}
-	// };
-
     const start = (roomId) => {
         intervalHandler[roomId] = setInterval(() => {
             if (Meteor.status().connected) {
                 debug('update jitsiTimeout')
-                return call('jitsi:updateTimeout', roomId);
+                return call('jitsi:updateTimeout', roomId, 'update');
             }
         }, [CONSTANTS.HEARTBEAT]);
 
 	};
-
 
 
     const startOutCall = async (value) => {
@@ -394,9 +403,7 @@ export const JitsiCall = () => {
             }, [timeOutCall])
 
             start(value.roomId)
-
         }
-
     }
 
     const startInCall = (value) => {
@@ -409,7 +416,6 @@ export const JitsiCall = () => {
                 setSignal({roomId: value.roomId, status: 'checkCall'})
             }, [timeOutCall])
         }
-
     }
 
     const connectCall = (value) => {
@@ -421,7 +427,6 @@ export const JitsiCall = () => {
             setMeetInfo((prevState) => ([...prevState, value]))
             startJitsiMeet(value.roomId)
         }
-
     }
 
 
@@ -432,8 +437,6 @@ export const JitsiCall = () => {
             //Удаляем конференцию
             deleteMeet(value.roomId)
             clearTimeout(timer[value.roomId])
-
-            //setMeetInfo(meetInfo.filter((item) => item.roomId !== value.roomId))
         }
     }
 
@@ -458,13 +461,6 @@ export const JitsiCall = () => {
     }
 
 
-
-
-
-
-
-
-
     const handleCancel = (roomId) => {
         //Отмена звонка
         debug('handleCancel', roomId)
@@ -481,16 +477,6 @@ export const JitsiCall = () => {
         }
         deleteMeet(roomId)
         clearTimeout(timer[roomId])
-        if (showAllMessage) {
-            if (Meteor.status().connected) {
-                call('jitsiCall:sendMessage', roomId, 'jitsi_call_canceled');
-            }
-        } else {
-            if (Meteor.status().connected) {
-                call('jitsiCall:sendMessage', roomId, 'jitsi_call_notanswer');
-            }
-        }
-
     }
 
 
@@ -509,42 +495,47 @@ export const JitsiCall = () => {
         }
         deleteMeet(roomId)
         clearTimeout(timer[roomId])
-        if (Meteor.status().connected) {
-            call('jitsiCall:sendMessage', roomId, 'jitsi_call_reject');
-        }
-
     }
 
 
     const handleAnswer = (roomId) => {
         //Прием звонка
         debug('handleAnswer', roomId)
-        //afterAnswer для подключения к уже идущей конференции
         const res = meetInfo.find((item) => item.roomId === roomId)
         if (res) {
-            //Посылаем статус на сервер для прекращания звонк на других устройствах, если запущено несколько клиентов
-            valueToServer = {
-                type: 'answer',
-                roomId: res.roomId,
-                userId: userID,
-                initUserId: res.initUserId,
-            }
+            //Ищем идущие конференции, и завершаем их
+            const answer = meetInfo.find((item) => item.status === 'answer')
+            if (answer) {
+                alert('Невозможно принять вызов т.к существует активный звонок. Завершите звонок.')
+            } else {
+                //Посылаем статус на сервер для прекращания звонк на других устройствах, если запущено несколько клиентов
+                valueToServer = {
+                    type: 'answer',
+                    roomId: res.roomId,
+                    userId: userID,
+                    initUserId: res.initUserId,
+                }
 
-            streamerJitsiCall.emit(streamName, valueToServer)
-            //Устанавливаем статус answer ответившему, чтобы исключить дубликат подключения если открыто два клиента у одного пользователя
-            setStatusMeet({roomId: roomId, status: 'answer'})
-            startJitsiMeet(roomId)
+                streamerJitsiCall.emit(streamName, valueToServer)
+
+                //Устанавливаем статус answer ответившему, чтобы исключить дубликат подключения если открыто два клиента у одного пользователя
+                setStatusMeet({roomId: roomId, status: 'answer'})
+                startJitsiMeet(roomId)
+            }
         }
     }
+
 
     const handleShowRC = () => {
         //Показать окно чатов
         debug('handleShowRC')
         if (isShowChat) {
             htmlJistsiBox.style.position = 'absolute'
+            htmlJistsiBox.style["z-index"] = '99999'
             setIsShowChat(false)
         } else {
             htmlJistsiBox.style.position = 'relative'
+            htmlJistsiBox.style["z-index"] = '0'
             setIsShowChat(true)
         }
     }
@@ -604,6 +595,10 @@ export const JitsiCall = () => {
                 debug('signal finishCall')
                 deleteMeet(signal.roomId)
             break
+            case 'addMembers':
+                debug('signal addMembers')
+                addJitsiMembers(signal.value)
+            break
         }
     },[signal])
 
@@ -611,41 +606,30 @@ export const JitsiCall = () => {
     useEffect(() => {
         debug('meetInfo ', meetInfo)
 
-        if (meetInfo.length > 0) {
-            showJitsiCallBox(true)
-        } else {
-            showJitsiCallBox(false)
-        }
         const res = meetInfo.find((item) => item.status === 'answer')
         if (res) {
             setIsConnect(true)
         } else {
             setIsConnect(false)
         }
-        // if (!res && isConnect) {
-        //     setIsConnect(false)
-        // }
 
-
-
+        if (meetInfo.length > 0) {
+            showJitsiCallBox(true)
+        } else {
+            showJitsiCallBox(false)
+            if (isShowChat) {
+                handleShowRC()
+            }
+        }
     },[meetInfo])
+
+    useEffect(() => {
+        debug('jitsiMembers ', jitsiMembers)
+    },[jitsiMembers])
 
 
     return (
             <Fragment>
-                {/* {loading ? (
-                    <Box className='jitsicall-loading'>
-                        <Box>
-                            <Throbber/>
-                        </Box>
-                        <Box>
-                            Соединение...
-                        </Box>
-                    </Box>
-                   ): null
-                } */}
-
-
                     <Box display="flex" flexDirection="row" height='100%' width='100%' bg='default' invisible={!isConnect}>
 
                         <Box verticalAlign='middle' title='Показать чат'>
@@ -658,8 +642,6 @@ export const JitsiCall = () => {
                         </Box>
                     </Box>
 
-
-                {/* <Box className='jitsicall-loading'> */}
                     {meetInfo.map((item, key) => {
 
                         return item.status !== 'answer' && (
@@ -691,7 +673,6 @@ export const JitsiCall = () => {
                             </Box>
                         )
                     })}
-                {/* </Box> */}
             </Fragment>
     )
 }

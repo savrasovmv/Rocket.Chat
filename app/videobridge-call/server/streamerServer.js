@@ -9,7 +9,7 @@ import {
 } from '../../models'
 import {streamerJitsiCall, streamName } from '../lib/streamer'
 //import {createMeetURL} from './../lib/createMeet'
-import {generateMeetURL} from './methods/jitsiGenerateToken'
+//import {generateMeetURL} from './methods/jitsiGenerateToken'
 
 streamerJitsiCall.allowRead('logged')
 streamerJitsiCall.allowWrite('logged')
@@ -34,7 +34,7 @@ export const sendStartCallJitsi = (userId=false, roomId=false) => {
 				initUserId: userId,
 				count: count,
 				members: [],
-				date: new Date()
+				//date: new Date()
 			}
 
 			//Добавляем участников, исключая инициатора
@@ -83,56 +83,56 @@ streamerJitsiCall.on(streamName, function (value) {
 
 	if (value.type && value.userId && value.roomId) {
 		switch(value.type) {
-			case 'start':
-				//Отправляем инициатору данные о участиках конференции
-				//Опрашиваем юзера о готовности принять вызов. отправляем ему ask
+			// case 'start':
+			// 	//Отправляем инициатору данные о участиках конференции
+			// 	//Опрашиваем юзера о готовности принять вызов. отправляем ему ask
 
-				const subscriptions = Subscriptions.findByRoomId(value.roomId, {
-					fields: { 'u._id': 1 },
-					sort: { 'u.username': 1 },
-				})
+			// 	const subscriptions = Subscriptions.findByRoomId(value.roomId, {
+			// 		fields: { 'u._id': 1 },
+			// 		sort: { 'u.username': 1 },
+			// 	})
 
-				const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-				//console.log('+++++++++++++++++++ members', members)
-				const count = members.length
-				//console.log('+++++++++++++++++++ count', count)
-				if (members) {
-					valueToCaller = {
-						type: "outCall",
-						roomId: value.roomId,
-						initUserId: value.userId,
-						count: count,
-						members: [],
-						date: new Date()
-					}
+			// 	const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+			// 	//console.log('+++++++++++++++++++ members', members)
+			// 	const count = members.length
+			// 	//console.log('+++++++++++++++++++ count', count)
+			// 	if (members) {
+			// 		valueToCaller = {
+			// 			type: "outCall",
+			// 			roomId: value.roomId,
+			// 			initUserId: value.userId,
+			// 			count: count,
+			// 			members: [],
+			// 			date: new Date()
+			// 		}
 
-					//Добавляем участников, исключая инициатора
-					members.map((id) => {
-						if (id !== value.userId) {
-							valueToCaller.members.push(
-								{
-									userId: id,
-									status: false,
-								}
-							)
-						}
-					})
-					valueToUser = {
-						type: "inCall",
-						roomId: value.roomId,
-						initUserId: value.userId,
-						count: count
-					}
-					members.map((id) => {
-						console.log('STREEM to USER_ID', id)
-						if (id == value.userId) {
-							streamerJitsiCall.emit(id + '/'+ streamName, valueToCaller) //Данные для инициатора вызова
-						} else {
-							streamerJitsiCall.emit(id + '/'+ streamName, valueToUser) //Запрос о готовности клиента
-						}
-					})
-				}
-			break
+			// 		//Добавляем участников, исключая инициатора
+			// 		members.map((id) => {
+			// 			if (id !== value.userId) {
+			// 				valueToCaller.members.push(
+			// 					{
+			// 						userId: id,
+			// 						status: false,
+			// 					}
+			// 				)
+			// 			}
+			// 		})
+			// 		valueToUser = {
+			// 			type: "inCall",
+			// 			roomId: value.roomId,
+			// 			initUserId: value.userId,
+			// 			count: count
+			// 		}
+			// 		members.map((id) => {
+			// 			console.log('STREEM to USER_ID', id)
+			// 			if (id == value.userId) {
+			// 				streamerJitsiCall.emit(id + '/'+ streamName, valueToCaller) //Данные для инициатора вызова
+			// 			} else {
+			// 				streamerJitsiCall.emit(id + '/'+ streamName, valueToUser) //Запрос о готовности клиента
+			// 			}
+			// 		})
+			// 	}
+			// break
 
 			case 'cancel':
 				//Если инициатор отменил вызов

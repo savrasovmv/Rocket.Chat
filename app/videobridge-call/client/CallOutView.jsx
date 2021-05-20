@@ -14,7 +14,7 @@ import {
     ButtonGroup,
     Avatar
   } from '@rocket.chat/fuselage'
-import { getRoomInfo } from '../lib/getInfoRoom'
+//import { getRoomInfo } from '../lib/getInfoRoom'
 import { APIClient } from '../../utils/client'
 
 
