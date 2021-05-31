@@ -13,11 +13,11 @@
 
 	position: absolute;
 	z-index: 999990;
+
 	/* top: 30%;
 	left: 40%; */
 
 	display: none;
-
 
 	width: 100%;
 	height: 100%;
@@ -30,15 +30,16 @@
 
 .jitsicall-loading {
 
-
 	position: absolute;
 	z-index: 999999;
 	top: 30%;
 	left: 40%;
+
 	/* width: 50%;
 	height: 50%; */
 	display: inline-block;
-  	/* backdrop-filter: blur(3px);
+
+	/* backdrop-filter: blur(3px);
 	border-radius: 50%;
 	text-align: center; */
 
@@ -54,27 +55,40 @@
 }
 
 @-webkit-keyframes pulsate {
-	100% { color:rgb(248, 77, 77); text-shadow: 0 -1px rgba(0,0,0,.3), 0 0 5px rgb(247, 45, 45), 0 0 18px rgb(248, 77, 77); }
+	100% {
+		color: rgb(248, 77, 77);
+		text-shadow: 0 -1px rgba(0, 0, 0, 0.3), 0 0 5px rgb(247, 45, 45), 0 0 18px rgb(248, 77, 77);
+	}
 }
+
 @keyframes pulsate {
-	100% { color: rgb(248, 77, 77); text-shadow: 0 -1px rgba(0,0,0,.3), 0 0 5px rgb(247, 45, 45), 0 0 18px rgb(248, 77, 77)); }
+	100% {
+		color: rgb(248, 77, 77);
+		text-shadow: 0 -1px rgba(0, 0, 0, 0.3), 0 0 5px rgb(247, 45, 45), 0 0 18px rgb(248, 77, 77));
+	}
 }
-@keyframes blur{
-	from{
-		text-shadow:0px 0px 3px rgb(252, 126, 126),
-		0px 0px 3px rgb(252, 126, 126),
-		0px 0px 3px rgb(252, 126, 126),
-		0px 0px 5px rgb(252, 126, 126),
-		0px 0px 7px rgb(243, 200, 200),
-		0px 7px 7px rgb(243, 200, 200),
-		0px 7px 7px rgb(243, 200, 200),
-		0px -7px 7px rgb(243, 200, 200),
-		0px -7px 7px rgb(243, 200, 200);}
-  }
+
+@keyframes blur {
+	from {
+		text-shadow:
+			0 0 3px rgb(252, 126, 126),
+			0 0 3px rgb(252, 126, 126),
+			0 0 3px rgb(252, 126, 126),
+			0 0 5px rgb(252, 126, 126),
+			0 0 7px rgb(243, 200, 200),
+			0 7px 7px rgb(243, 200, 200),
+			0 7px 7px rgb(243, 200, 200),
+			0 -7px 7px rgb(243, 200, 200),
+			0 -7px 7px rgb(243, 200, 200);
+	}
+}
+
 .textmeet-blink {
-	color: red;
-	text-shadow: 0 -1px rgba(0,0,0,.1);
 	-webkit-animation: blur 1.2s linear infinite;
 	animation: blur 1.2s linear infinite;
+
+	color: red;
+	text-shadow: 0 -1px rgba(0, 0, 0, 0.1);
+
 	font-size: 20px;
 }
