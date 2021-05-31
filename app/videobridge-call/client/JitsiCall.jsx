@@ -294,15 +294,15 @@ export const JitsiCall = () => {
                 }
 
                 setStatusMeetInfo(value)
-                clearTimeout(timer[response.roomId])
+                clearTimeout(timer[value.roomId])
                 return
             }
 
             if (value.status === 'finishInCall' && res.status === 'inCall') {
                 //Ответили на другом устройстве, прекратить вызов
-                deleteMeet(response.roomId)
-                clearTimeout(timer[response.roomId])
-                clearInterval(waitingInterval[roomId])
+                deleteMeet(value.roomId)
+                clearTimeout(timer[value.roomId])
+                clearInterval(waitingInterval[value.roomId])
                 return
             }
 
@@ -421,6 +421,11 @@ export const JitsiCall = () => {
     const connectCall = (value) => {
         //подключение пользователя к идущей конференции
         debug('connectCall', value)
+        //Если у пользователя устанавлена переменная, то это с этого клиента было нажание звонка
+        if (!localStorage['JitsiCall_'+value.roomId]) {
+            debug('Звонок с другоо клиента')
+            return
+        }
         const res = meetInfo.find((item) => item.roomId === value.roomId)
         if (!res) {
             value.status = 'answer'

@@ -22,14 +22,13 @@ const handleClick = () => {
 		const room = Rooms.findOne({ _id: rid });
 		const currentTime = new Date().getTime();
 		const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
-
+		//Устанавливаем локальныу переменную, что бы знать с какого клиента идет вызов
+		localStorage['JitsiCall_'+rid] = true
 		if (jitsiTimeout > currentTime) {
 			//ПРИСОЕДИНИТЬСЯ К КОНФЕРЕНЦИИ
 			connectToMeet()
 		} else {
 			// НАЧИНАЕМ КОНФЕРЕНЦИЮ
-			//Устанавливаем локальныу переменную, что бы знать с какого клиента идет вызов
-			localStorage['JitsiCall_'+rid] = true
 			//sendStartCallJitsiToServer()
 			call('jitsi:updateTimeout', rid, 'start');
 		}
