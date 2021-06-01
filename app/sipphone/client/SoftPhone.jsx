@@ -722,15 +722,15 @@ export const SoftPhone = ({
     if (number.length > 0) {
       setdialState(number)
       if (number.match(/^[0-9]+$/) != null) {
-        console.log('Start Call' + number)
-        flowRoute.call(number)
+        console.log('Start Call of number' + number)
+        flowRoute.call(number.toString())
       }
     }
     //console.log('Click Call:' + dialState)
     //event.persist();
     if (dialState.match(/^[0-9]+$/) != null) {
-      console.log('Start Call', dialState)
-      flowRoute.call(dialState)
+      console.log('Start Call of dialState', dialState)
+      flowRoute.call(dialState.toString())
     }
   }
 

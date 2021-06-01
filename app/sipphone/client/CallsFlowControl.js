@@ -229,6 +229,8 @@ function CallsFlowControl() {
       console.log('Already has active call');
       return;
     }
+		console.log('phone.call')
+		console.log(`sip:${to}@${this.config.domain}`)
     this.phone.call(`sip:${to}@${this.config.domain}`, {
       extraHeaders: ['First: first', 'Second: second'],
       RTCConstraints: {

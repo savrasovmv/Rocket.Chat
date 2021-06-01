@@ -28,6 +28,18 @@ settings.addGroup('SIPPhone', function () {
       public: true,
     })
 
+    this.add('SIPPhone_connection_recovery_min_interval', 30, {
+      type: 'int',
+      group: 'SIPPhone',
+      public: true,
+    })
+
+    this.add('SIPPhone_connection_recovery_max_interval', 80, {
+      type: 'int',
+      group: 'SIPPhone',
+      public: true,
+    })
+
     this.add('SIPPhone_prefix', '', {
       type: 'string',
       group: 'SIPPhone',
@@ -48,6 +60,15 @@ settings.addGroup('SIPPhone', function () {
     this.add('SIPPhone_Server_Sync_Host', '', {
       type: 'string',
       i18nLabel: 'Сервер для получения учетных данных',
+      enableQuery: {
+        _id: 'SIPPhone_Enable',
+        value: true,
+      },
+    });
+
+    this.add('SIPPhone_Server_Sync_Port_Host', '', {
+      type: 'int',
+      i18nLabel: 'Порт сервера для получения учетных данных',
       enableQuery: {
         _id: 'SIPPhone_Enable',
         value: true,

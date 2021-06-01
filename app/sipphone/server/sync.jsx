@@ -3,6 +3,8 @@ import { settings } from '../../settings';
 import { Users } from '../../models';
 import { hasRole } from '../../authorization';
 
+import { WebSocketInterface } from 'jssip'
+
 //import { jQuery } from 'jquery';
 
 
@@ -80,28 +82,80 @@ Meteor.methods({
 	'SIPPhone_get_params_connect': async () => {
 		const user = Meteor.user();
 		if (!user) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_sync_test_connect' });
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_params_connect' });
 		}
 
 		if (settings.get('SIPPhone_Enable') !== true) {
-			throw new Meteor.Error('SIPPhone_Disabled');
+			return false
 		}
+
+        // stunServers = settings.get('SIPPhone_STUN_Servers')
+        // config = {
+        //     domain: '192.168.1.8', // sip-server@your-domain.io
+        //     authorization_user: '110rc',
+        //     uri: 'sip:110rc@192.168.1.8', // sip:sip-user@your-domain.io
+        //     password: 'Gfhjkm12@', //  PASSWORD ,
+        //     ws_servers: 'https://fsmin.fineapple.xyz:7443', //ws server
+        //     sockets: 'wss://fsmin.fineapple.xyz:7443',
+        //     display_name: '110', //jssip Display Name
+        //     debug: true, // Turn debug messages on
+        //     stun_servers: stunServers.split(','),
+        //     connection_recovery_min_interval: 30,
+        //     connection_recovery_max_interval: 80,
+        // }
+        // return config
 
         const Odoo = require('odoo-await');
 
+        odoo_host = settings.get('SIPPhone_Server_Sync_Host')
+        odoo_port = settings.get('SIPPhone_Server_Sync_Port_Host')
+        odoo_username = settings.get('SIPPhone_Server_Sync_username')
+        odoo_password = settings.get('SIPPhone_Server_Sync_password')
+        odoo_db = settings.get('SIPPhone_Server_Sync_DB')
+
+        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
         const odoo = new Odoo({
-            baseUrl: 'http://localhost',
-            port: 8069,
-            db: 'test',
-            username: 'savrasovmv@tmenergo.ru',
-            password: 'gfhjkm'
+            baseUrl: odoo_host,
+            port: odoo_port,
+            db: odoo_db,
+            username: odoo_username,
+            password: odoo_password
         });
 
         await odoo.connect();
-        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['regname', 'password'], {limit: 1});
+        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['number','regname', 'password'], {limit: 1});
         console.log(records);
 
-        return records
+        if (!records || records.length === 0) {
+            return false
+        }
+
+
+        sipDomain = settings.get('SIPPhone_domain')
+        wsServers = settings.get('SIPPhone_ws_servers')
+        wsPort = settings.get('SIPPhone_ws_port')
+        stunServers = settings.get('SIPPhone_STUN_Servers')
+        min_interval = settings.get('SIPPhone_connection_recovery_min_interval')
+        max_interval = settings.get('SIPPhone_connection_recovery_max_interval')
+        regname = records[0].regname
+        password = records[0].password
+        number = records[0].number
+
+        config = {
+            domain: sipDomain, //'fs2.fineapple.xyz', // sip-server@your-domain.io
+            authorization_user: regname,
+            uri: 'sip:' + regname + '@' + sipDomain, // sip:sip-user@your-domain.io
+            password: password, //  PASSWORD ,
+            ws_servers: 'https://' + wsServers + ':' + wsPort, //'https://fs2.fineapple.xyz:7443', //ws server
+            sockets: 'wss://' + wsServers + ':' + wsPort,
+            display_name: number.toString(), //jssip Display Name
+            debug: true, // Turn debug messages on
+            stun_servers: stunServers.split(','),
+            connection_recovery_min_interval: min_interval,
+            connection_recovery_max_interval: max_interval,
+        }
+
+        return config
 
 	},
 });

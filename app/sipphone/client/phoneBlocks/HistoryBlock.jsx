@@ -19,7 +19,7 @@ import { useFormatDateAndTime } from '../../../../client/hooks/useFormatDateAndT
 
 export const HistoryBlock = ({ handleCall, callsHistory }) => {
   const formatDate = useFormatDateAndTime()
-  console.log('callsHistory', callsHistory)
+  //console.log('callsHistory', callsHistory)
 
   return (
     <Box display="flex" flexDirection="column" height="100%">
