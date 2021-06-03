@@ -56,6 +56,11 @@ Meteor.methods({
         const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['regname', 'password'], {limit: 1});
         console.log(records);
 
+        console.log("++++++++++ action_update +++++++++"); //,['transfer_number', '=', '106']
+        const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [['110rc', true, '106']])
+        console.log(action_update);
+
+
         return records
 
         // let odoo = new Odoo('http://localhost:8069', 'test', 'savrasovmv@tmenergo.ru', 'gfhjkm')
@@ -123,7 +128,7 @@ Meteor.methods({
         });
 
         await odoo.connect();
-        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['number','regname', 'password'], {limit: 1});
+        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
         console.log(records);
 
         if (!records || records.length === 0) {
@@ -140,6 +145,8 @@ Meteor.methods({
         regname = records[0].regname
         password = records[0].password
         number = records[0].number
+        isTransfer = records[0].is_transfer
+        transferNumber = records[0].transfer_number
 
         config = {
             domain: sipDomain, //'fs2.fineapple.xyz', // sip-server@your-domain.io
@@ -153,6 +160,8 @@ Meteor.methods({
             stun_servers: stunServers.split(','),
             connection_recovery_min_interval: min_interval,
             connection_recovery_max_interval: max_interval,
+            isTransfer: isTransfer,
+            transferNumber: transferNumber
         }
 
         return config

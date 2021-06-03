@@ -1105,6 +1105,10 @@ export const SoftPhone = ({
             audioElement={player.current}
             notify={notify}
             hangleSettings={hangleSettings}
+            regname={config.authorization_user}
+            isTransfer={config.isTransfer}
+            transferNumber={config.transferNumber}
+
           />
         ) : null}
         <CallQueue

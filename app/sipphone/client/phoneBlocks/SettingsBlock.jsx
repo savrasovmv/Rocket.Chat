@@ -9,7 +9,10 @@ import {
   Button,
   Icon,
   Label,
+  Divider
 } from '@rocket.chat/fuselage'
+
+import { SettingsTransferBlock } from './SettingsTransferBlock'
 
 const call_icon = '/icons/call-icon.svg'
 const end_icon = '/icons/end2-icon.svg'
@@ -19,6 +22,10 @@ export const SettingsBlock = ({
   audioElement,
   notify,
   hangleSettings,
+  regname,
+  isTransfer,
+  transferNumber
+
 }) => {
   //const [localMediaDevices, setlocalMediaDevices] = useState(false);
   const [defaultInDevices, setDefaultInDevices] = useState(
@@ -67,7 +74,7 @@ export const SettingsBlock = ({
   }
 
   return (
-    <Box>
+    <Box elevation='1'>
       <Sidebar.Section.Title>Настройки</Sidebar.Section.Title>
       <Sidebar.Item>
         <Sidebar.Item.Content>
@@ -104,6 +111,17 @@ export const SettingsBlock = ({
           Сохранить
         </Button>
       </Sidebar.Item>
+
+      <Divider />
+
+      <SettingsTransferBlock
+                  regname={regname}
+                  isTransfer={isTransfer}
+                  transferNumber={transferNumber}
+                  />
+
+      <Divider />
+
     </Box>
   )
 }
