@@ -9,7 +9,7 @@ import React, {
 import { Meteor } from 'meteor/meteor'
 import { render } from 'react-dom'
 import CallsFlowControl from './CallsFlowControl'
-import { SipPhone } from './SipPhone'
+import { SipPhone } from './SipSideNavBlock'
 import { StatusBlock } from './phoneBlocks/StatusBlock'
 import { CallQueue } from './phoneBlocks/CallQueue'
 import { KeypadBlock } from './phoneBlocks/KeypadBlock'

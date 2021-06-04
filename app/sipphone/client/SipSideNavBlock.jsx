@@ -30,7 +30,7 @@ import {
 
 import { getStatusSIP, getMissedSIP } from './lib/streamer'
 
-export const SipPhone = () => {
+export const SipSideNavBlock = () => {
   //const { status } = useSip()
 
   const [sipStatus, setSipStatus] = useState('offline')
@@ -129,4 +129,4 @@ export const SipPhone = () => {
   )
 }
 
-export default React.memo(SipPhone)
+export default React.memo(SipSideNavBlock)

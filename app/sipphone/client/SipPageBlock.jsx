@@ -7,53 +7,57 @@ import { call } from '../../ui-utils/client';
 
 import { WebSocketInterface } from 'jssip'
 import { SipProvider, useSipContext, SipContext } from './SipContext'
-import { SipPageBlock } from './SipPageBlock'
 
 //console.log('Start STREAMER')
 
-export const SipPage = () => {
-  // const [config, setConfig] = useState(false)
-  // const [ipPhone, setIpPhone] = useState(false)
+export const SipPageBlock = () => {
 
-  //const {config, setConfig, ipPhone, setIpPhone} = useSipContext()
-  // const [config, setConfig] = useState(false)
-  // const [ipPhone, setIpPhone] = useState(false)
+  const [connect, setConnect] = useState()
 
-	// const [statusPhone, setStatusPhone] = useState('offline')
+  const {config, setConfig, ipPhone, setIpPhone} = useSipContext()
 
-	// const [isTransfer, setIsTransfer] = useState(false)
-	// const [transferNumber, setTransferNumber] = useState('')
+  useMemo(async () => {
+    console.log('SIPPhone_get_params_connect Start')
 
-  // const value = {
-  //   statusPhone,
-  //   setStatusPhone,
-  //   isTransfer,
-  //   setIsTransfer,
-  //   transferNumber,
-  //   setTransferNumber,
-  //   config,
-  //   setConfig
-  // };
+    const configurations = await call('SIPPhone_get_params_connect');
 
-  // useMemo(async () => {
-  //   const configurations = await call('SIPPhone_get_params_connect');
-  //   console.log('+++++++++++++++sipuser', configurations)
+    console.log('+++++++++++++++configurations', configurations)
 
-  //   //Преобразуем строку сокета в объект
-  //   configurations.sockets = new WebSocketInterface(configurations.sockets)
+    if (configurations) {
+      //Преобразуем строку сокета в объект
+      configurations.sockets = new WebSocketInterface(configurations.sockets)
 
-  //   setConfig(configurations)
-  //   setIpPhone(configurations.display_name)
-  // }, [])
+      setConfig(configurations)
+      setIpPhone(configurations.display_name)
+    } else {
+      const interval = setInterval(async () => {
+        const configurations = await call('SIPPhone_get_params_connect');
 
-  return (
-    <SipProvider>
-      <SipPageBlock/>
-    </SipProvider>
-  )
+        console.log('+++++++++++++++configurations', configurations)
+
+        if (configurations) {
+          //Преобразуем строку сокета в объект
+          configurations.sockets = new WebSocketInterface(configurations.sockets)
+
+          setConfig(configurations)
+          setIpPhone(configurations.display_name)
+          clearInterval(interval)
+        }
+      },[60000])
+    }
+
+  }, [])
+
+
+
+
+
+  return config && ipPhone ? (
+      <SoftPhone config={config} ipPhone={ipPhone} />
+  ) : null
 }
 
-export default SipPage
+export default SipPageBlock
 
 
 

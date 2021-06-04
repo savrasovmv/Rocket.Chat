@@ -114,11 +114,7 @@ export const SettingsBlock = ({
 
       <Divider />
 
-      <SettingsTransferBlock
-                  regname={regname}
-                  isTransfer={isTransfer}
-                  transferNumber={transferNumber}
-                  />
+      <SettingsTransferBlock/>
 
       <Divider />
 

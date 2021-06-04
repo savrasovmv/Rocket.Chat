@@ -4,6 +4,7 @@ import { Users } from '../../models';
 import { hasRole } from '../../authorization';
 
 import { WebSocketInterface } from 'jssip'
+import { connect } from 'nats';
 
 //import { jQuery } from 'jquery';
 
@@ -109,6 +110,7 @@ Meteor.methods({
         //     connection_recovery_max_interval: 80,
         // }
         // return config
+        console.log("SIPPhone_get_params_connect");
 
         const Odoo = require('odoo-await');
 
@@ -127,7 +129,23 @@ Meteor.methods({
             password: odoo_password
         });
 
-        await odoo.connect();
+        const connect = await odoo.connect()
+        .then(
+            async resolve => {
+                console.log("resolve")
+                if (!resolve) {return false}
+                return true
+            },
+            reject => {
+                console.log("-------------------reject", reject)
+                return false
+            }
+        )
+        console.log("++++ Status Connection to Odoo", connect)
+        if (!connect) {
+            return false
+        }
+        console.log("start searchRead fs.directory")
         const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
         console.log(records);
 
@@ -163,8 +181,65 @@ Meteor.methods({
             isTransfer: isTransfer,
             transferNumber: transferNumber
         }
-
+        console.log("Config = ", config)
         return config
+
+
+	},
+});
+
+
+
+
+Meteor.methods({
+	'SIPPhone_set_param_transfer': async (regname, isTransfer, transferNumber) => {
+		const user = Meteor.user();
+		if (!user) {
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_set_param_transfer' });
+		}
+
+		if (settings.get('SIPPhone_Enable') !== true) {
+			return false
+		}
+
+        const Odoo = require('odoo-await');
+
+        odoo_host = settings.get('SIPPhone_Server_Sync_Host')
+        odoo_port = settings.get('SIPPhone_Server_Sync_Port_Host')
+        odoo_username = settings.get('SIPPhone_Server_Sync_username')
+        odoo_password = settings.get('SIPPhone_Server_Sync_password')
+        odoo_db = settings.get('SIPPhone_Server_Sync_DB')
+
+        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
+        const odoo = new Odoo({
+            baseUrl: odoo_host,
+            port: odoo_port,
+            db: odoo_db,
+            username: odoo_username,
+            password: odoo_password
+        });
+
+        const connect = await odoo.connect()
+        .then(
+            async resolve => {
+                console.log("resolve")
+                if (!resolve) {return false}
+                return true
+            },
+            reject => {
+                console.log("-------------------reject", reject)
+                return false
+            }
+        )
+        console.log("++++ Status Connection to Odoo", connect)
+        if (!connect) {
+            return false
+        }
+
+        const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [[regname, isTransfer, transferNumber]])
+        console.log(action_update);
+        return action_update
+
 
 	},
 });
