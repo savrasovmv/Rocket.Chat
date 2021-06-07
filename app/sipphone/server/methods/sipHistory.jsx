@@ -9,10 +9,11 @@ import { DDPRateLimiter } from 'meteor/ddp-rate-limiter'
 export const SipHistoryCollection = new Mongo.Collection('sip_history')
 
 Meteor.methods({
-  'siphistory.insert'(status, direction, number) {
+  'siphistory.insert'(status, direction, number, displayName) {
     check(status, String)
     check(direction, String)
     check(number, String)
+    check(displayName, String)
 
     if (!Meteor.userId()) {
       throw new Meteor.Error('Not authorized.')
@@ -22,6 +23,7 @@ Meteor.methods({
       status: status,
       direction: direction,
       number: number,
+      displayName: displayName,
 
       createdAt: new Date(),
       userId: Meteor.userId(),

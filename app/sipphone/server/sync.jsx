@@ -120,7 +120,16 @@ Meteor.methods({
         odoo_password = settings.get('SIPPhone_Server_Sync_password')
         odoo_db = settings.get('SIPPhone_Server_Sync_DB')
 
+        // odoo_connect_param = {
+        //     baseUrl: odoo_host,
+        //     port: odoo_port,
+        //     db: odoo_db,
+        //     username: odoo_username,
+        //     password: odoo_password
+        // }
+
         console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
+        //console.log("+++ odoo_connect_param", odoo_connect_param)
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,

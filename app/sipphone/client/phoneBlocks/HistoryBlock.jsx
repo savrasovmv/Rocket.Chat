@@ -28,7 +28,7 @@ export const HistoryBlock = ({ handleCall, callsHistory }) => {
         <Tile padding="none" elevation="0" height="100%">
           {callsHistory
             ? callsHistory.map(
-                ({ number, direction, createdAt, status, _id }) => (
+                ({ number, displayName, direction, createdAt, status, _id }) => (
                   <div key={_id}>
                     <Box position="relative" minWidth={350}>
                       <Option>
@@ -43,7 +43,7 @@ export const HistoryBlock = ({ handleCall, callsHistory }) => {
                                   : 'arrow-rise'
                               }
                             />
-                            {number}
+                            {displayName} - {number}
                           </Box>
                         </Option.Content>
                         <Option.Content>

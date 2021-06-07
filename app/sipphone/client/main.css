@@ -1,35 +1,59 @@
 .sipphone-box {
-	position: relative;
-	z-index: 999;
+	/* position: absolute;
+	z-index: 0;
+	display: inline-block;
+	width: 100%;
+	height: 100%; */
 
-	display: none;
+	position: relative;
+
+	z-index: 0;
 
 	display: none;
 	flex-direction: column;
 	flex: 1 1 100%;
 
-	width: 80vw;
+	width: 1vw;
 
 	height: 100%;
+}
 
+.call-queue-box {
+	position: absolute;
+	z-index: 999990;
+	top: 30%;
+	left: 40%;
+	display: inline-block;
+}
+
+.soft-phone-box {
+	position: relative;
+	z-index: 999;
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 100%;
+	width: 100%;
+	height: 100%;
 	background-color: white;
 
-	/* position: absolute;
-  left: 20%;
-  right: 0px;
-  top: 0px;
-  bottom: 0px;
-  width: 80%;
-  display: none;
-  background-color: white;
-  border: 1px solid #ddd;
-  z-index: 999999; */
-
-	/* position: sticky; */
+	/* position: relative;
+    z-index: 0;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 100%;
+    flex: 1 1 100%;
+    width: 1vw;
+    height: 100%; */
 }
 
 @media (width <= 780px) {
-	.sipphone-box {
+	.soft-phone-box {
 		width: 100vw;
 	}
 }

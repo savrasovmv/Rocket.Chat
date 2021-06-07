@@ -338,10 +338,11 @@ export const SoftPhone = ({
           phoneCalls: [
             ...prevState.phoneCalls,
             {
-              callNumber:
+              displayName:
                 payload.remote_identity.display_name !== ''
                   ? `${payload.remote_identity.display_name || ''}`
                   : payload.remote_identity.uri.user,
+              callNumber: payload.remote_identity.uri.user,
               sessionId: payload.id,
               ring: false,
               duration: 0,
@@ -349,6 +350,15 @@ export const SoftPhone = ({
             },
           ],
         }))
+
+        // callNumber:
+        //         payload.remote_identity.display_name !== ''
+        //           ? `${payload.remote_identity.display_name || ''}`
+        //           : payload.remote_identity.uri.user,
+        //       sessionId: payload.id,
+        //       ring: false,
+        //       duration: 0,
+        //       direction: payload.direction,
         //document.visibilityState !== 'visible'
         // console.log(
         //   'STYLE====',
@@ -385,6 +395,9 @@ export const SoftPhone = ({
           }
         }
 
+        document.getElementsByClassName('sipphone-box')[0].style.display = 'flex'
+        document.getElementsByClassName('rc-old main-content content-background-color')[0].style.display = 'none'
+
         break
       case 'outgoingCall':
         // looks like new call its outgoing call
@@ -416,6 +429,84 @@ export const SoftPhone = ({
         //        const ifExist= _.findIndex(localStatePhone.displayCalls,{sessionId:e.sessionId})
         console.log('+++++++ callEnded')
 
+
+        console.log(localStatePhone)
+
+        const firstCheck = localStatePhone.phoneCalls.filter(
+          (item) => item.sessionId === payload && item.direction === 'incoming'
+        )
+        const secondCheck = localStatePhone.displayCalls.filter(
+          (item) => item.sessionId === payload
+        )
+        if (firstCheck.length === 1) {
+          console.log('siphistory.insert firstCheck', secondCheck[0]);
+          setCalls((call) => [
+            {
+              status: 'missed',
+              sessionId: firstCheck[0].sessionId,
+              direction: firstCheck[0].direction,
+              number: firstCheck[0].callNumber,
+              displayName: firstCheck[0].displayName,
+              time: new Date(),
+            },
+            ...call,
+          ])
+          //console.log("+++++++ callEnded=======firstCheck")
+          Meteor.call(
+            'siphistory.insert',
+            (status = 'missed'),
+            (direction = firstCheck[0].direction),
+            (number = firstCheck[0].callNumber),
+            (displayName = firstCheck[0].displayName)
+          )
+
+          setCallsHistory((call) => [
+            {
+              status: 'missed',
+              direction: firstCheck[0].direction,
+              number: firstCheck[0].callNumber,
+              displayName: firstCheck[0].displayName,
+              createdAt: new Date(),
+              _id: firstCheck[0].sessionId,
+            },
+            ...call,
+          ])
+          setMissedSIP(true) //Посылаем на сервер что есть пропущенный звонок
+        } else if (secondCheck.length === 1) {
+          //console.log("+++++++ callEnded=======secondCheck")
+          setCalls((call) => [
+            {
+              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
+              sessionId: secondCheck[0].sessionId,
+              direction: secondCheck[0].direction,
+              number: secondCheck[0].callNumber,
+              displayName: secondCheck[0].displayName,
+              time: new Date(),
+            },
+            ...call,
+          ])
+          //console.log("+++++++ callEnded=======Meteor.call(")
+          console.log('siphistory.insert secondCheck', secondCheck[0]);
+          Meteor.call(
+            'siphistory.insert',
+            (status = secondCheck[0].inAnswer ? 'answered' : 'missed'),
+            (direction = secondCheck[0].direction),
+            (number = secondCheck[0].callNumber),
+            (displayName = secondCheck[0].displayName)
+          )
+          setCallsHistory((call) => [
+            {
+              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
+              direction: secondCheck[0].direction,
+              number: secondCheck[0].callNumber,
+              displayName: secondCheck[0].displayName,
+              createdAt: new Date(),
+              _id: secondCheck[0].sessionId,
+            },
+            ...call,
+          ])
+        }
+
         setLocalStatePhone((prevState) => ({
           ...prevState,
           phoneCalls: localStatePhone.phoneCalls.filter(
@@ -442,75 +533,6 @@ export const SoftPhone = ({
               : a
           ),
         }))
-        //console.log(localStatePhone)
-
-        const firstCheck = localStatePhone.phoneCalls.filter(
-          (item) => item.sessionId === payload && item.direction === 'incoming'
-        )
-        const secondCheck = localStatePhone.displayCalls.filter(
-          (item) => item.sessionId === payload
-        )
-        if (firstCheck.length === 1) {
-          setCalls((call) => [
-            {
-              status: 'missed',
-              sessionId: firstCheck[0].sessionId,
-              direction: firstCheck[0].direction,
-              number: firstCheck[0].callNumber,
-              time: new Date(),
-            },
-            ...call,
-          ])
-          //console.log("+++++++ callEnded=======firstCheck")
-          Meteor.call(
-            'siphistory.insert',
-            (status = 'missed'),
-            (direction = firstCheck[0].direction),
-            (number = firstCheck[0].callNumber)
-          )
-
-          setCallsHistory((call) => [
-            {
-              status: 'missed',
-              direction: firstCheck[0].direction,
-              number: firstCheck[0].callNumber,
-              createdAt: new Date(),
-              _id: firstCheck[0].sessionId,
-            },
-            ...call,
-          ])
-          setMissedSIP(true) //Посылаем на сервер что есть пропущенный звонок
-        } else if (secondCheck.length === 1) {
-          //console.log("+++++++ callEnded=======secondCheck")
-          setCalls((call) => [
-            {
-              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
-              sessionId: secondCheck[0].sessionId,
-              direction: secondCheck[0].direction,
-              number: secondCheck[0].callNumber,
-              time: new Date(),
-            },
-            ...call,
-          ])
-          //console.log("+++++++ callEnded=======Meteor.call(")
-          //Meteor.call('siphistory.insert', "22222222");
-          Meteor.call(
-            'siphistory.insert',
-            (status = secondCheck[0].inAnswer ? 'answered' : 'missed'),
-            (direction = secondCheck[0].direction),
-            (number = secondCheck[0].callNumber)
-          )
-          setCallsHistory((call) => [
-            {
-              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
-              direction: secondCheck[0].direction,
-              number: secondCheck[0].callNumber,
-              createdAt: new Date(),
-              _id: secondCheck[0].sessionId,
-            },
-            ...call,
-          ])
-        }
         //text = localStatePhone.displayCalls[activeChannelNumber].callNumber + " " + localStatePhone.displayCalls[activeChannelNumber].duration
 
         break
@@ -545,6 +567,7 @@ export const SoftPhone = ({
               ? {
                   ...a,
                   callNumber: acceptedCall[0].callNumber,
+                  displayName: acceptedCall[0].displayName,
                   sessionId: payload,
                   duration: 0,
                   direction: acceptedCall[0].direction,
@@ -1084,59 +1107,65 @@ export const SoftPhone = ({
 
   return (
     <Fragment>
-      <Box display="flex" flexDirection="column" height="100%" tabIndex={0}>
-        <NavBar
-          connectedPhone={localStatePhone.connectedPhone}
-          connectingPhone={localStatePhone.connectingPhone}
-          isSettings={isSettings}
-          setIsSettings={setIsSettings}
-          ipPhone={ipPhone}
-          notify={notify}
-        />
-
-        {notificationState.open ? (
-          <Callout m="x16" type="danger" onClick={handleClose}>
-            {notificationState.message}
-          </Callout>
-        ) : null}
-        {isSettings === true ? (
-          <SettingsBlock
-            localMediaDevices={localMediaDevices}
-            audioElement={player.current}
-            notify={notify}
-            hangleSettings={hangleSettings}
-            regname={config.authorization_user}
-            isTransfer={config.isTransfer}
-            transferNumber={config.transferNumber}
-
-          />
-        ) : null}
+      <div className="call-queue-box">
         <CallQueue
           calls={localStatePhone.phoneCalls}
           handleAnswer={handleAnswer}
           handleReject={handleReject}
         />
-        <PhoneBlock
-          handleCallAttendedTransfer={handleCallAttendedTransfer}
-          handleCallTransfer={handleCallTransfer}
-          handleMicMute={handleMicMute}
-          handleHold={handleHold}
-          handleCall={handleCall}
-          handleEndCall={handleEndCall}
-          handlePressKey={handlePressKey}
-          activeChannelNumber={activeChannelNumber}
-          activeChannel={localStatePhone.displayCalls[activeChannelNumber]}
-          handleSettingsButton={handleSettingsButton}
-          dialState={dialState}
-          setdialState={setdialState}
-          handleDialStateChange={handleDialStateChange}
-          setLocalStatePhone={setLocalStatePhone}
-          setActiveChannel={setActiveChannel}
-          localStatePhone={localStatePhone}
-        />
-        <Divider />
-        <HistoryBlock handleCall={handleCall} callsHistory={callsHistory} />
-      </Box>
+
+      </div>
+      <div className="soft-phone-box">
+        <Box display="flex" flexDirection="column" height="100%" tabIndex={0} >
+          <NavBar
+            connectedPhone={localStatePhone.connectedPhone}
+            connectingPhone={localStatePhone.connectingPhone}
+            isSettings={isSettings}
+            setIsSettings={setIsSettings}
+            ipPhone={ipPhone}
+            notify={notify}
+          />
+
+          {notificationState.open ? (
+            <Callout m="x16" type="danger" onClick={handleClose}>
+              {notificationState.message}
+            </Callout>
+          ) : null}
+          {isSettings === true ? (
+            <SettingsBlock
+              localMediaDevices={localMediaDevices}
+              audioElement={player.current}
+              notify={notify}
+              hangleSettings={hangleSettings}
+              regname={config.authorization_user}
+              isTransfer={config.isTransfer}
+              transferNumber={config.transferNumber}
+
+            />
+          ) : null}
+
+          <PhoneBlock
+            handleCallAttendedTransfer={handleCallAttendedTransfer}
+            handleCallTransfer={handleCallTransfer}
+            handleMicMute={handleMicMute}
+            handleHold={handleHold}
+            handleCall={handleCall}
+            handleEndCall={handleEndCall}
+            handlePressKey={handlePressKey}
+            activeChannelNumber={activeChannelNumber}
+            activeChannel={localStatePhone.displayCalls[activeChannelNumber]}
+            handleSettingsButton={handleSettingsButton}
+            dialState={dialState}
+            setdialState={setdialState}
+            handleDialStateChange={handleDialStateChange}
+            setLocalStatePhone={setLocalStatePhone}
+            setActiveChannel={setActiveChannel}
+            localStatePhone={localStatePhone}
+          />
+          <Divider />
+          <HistoryBlock handleCall={handleCall} callsHistory={callsHistory} />
+        </Box>
+      </div>
       <Box></Box>
       <div hidden>
         <audio id="audio" preload="auto" ref={player} />

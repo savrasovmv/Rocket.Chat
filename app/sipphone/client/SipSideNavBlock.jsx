@@ -30,6 +30,9 @@ import {
 
 import { getStatusSIP, getMissedSIP } from './lib/streamer'
 
+
+
+
 export const SipSideNavBlock = () => {
   //const { status } = useSip()
 
@@ -61,8 +64,10 @@ export const SipSideNavBlock = () => {
   }
 
   const handleCall = (event) => {
+    const htmlSoftPhoneBox = document.getElementsByClassName('sipphone-box')[0]
+    const htmlRoomBox = document.getElementsByClassName('rc-old main-content content-background-color')[0]
     if (
-      document.getElementsByClassName('sipphone-box')[0].style.display ===
+      htmlSoftPhoneBox.style.display ===
         'flex' &&
       !isView
     ) {
@@ -70,16 +75,14 @@ export const SipSideNavBlock = () => {
       setIsView(true)
     }
     if (isView) {
-      document.getElementsByClassName('sipphone-box')[0].style.display = 'none'
-      document.getElementsByClassName(
-        'rc-old main-content content-background-color'
-      )[0].style.display = 'flex'
+      htmlSoftPhoneBox.style.display = 'none'
+      htmlRoomBox.style.display = 'flex'
+      // document.getElementsByClassName('sipphone-box')[0].classList.remove("main-content");
       setIsView(false)
     } else {
-      document.getElementsByClassName('sipphone-box')[0].style.display = 'flex'
-      document.getElementsByClassName(
-        'rc-old main-content content-background-color'
-      )[0].style.display = 'none'
+      htmlSoftPhoneBox.style.display = 'flex'
+      // document.getElementsByClassName('sipphone-box')[0].classList.add("main-content");
+      htmlRoomBox.style.display = 'none'
       setIsView(true)
       setMissed(0)
     }

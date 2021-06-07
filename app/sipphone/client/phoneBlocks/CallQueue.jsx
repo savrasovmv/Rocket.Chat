@@ -9,14 +9,52 @@ import {
   Button,
   Icon,
   Label,
+  Fragment,
+  ButtonGroup
 } from '@rocket.chat/fuselage'
 
 // const call_icon = "/icons/call-icon.svg"
 // const end_icon = "/icons/end2-icon.svg"
 
 export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
+  console.log("calls", calls)
   return (
-    <Box
+    <div>
+      {calls.map((call) => {
+        const parsedCaller = call.callNumber.split('-')
+        return (
+          <Modal key={call.sessionId}>
+              <Modal.Content>
+                  <Box display="flex" flexDirection="column" pbs='x20'>
+                      <Box textAlign='center' fontSize="x16" pbe='x20' >
+                          Входящий вызов
+                      </Box>
+
+                      <Label>
+                      {call.callNumber} - {call.displayName}
+                      </Label>
+                  </Box>
+              </Modal.Content>
+              <Modal.Footer>
+                  <ButtonGroup align='center'>
+                      <Button onClick={() => handleAnswer(call.sessionId)} primary success>Принять</Button>
+                      <Button onClick={() => handleReject(call.sessionId)} primary danger>Отклонить</Button>
+                  </ButtonGroup>
+              </Modal.Footer>
+          </Modal>
+
+        )
+      })}
+
+    </div>
+  )
+}
+
+export default CallQueue
+
+
+
+{/* <Box
       display="flex"
       justifyContent="center"
       // position="absolute"
@@ -56,8 +94,4 @@ export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
           </Box>
         )
       })}
-    </Box>
-  )
-}
-
-export default CallQueue
+    </Box> */}
