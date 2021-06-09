@@ -46,7 +46,7 @@ Meteor.methods({
         const Odoo = require('odoo-await');
 
         const odoo = new Odoo({
-            baseUrl: 'http://localhost',
+            baseUrl: 'http://test.fineapple.xyz',
             port: 8069,
             db: 'test',
             username: 'savrasovmv@tmenergo.ru',
@@ -57,9 +57,9 @@ Meteor.methods({
         const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['regname', 'password'], {limit: 1});
         console.log(records);
 
-        console.log("++++++++++ action_update +++++++++"); //,['transfer_number', '=', '106']
-        const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [['110rc', true, '106']])
-        console.log(action_update);
+        // console.log("++++++++++ action_update +++++++++"); //,['transfer_number', '=', '106']
+        // const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [['110rc', true, '106']])
+        // console.log(action_update);
 
 
         return records
@@ -114,22 +114,22 @@ Meteor.methods({
 
         const Odoo = require('odoo-await');
 
-        odoo_host = settings.get('SIPPhone_Server_Sync_Host')
-        odoo_port = settings.get('SIPPhone_Server_Sync_Port_Host')
-        odoo_username = settings.get('SIPPhone_Server_Sync_username')
-        odoo_password = settings.get('SIPPhone_Server_Sync_password')
-        odoo_db = settings.get('SIPPhone_Server_Sync_DB')
+        const odoo_host = settings.get('SIPPhone_Server_Sync_Host')
+        const odoo_port = settings.get('SIPPhone_Server_Sync_Port_Host')
+        const odoo_username = settings.get('SIPPhone_Server_Sync_username')
+        const odoo_password = settings.get('SIPPhone_Server_Sync_password')
+        const odoo_db = settings.get('SIPPhone_Server_Sync_DB')
 
-        // odoo_connect_param = {
-        //     baseUrl: odoo_host,
-        //     port: odoo_port,
-        //     db: odoo_db,
-        //     username: odoo_username,
-        //     password: odoo_password
-        // }
+        const odoo_connect_param = {
+            baseUrl: odoo_host,
+            port: odoo_port,
+            db: odoo_db,
+            username: odoo_username,
+            password: odoo_password
+        }
 
-        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
-        //console.log("+++ odoo_connect_param", odoo_connect_param)
+        console.log("+++++++++++++++ Connect ODOO  ++++++++++++++++++++++")
+        console.log("+++ odoo_connect_param", odoo_connect_param)
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,
@@ -155,7 +155,7 @@ Meteor.methods({
             return false
         }
         console.log("start searchRead fs.directory")
-        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
+        const records = await odoo.searchRead('fs.directory', [['username', '=', user.username], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
         console.log(records);
 
         if (!records || records.length === 0) {
