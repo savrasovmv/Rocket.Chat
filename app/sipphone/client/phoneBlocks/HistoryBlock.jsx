@@ -16,26 +16,47 @@ import {
 } from '@rocket.chat/fuselage'
 import moment from 'moment'
 import { useFormatDateAndTime } from '../../../../client/hooks/useFormatDateAndTime'
+import Discovery from 'aws-sdk/clients/discovery'
 
 export const HistoryBlock = ({ handleCall, callsHistory }) => {
-  const formatDate = useFormatDateAndTime()
+  //const formatDate = useFormatDateAndTime()
   //console.log('callsHistory', callsHistory)
+  const toDay = moment().startOf('day')
+
+
+  const formatDate = (date) => {
+    if (moment(date).isSame(toDay, 'day')) {
+      return moment(date).format('HH:mm');
+    }
+    return moment(date).format('D MMMM Y HH:mm');
+  }
 
   return (
-    <Box display="flex" flexDirection="column" height="100%">
+    <Box display="flex" flexDirection="column" bg='neutral-500'>
       <Sidebar.Section.Title>История звонков</Sidebar.Section.Title>
-      <Scrollable smooth>
-        <Tile padding="none" elevation="0" height="100%">
+      {/* <Scrollable vertical>
+        <Tile padding="none" elevation="1" height={200} >
+
+          <Box height='1000%' >5456465 </Box>
+        </Tile>
+      </Scrollable> */}
+      {/* <Scrollable vertical> */}
+        <div padding="none" display="flex" flexDirection="column"  maxWidth='full' elevation="0" flexGrow={1} inset='x1' className="history">
           {callsHistory
             ? callsHistory.map(
                 ({ number, displayName, direction, createdAt, status, _id }) => (
-                  <div key={_id}>
-                    <Box position="relative" minWidth={350}>
-                      <Option>
-                        <Option.Content>
+                    <div key={_id}>
+                      <div>{displayName ? displayName : number}</div>
+                      <div>{displayName ? displayName : number}</div>
+                      <div>{displayName ? displayName : number}</div>
+                      {/* <Option>
+                      <Option.Content>
                           <Box
+                            display="flex"
+                            flexDirection="row"
                             color={status === 'missed' ? 'danger' : 'default'}
                           >
+                            <Box>
                             <Icon
                               name={
                                 direction === 'incoming'
@@ -43,9 +64,22 @@ export const HistoryBlock = ({ handleCall, callsHistory }) => {
                                   : 'arrow-rise'
                               }
                             />
-                            {displayName} - {number}
+                            </Box>
+                            <Box display="flex" flexDirection="column">
+                              <Box>{displayName ? displayName : number}</Box>
+                              <Box>{displayName ? number : null}</Box>
+
+                            </Box>
                           </Box>
                         </Option.Content>
+                        <Option.Content>
+                          <Box
+                            color={status === 'missed' ? 'danger' : 'default'}
+                          >
+
+                          </Box>
+                        </Option.Content>
+
                         <Option.Content>
                           <Box>{formatDate(createdAt)}</Box>
                         </Option.Content>
@@ -67,14 +101,13 @@ export const HistoryBlock = ({ handleCall, callsHistory }) => {
                             <Icon color="warning" name="star" />
                           </Button>
                         </Option.Menu>
-                      </Option>
-                    </Box>
-                  </div>
+                      </Option> */}
+                    </div>
                 )
               )
             : null}
-        </Tile>
-      </Scrollable>
+        </div>
+      {/* </Scrollable> */}
     </Box>
   )
 }

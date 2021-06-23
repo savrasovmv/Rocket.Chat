@@ -8,6 +8,10 @@ import { call } from '../../ui-utils/client';
 import { WebSocketInterface } from 'jssip'
 import { SipProvider, useSipContext, SipContext } from './SipContext'
 
+import OutsideClickHandler from 'react-outside-click-handler';
+
+import OutsideAlerter from './hooks/OutsideAlerter'
+
 //console.log('Start STREAMER')
 
 export const SipPageBlock = () => {
@@ -49,11 +53,19 @@ export const SipPageBlock = () => {
   }, [])
 
 
+  const outsideClick = () => {
+    const htmlSoftPhoneBox = document.getElementsByClassName('sipphone-box')[0]
+    const htmlRoomBox = document.getElementsByClassName('rc-old main-content content-background-color')[0]
+    // alert("kkkkk")
+    htmlSoftPhoneBox.style.display = 'none'
+    htmlRoomBox.style.display = 'flex'
+  }
 
 
 
   return config && ipPhone ? (
-      <SoftPhone config={config} ipPhone={ipPhone} />
+    <SoftPhone config={config} ipPhone={ipPhone} />
+
   ) : null
 }
 

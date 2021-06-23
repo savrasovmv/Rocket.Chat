@@ -13,71 +13,48 @@ Meteor.methods({
 	async SIPPhone_sync_test_connect() {
 		const user = Meteor.user();
 		if (!user) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_sync_test_connect' });
-		}
-
-		if (!hasRole(user._id, 'admin')) {
-			throw new Meteor.Error('error-not-authorized', 'Not authorized', { method: 'SIPPhone_sync_test_connect' });
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_set_param_transfer' });
 		}
 
 		if (settings.get('SIPPhone_Enable') !== true) {
-			throw new Meteor.Error('SIPPhone_Disabled');
+			return false
 		}
-
-        // const ses = await fetch(
-        //     'http://127.0.0.1:8069/web/sesion/authenticate',
-        //     {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //           },
-        //         body: JSON.stringify(
-        //             {
-        //                 'jsonrpc': '2.0',
-        //                 'params': {
-        //                     'db': 'test',
-        //                     'login': 'savrasovmv@tmenergo.ru',
-        //                     'password': 'gfhjkm',
-        //                 }
-        //             })
-        //     }
-        // )
 
         const Odoo = require('odoo-await');
 
+        odoo_host = settings.get('SIPPhone_Server_Sync_Host')
+        odoo_port = settings.get('SIPPhone_Server_Sync_Port_Host')
+        odoo_username = settings.get('SIPPhone_Server_Sync_username')
+        odoo_password = settings.get('SIPPhone_Server_Sync_password')
+        odoo_db = settings.get('SIPPhone_Server_Sync_DB')
+
+        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
         const odoo = new Odoo({
-            baseUrl: 'http://test.fineapple.xyz',
-            port: 8069,
-            db: 'test',
-            username: 'savrasovmv@tmenergo.ru',
-            password: 'gfhjkm'
+            baseUrl: odoo_host,
+            port: odoo_port,
+            db: odoo_db,
+            username: odoo_username,
+            password: odoo_password
         });
 
-        await odoo.connect();
-        const records = await odoo.searchRead('fs.directory', [['username', '=', 'savrasovmv'], ['active', '=', true ]], ['regname', 'password'], {limit: 1});
-        console.log(records);
-
-        // console.log("++++++++++ action_update +++++++++"); //,['transfer_number', '=', '106']
-        // const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [['110rc', true, '106']])
-        // console.log(action_update);
-
-
-        return records
-
-        // let odoo = new Odoo('http://localhost:8069', 'test', 'savrasovmv@tmenergo.ru', 'gfhjkm')
-        // await odoo.connect()
-
-        // // Search partners
-        // let directory = odoo.env('fs.directory')
-        // let response = await directory.search_read([[['username', '=', 'savrasovmv']]], { limit: 1})
-        // console.log(response)
-
-        // const res = await fetch('http://127.0.0.1:8069/api_get_directory/savrasovmv')
-
-        // rr = await res.json()
-        // console.log(rr)
-        // return rr
-
+        const connect = await odoo.connect()
+        .then(
+            async resolve => {
+                console.log("resolve")
+                if (!resolve) {return false}
+                return true
+            },
+            reject => {
+                console.log("-------------------reject", reject)
+                return false
+            }
+        )
+        console.log("++++ Status Connection to Odoo", connect)
+        if (!connect) {
+            return false
+        } else {
+            return true
+        }
 
 	},
 });

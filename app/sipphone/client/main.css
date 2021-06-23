@@ -10,12 +10,26 @@
 	z-index: 0;
 
 	display: none;
-	flex-direction: column;
+	/* flex-direction: column;*/
 	flex: 1 1 100%;
 
 	width: 1vw;
 
 	height: 100%;
+	background-color: white;
+}
+
+/* .sipphone-box >div {
+	display: flex;
+	flex: 1 1 100%;
+
+	width: 1vw;
+
+	height: 100%;
+} */
+
+.history {
+	height: 100%; flex-grow: 1; overflow-y: auto; will-change: transform; width: 100%;
 }
 
 .call-queue-box {

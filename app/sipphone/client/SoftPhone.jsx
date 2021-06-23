@@ -38,6 +38,7 @@ import {
 import { SipProvider, useSip } from './SipContext'
 
 import { setMissedSIP, setStatusSIP } from './lib/streamer'
+import FavoritesBlock from './phoneBlocks/FavoritesBlock'
 
 //const SIPPhone_domain = useSetting('SIPPhone_domain')
 //console.log('SIPPhone_domain')
@@ -312,21 +313,21 @@ export const SoftPhone = ({
       case 'reinvite':
         // looks like its Attended Transfer
         // Success transfer
-        setLocalStatePhone((prevState) => ({
-          ...prevState,
-          displayCalls: _.map(localStatePhone.displayCalls, (a) =>
-            a.sessionId === payload
-              ? {
-                  ...a,
-                  allowAttendedTransfer: true,
-                  allowTransfer: true,
-                  inAnswerTransfer: true,
-                  inTransfer: true,
-                  attendedTransferOnline: '', //data ? data.request.headers['P-Asserted-Identity'][0].raw.split(' ')[0] : null
-                }
-              : a
-          ),
-        }))
+        // setLocalStatePhone((prevState) => ({
+        //   ...prevState,
+        //   displayCalls: _.map(localStatePhone.displayCalls, (a) =>
+        //     a.sessionId === payload
+        //       ? {
+        //           ...a,
+        //           allowAttendedTransfer: true,
+        //           allowTransfer: true,
+        //           inAnswerTransfer: true,
+        //           inTransfer: true,
+        //           attendedTransferOnline: '', //data ? data.request.headers['P-Asserted-Identity'][0].raw.split(' ')[0] : null
+        //         }
+        //       : a
+        //   ),
+        // }))
 
         break
       case 'incomingCall':
@@ -1107,16 +1108,9 @@ export const SoftPhone = ({
 
   return (
     <Fragment>
-      <div className="call-queue-box">
-        <CallQueue
-          calls={localStatePhone.phoneCalls}
-          handleAnswer={handleAnswer}
-          handleReject={handleReject}
-        />
 
-      </div>
-      <div className="soft-phone-box">
-        <Box display="flex" flexDirection="column" height="100%" tabIndex={0} >
+      {/* <div className="soft-phone-box"> */}
+        <Box display="flex" flexDirection="column" className="soft-phone-box" height="100%"  tabIndex={0} >
           <NavBar
             connectedPhone={localStatePhone.connectedPhone}
             connectingPhone={localStatePhone.connectingPhone}
@@ -1163,15 +1157,30 @@ export const SoftPhone = ({
             localStatePhone={localStatePhone}
           />
           <Divider />
-          <HistoryBlock handleCall={handleCall} callsHistory={callsHistory} />
+          <Box display="flex" flexDirection="row" flexGrow={1} bg='primary-500'>
+            <Box flexGrow={5}>
+              <HistoryBlock handleCall={handleCall} callsHistory={callsHistory} />
+            </Box>
+            <Box flexGrow={1}>
+              <FavoritesBlock />
+            </Box>
+          </Box>
+          <Box display="flex" flexGrow={1} bg='active-link' h='x16' >Низ</Box>
         </Box>
-      </div>
-      <Box></Box>
+      {/* </div> */}
       <div hidden>
         <audio id="audio" preload="auto" ref={player} />
       </div>
       <div hidden>
         <audio preload="auto" ref={ringer} />
+      </div>
+      <div className="call-queue-box">
+        <CallQueue
+          calls={localStatePhone.phoneCalls}
+          handleAnswer={handleAnswer}
+          handleReject={handleReject}
+        />
+
       </div>
     </Fragment>
   )

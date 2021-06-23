@@ -40,6 +40,9 @@ import { LineBlock } from './phoneBlocks/LineBlock.jsx'
 import { SearchBlock } from './phoneBlocks/SearchBlock.jsx'
 import { setStatusSIP } from './lib/streamer'
 
+import OutsideClickHandler from 'react-outside-click-handler';
+
+
 const call_icon = '/icons/call-icon.svg'
 const end_icon = '/icons/end-icon.svg'
 const mute_icon = '/icons/mute-icon.svg'
@@ -212,6 +215,10 @@ export const PhoneBlock = ({
 
   const [searchOpen, setSearchOpen] = useState(false)
 
+  const outsideClick = () => {
+    setUsers([])
+  }
+
   console.log('Render')
   return (
     <Fragment>
@@ -230,32 +237,34 @@ export const PhoneBlock = ({
           </Button>
         ) : null}
       </Box>
-      <Box display="flex" justifyContent="center">
-        <Box
-          paddingInlineEnd="x100"
-          style={{
-            position: 'absolute',
-            zIndex: '3',
-            insetInlineEnd: 'neg-x5',
-            //insetBlockStart: 'neg-x8',
-          }}
-        >
-          {users.length > 0 ? (
-            <Scrollable smooth>
-              <Tile padding="none" height={300}>
-                <Box display="flex" flexDirection="column">
-                  <SearchBlock
-                    handleSearchCall={handleSearchCall}
-                    users={users}
-                    typeNumSearch={typeNumSearch}
-                    search={dialState}
-                  />
-                </Box>
-              </Tile>
-            </Scrollable>
-          ) : null}
+      <OutsideClickHandler onOutsideClick={outsideClick}>
+        <Box display="flex" justifyContent="center">
+          <Box
+            paddingInlineEnd="x100"
+            style={{
+              position: 'absolute',
+              zIndex: '3',
+              insetInlineEnd: 'neg-x5',
+              //insetBlockStart: 'neg-x8',
+            }}
+          >
+            {users.length > 0 ? (
+              <Scrollable smooth>
+                <Tile padding="none" height={300}>
+                  <Box display="flex" flexDirection="column">
+                    <SearchBlock
+                      handleSearchCall={handleSearchCall}
+                      users={users}
+                      typeNumSearch={typeNumSearch}
+                      search={dialState}
+                    />
+                  </Box>
+                </Tile>
+              </Scrollable>
+            ) : null}
+          </Box>
         </Box>
-      </Box>
+      </OutsideClickHandler>
       <Box display="flex" justifyContent="center" margin="x16">
         <Tabs>
           {localStatePhone.displayCalls.map((displayCall, key) => (

@@ -66,27 +66,32 @@ export const SipSideNavBlock = () => {
   const handleCall = (event) => {
     const htmlSoftPhoneBox = document.getElementsByClassName('sipphone-box')[0]
     const htmlRoomBox = document.getElementsByClassName('rc-old main-content content-background-color')[0]
-    if (
-      htmlSoftPhoneBox.style.display ===
-        'flex' &&
-      !isView
-    ) {
-      //console.log('Уже видимый')
-      setIsView(true)
-    }
-    if (isView) {
-      htmlSoftPhoneBox.style.display = 'none'
-      htmlRoomBox.style.display = 'flex'
-      // document.getElementsByClassName('sipphone-box')[0].classList.remove("main-content");
-      setIsView(false)
-    } else {
-      htmlSoftPhoneBox.style.display = 'flex'
+
+    htmlSoftPhoneBox.style.display = 'flex'
       // document.getElementsByClassName('sipphone-box')[0].classList.add("main-content");
-      htmlRoomBox.style.display = 'none'
-      setIsView(true)
-      setMissed(0)
-    }
-    //event.persist();
+    htmlRoomBox.style.display = 'none'
+    setMissed(0)
+
+    // if (
+    //   htmlSoftPhoneBox.style.display ===
+    //     'flex' &&
+    //   !isView
+    // ) {
+    //   //console.log('Уже видимый')
+    //   setIsView(true)
+    // }
+    // if (isView) {
+    //   htmlSoftPhoneBox.style.display = 'none'
+    //   htmlRoomBox.style.display = 'flex'
+    //   // document.getElementsByClassName('sipphone-box')[0].classList.remove("main-content");
+    //   setIsView(false)
+    // } else {
+    //   htmlSoftPhoneBox.style.display = 'flex'
+    //   // document.getElementsByClassName('sipphone-box')[0].classList.add("main-content");
+    //   htmlRoomBox.style.display = 'none'
+    //   setIsView(true)
+    //   setMissed(0)
+    // }
   }
 
   const handleMissed = () => {
