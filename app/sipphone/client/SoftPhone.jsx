@@ -33,6 +33,8 @@ import {
   Icon,
   Callout,
   Divider,
+  Scrollable,
+  Tile
 } from '@rocket.chat/fuselage'
 //import { SipHistoryCollection } from '../db/SipHistory'
 import { SipProvider, useSip } from './SipContext'
@@ -136,6 +138,7 @@ export const SoftPhone = ({
         attendedTransferOnline: '',
         inConference: false,
         callNumber: '',
+        displayName: '',
         duration: 0,
         side: '',
         sessionId: '',
@@ -158,6 +161,7 @@ export const SoftPhone = ({
         transferNumber: '',
         attendedTransferOnline: '',
         callNumber: '',
+        displayName: '',
         duration: 0,
         side: '',
         sessionId: '',
@@ -181,6 +185,7 @@ export const SoftPhone = ({
         transferNumber: '',
         attendedTransferOnline: '',
         callNumber: '',
+        displayName: '',
         duration: 0,
         side: '',
         sessionId: '',
@@ -242,6 +247,7 @@ export const SoftPhone = ({
   })
   const [calls, setCalls] = useState([])
   const [callsHistory, setCallsHistory] = useState([])
+  const [favorites, setFavorites] = useState([])
   const [localMediaDevices, setlocalMediaDevices] = useState(false)
   const [inputDevices, setInputDevices] = useState(getDefaultInDevices())
   const [outputDevices, setOutputDevices] = useState(getDefaultOutDevices())
@@ -267,6 +273,51 @@ export const SoftPhone = ({
 
     setNotificationState((notification) => ({ ...notification, open: false }))
   }
+
+  const getDisplayName = (number, sessionId) => {
+    console.log("getDisplayName number", number)
+    console.log("getDisplayName sessionId", sessionId)
+
+    res = favorites.find(el => el.number===number)
+    if (!res) {
+      displayName = "Неизвестный"
+    } else {
+      displayName = res.displayName
+    }
+
+    console.log("getDisplayName res", res)
+    console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
+
+    // setLocalStatePhone((prevState) => ({
+    //   ...prevState,
+    //   displayCalls: _.map(localStatePhone.displayCalls, (a) => {
+    //     a.sessionId === sessionId ? {
+    //       ...a,
+    //       displayName: res,
+    //     } : a
+    //   })
+    // }))
+
+    const newProgressLocalStatePhone = _.cloneDeep(localStatePhone)
+    newProgressLocalStatePhone.displayCalls[activeChannelNumber] = {
+      ...localStatePhone.displayCalls[activeChannelNumber],
+      displayName: displayName
+    }
+    // Save new object into the array with display calls
+
+    setLocalStatePhone((prevState) => ({
+      ...prevState,
+      displayCalls: newProgressLocalStatePhone.displayCalls,
+    }))
+
+    console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
+
+
+
+  }
+
+
+
   flowRoute.activeChannel = localStatePhone.displayCalls[activeChannelNumber]
   flowRoute.connectedPhone = localStatePhone.connectedPhone
   flowRoute.engineEvent = (event, payload) => {
@@ -348,6 +399,7 @@ export const SoftPhone = ({
               ring: false,
               duration: 0,
               direction: payload.direction,
+              //favoritesName: favorites.find(el => el.number===payload.remote_identity.uri.user).displayName,
             },
           ],
         }))
@@ -423,6 +475,8 @@ export const SoftPhone = ({
         }))
         setdialState('')
 
+        // getDisplayName(payload.remote_identity.uri.user, payload)
+
         break
       case 'callEnded':
         // Call is ended, lets delete the call from calling queue
@@ -433,80 +487,79 @@ export const SoftPhone = ({
 
         console.log(localStatePhone)
 
+        let duration = 0
+        let timeNow = new Date
+        let timeStart = new Date
+
+        let history = {
+          status: '',
+          direction: '',
+          number: '',
+          displayName: '',
+          duration: 0
+        }
+
+        //Пропущенный входящий звонок
         const firstCheck = localStatePhone.phoneCalls.filter(
           (item) => item.sessionId === payload && item.direction === 'incoming'
+
         )
+
+        //Оконченный Звонок
         const secondCheck = localStatePhone.displayCalls.filter(
           (item) => item.sessionId === payload
         )
-        if (firstCheck.length === 1) {
-          console.log('siphistory.insert firstCheck', secondCheck[0]);
-          setCalls((call) => [
-            {
-              status: 'missed',
-              sessionId: firstCheck[0].sessionId,
-              direction: firstCheck[0].direction,
-              number: firstCheck[0].callNumber,
-              displayName: firstCheck[0].displayName,
-              time: new Date(),
-            },
-            ...call,
-          ])
-          //console.log("+++++++ callEnded=======firstCheck")
+
+        if (secondCheck.length === 1) {
+
+          //Если это пропущенный вызов
+          if (firstCheck.length === 1) {
+
+            history.status = 'missed'
+
+          } else {
+
+            history.status = secondCheck[0].inAnswer ? 'answered' : 'not answered'
+
+          }
+
+          history.direction = secondCheck[0].direction
+          history.number = secondCheck[0].callNumber
+          history.displayName = secondCheck[0].displayName ? secondCheck[0].displayName : ''
+          if (history.displayName === 'Неизвестный') {
+            history.displayName = history.number
+          }
+
+          if (timeNow > secondCheck[0].timeStart) {
+
+            history.duration = Math.floor((timeNow - secondCheck[0].timeStart)/1000)  //Милисекунды в секунды
+
+          }
+
           Meteor.call(
             'siphistory.insert',
-            (status = 'missed'),
-            (direction = firstCheck[0].direction),
-            (number = firstCheck[0].callNumber),
-            (displayName = firstCheck[0].displayName)
+            (status = history.status),
+            (direction = history.direction),
+            (number = history.number),
+            (displayName = history.displayName),
+            (duration = history.duration)
           )
 
           setCallsHistory((call) => [
             {
-              status: 'missed',
-              direction: firstCheck[0].direction,
-              number: firstCheck[0].callNumber,
-              displayName: firstCheck[0].displayName,
-              createdAt: new Date(),
-              _id: firstCheck[0].sessionId,
-            },
-            ...call,
-          ])
-          setMissedSIP(true) //Посылаем на сервер что есть пропущенный звонок
-        } else if (secondCheck.length === 1) {
-          //console.log("+++++++ callEnded=======secondCheck")
-          setCalls((call) => [
-            {
-              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
-              sessionId: secondCheck[0].sessionId,
-              direction: secondCheck[0].direction,
-              number: secondCheck[0].callNumber,
-              displayName: secondCheck[0].displayName,
-              time: new Date(),
-            },
-            ...call,
-          ])
-          //console.log("+++++++ callEnded=======Meteor.call(")
-          console.log('siphistory.insert secondCheck', secondCheck[0]);
-          Meteor.call(
-            'siphistory.insert',
-            (status = secondCheck[0].inAnswer ? 'answered' : 'missed'),
-            (direction = secondCheck[0].direction),
-            (number = secondCheck[0].callNumber),
-            (displayName = secondCheck[0].displayName)
-          )
-          setCallsHistory((call) => [
-            {
-              status: secondCheck[0].inAnswer ? 'answered' : 'missed',
-              direction: secondCheck[0].direction,
-              number: secondCheck[0].callNumber,
-              displayName: secondCheck[0].displayName,
+              status: history.status,
+              direction: history.direction,
+              number: history.number,
+              displayName: history.displayName,
+              duration: history.duration,
               createdAt: new Date(),
               _id: secondCheck[0].sessionId,
             },
             ...call,
           ])
+
         }
+
 
         setLocalStatePhone((prevState) => ({
           ...prevState,
@@ -530,6 +583,8 @@ export const SoftPhone = ({
                   callInfo: 'Ready',
                   transferControl: false,
                   transferNumber: '',
+                  timeStart: false,
+                  displayName: ''
                 }
               : a
           ),
@@ -576,6 +631,7 @@ export const SoftPhone = ({
                   inAnswer: true,
                   hold: false,
                   callInfo: 'Answer',
+                  timeStart: new Date()
                 }
               : a
           ),
@@ -740,7 +796,7 @@ export const SoftPhone = ({
         audioCtx = new AudioContext();*/
     //event.persist();
 
-    //console.log(number)
+    console.log("handleCall", number)
     //console.log(event.target);
     //console.log(event.target.value);
     if (number.length > 0) {
@@ -1038,6 +1094,21 @@ export const SoftPhone = ({
   const handleSettingsButton = () => {
     flowRoute.tmpEvent()
   }
+  const updateFavoritesList = () => {
+    const favorites = APIClient.v1.get('sip.getFavorites', {})
+      favorites.then((resolve) => {
+        setFavorites(resolve.favorites)
+      })
+
+  }
+
+  const handleFavorites = (displayName, number) => {
+    console.log(displayName, number)
+    Meteor.call('sipfavorites.insert',displayName, number)
+    updateFavoritesList()
+
+
+  }
 
   useEffect(() => {
     console.log('before mediadevices enumeration')
@@ -1091,20 +1162,37 @@ export const SoftPhone = ({
       ringer.current.volume = parseInt(localStatePhone.ringVolume, 10) / 100
       flowRoute.ringer = ringer
     } catch (e) {}
+
+
+    //Загружаем историю
+    const history = APIClient.v1.get('sip.getHistory', {})
+    history.then((resolve) => {
+      setCallsHistory(resolve.history)
+    })
+
+    //Загружаем избранное
+    updateFavoritesList()
+
   }, [])
 
   useEffect(() => {
     console.log('localStatePhone', localStatePhone)
     console.log('displayCalls', localStatePhone.displayCalls)
+
+    res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
+    if (res) {
+      getDisplayName(res.callNumber, res.sessionId)
+
+    }
   }, [localStatePhone])
 
-  const historyCalls = useMemo(() => {
-    console.log('useMemo CALLS')
-    const history = APIClient.v1.get('sip.getHistory', {})
-    history.then((resolve) => {
-      setCallsHistory(resolve.history)
-    })
-  }, [ipPhone])
+  // const historyCalls = useMemo(() => {
+  //   console.log('useMemo CALLS')
+  //   const history = APIClient.v1.get('sip.getHistory', {})
+  //   history.then((resolve) => {
+  //     setCallsHistory(resolve.history)
+  //   })
+  // }, [ipPhone])
 
   return (
     <Fragment>
@@ -1157,15 +1245,34 @@ export const SoftPhone = ({
             localStatePhone={localStatePhone}
           />
           <Divider />
-          <Box display="flex" flexDirection="row" flexGrow={1} bg='primary-500'>
-            <Box flexGrow={5}>
-              <HistoryBlock handleCall={handleCall} callsHistory={callsHistory} />
+          <Box display="flex" flexDirection="row" flexGrow={1}>
+            <Box display="flex" flexGrow={2}>
+              <HistoryBlock handleCall={handleCall} handleFavorites={handleFavorites} callsHistory={callsHistory} />
             </Box>
-            <Box flexGrow={1}>
-              <FavoritesBlock />
+            <Box display="flex" flexGrow={1}>
+              <FavoritesBlock favorites={favorites} handleCall={handleCall} updateFavoritesList={updateFavoritesList}/>
             </Box>
           </Box>
-          <Box display="flex" flexGrow={1} bg='active-link' h='x16' >Низ</Box>
+          {/* <Box display="flex" flexGrow={1} bg='primary-500'>
+            <Scrollable smooth>
+              <Box display="flex" flexDirection="column" flexGrow={1} minHeight={100}>
+              <Tile padding='none' maxWidth='full' h={0}>
+                {callsHistory.map(
+                ({ number, displayName, direction, createdAt, status, _id }) => (
+                    <Box key={_id}>
+                      <div>{displayName ? displayName : number}</div>
+                      <div>{displayName ? displayName : number}</div>
+                      <div>{displayName ? displayName : number}</div>
+                    </Box>
+                ))}
+            </Tile>
+
+
+              </Box>
+            </Scrollable>
+
+          </Box> */}
+          <Box display="flex" flexGrow={1}  h='x1' maxHeight='x1'></Box>
         </Box>
       {/* </div> */}
       <div hidden>
@@ -1177,6 +1284,7 @@ export const SoftPhone = ({
       <div className="call-queue-box">
         <CallQueue
           calls={localStatePhone.phoneCalls}
+          favorites={favorites}
           handleAnswer={handleAnswer}
           handleReject={handleReject}
         />
@@ -1207,3 +1315,147 @@ SoftPhone.propTypes = {
 }
 
 export default SoftPhone
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// case 'callEnded':
+//         // Call is ended, lets delete the call from calling queue
+//         // Call is ended, lets check and delete the call from  display calls list
+//         //        const ifExist= _.findIndex(localStatePhone.displayCalls,{sessionId:e.sessionId})
+//         console.log('+++++++ callEnded')
+
+
+//         console.log(localStatePhone)
+
+//         let duration = 0
+//         let timeNow = new Date
+//         let timeStart = new Date
+
+//         const firstCheck = localStatePhone.phoneCalls.filter(
+//           (item) => item.sessionId === payload && item.direction === 'incoming'
+
+//         )
+//         const secondCheck = localStatePhone.displayCalls.filter(
+//           (item) => item.sessionId === payload
+//         )
+//         if (firstCheck.length === 1) {
+
+//           console.log('siphistory.insert firstCheck', secondCheck[0]);
+//           duration = timeNow - firstCheck[0].timeStart
+
+//           setCalls((call) => [
+//             {
+//               status: 'missed',
+//               sessionId: firstCheck[0].sessionId,
+//               direction: firstCheck[0].direction,
+//               number: firstCheck[0].callNumber,
+//               displayName: firstCheck[0].displayName,
+//               time: new Date(),
+//             },
+//             ...call,
+//           ])
+//           //console.log("+++++++ callEnded=======firstCheck")
+//           Meteor.call(
+//             'siphistory.insert',
+//             (status = 'missed'),
+//             (direction = firstCheck[0].direction),
+//             (number = firstCheck[0].callNumber),
+//             (displayName = firstCheck[0].displayName)
+//           )
+
+//           setCallsHistory((call) => [
+//             {
+//               status: 'missed',
+//               direction: firstCheck[0].direction,
+//               number: firstCheck[0].callNumber,
+//               displayName: firstCheck[0].displayName,
+//               createdAt: new Date(),
+//               _id: firstCheck[0].sessionId,
+//             },
+//             ...call,
+//           ])
+//           setMissedSIP(true) //Посылаем на сервер что есть пропущенный звонок
+//         } else if (secondCheck.length === 1) {
+//           //console.log("+++++++ callEnded=======secondCheck")
+//           duration = timeNow - secondCheck[0].timeStart
+
+//           setCalls((call) => [
+//             {
+//               status: secondCheck[0].inAnswer ? 'answered' : 'missed',
+//               sessionId: secondCheck[0].sessionId,
+//               direction: secondCheck[0].direction,
+//               number: secondCheck[0].callNumber,
+//               displayName: secondCheck[0].displayName,
+//               time: new Date(),
+//             },
+//             ...call,
+//           ])
+//           //console.log("+++++++ callEnded=======Meteor.call(")
+//           console.log('siphistory.insert secondCheck', secondCheck[0]);
+//           console.log('duration', duration);
+//           Meteor.call(
+//             'siphistory.insert',
+//             (status = secondCheck[0].inAnswer ? 'answered' : 'missed'),
+//             (direction = secondCheck[0].direction),
+//             (number = secondCheck[0].callNumber),
+//             (displayName = secondCheck[0].displayName),
+//             (duration = duration)
+//           )
+//           setCallsHistory((call) => [
+//             {
+//               status: secondCheck[0].inAnswer ? 'answered' : 'missed',
+//               direction: secondCheck[0].direction,
+//               number: secondCheck[0].callNumber,
+//               displayName: secondCheck[0].displayName,
+//               createdAt: new Date(),
+//               _id: secondCheck[0].sessionId,
+//             },
+//             ...call,
+//           ])
+//         }
+
+
+
+
+//         setLocalStatePhone((prevState) => ({
+//           ...prevState,
+//           phoneCalls: localStatePhone.phoneCalls.filter(
+//             (item) => item.sessionId !== payload
+//           ),
+//           displayCalls: _.map(localStatePhone.displayCalls, (a) =>
+//             a.sessionId === payload
+//               ? {
+//                   ...a,
+//                   inCall: false,
+//                   inAnswer: false,
+//                   hold: false,
+//                   muted: 0,
+//                   inTransfer: false,
+//                   inAnswerTransfer: false,
+//                   allowFinishTransfer: false,
+//                   allowTransfer: true,
+//                   allowAttendedTransfer: true,
+//                   inConference: false,
+//                   callInfo: 'Ready',
+//                   transferControl: false,
+//                   transferNumber: '',
+//                   timeStart: false
+//                 }
+//               : a
+//           ),
+//         }))
+//         //text = localStatePhone.displayCalls[activeChannelNumber].callNumber + " " + localStatePhone.displayCalls[activeChannelNumber].duration
+
+//         break

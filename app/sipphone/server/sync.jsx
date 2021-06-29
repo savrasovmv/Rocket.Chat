@@ -131,8 +131,8 @@ Meteor.methods({
         if (!connect) {
             return false
         }
-        console.log("start searchRead fs.directory")
-        const records = await odoo.searchRead('fs.directory', [['username', '=', user.username], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
+        console.log("start searchRead fs.directory by username: ", user.username)
+        const records = await odoo.searchRead('fs.directory', [['username', 'ilike', user.username], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
         console.log(records);
 
         if (!records || records.length === 0) {

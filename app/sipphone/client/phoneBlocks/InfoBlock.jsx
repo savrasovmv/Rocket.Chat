@@ -18,7 +18,7 @@ const LineInfoBlock = ({ displayCall, duration }) => {
   if (displayCall.inCall === true) {
     return (
       <Fragment>
-        <Box display="flex" flexDirection="column" m="x10">
+        <Box display="flex" flexDirection="column" m="x10" textAlign='center'>
           {displayCall.hold ? (
             <Box m="x5" fontSize="x18">
               На удержании
@@ -26,7 +26,7 @@ const LineInfoBlock = ({ displayCall, duration }) => {
           ) : null}
           <Box m="x5" fontSize="x18">
             {displayCall.callInfo === 'Answer' ? 'Разговор' : null}
-            {displayCall.callInfo === 'In Call' ? 'Вызывается' : null}
+            {displayCall.callInfo === 'In Call' ? 'Соединение' : null}
             {displayCall.callInfo === 'Attended Transfering...'
               ? 'Переадресация'
               : null}
@@ -44,6 +44,9 @@ const LineInfoBlock = ({ displayCall, duration }) => {
             {displayCall.direction === 'outgoing'
               ? 'Исходящий вызов'
               : 'Входящий вызов'}
+          </Box>
+          <Box m="x5" fontSize="x14">
+            {displayCall.displayName}
           </Box>
           <Box m="x5" fontSize="x14">
             {displayCall.callNumber}

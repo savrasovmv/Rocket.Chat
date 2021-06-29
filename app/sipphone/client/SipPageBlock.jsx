@@ -64,15 +64,19 @@ export const SipPageBlock = () => {
 
 
   return config && ipPhone ? (
-    <SoftPhone config={config} ipPhone={ipPhone} />
-
+    <OutsideClickHandler onOutsideClick={outsideClick}>
+      <SoftPhone config={config} ipPhone={ipPhone} />
+    </OutsideClickHandler>
   ) : null
 }
 
 export default SipPageBlock
 
 
-
+{/*<OutsideClickHandler onOutsideClick={outsideClick}>
+         <OutsideAlerter> */}
+        {/* </OutsideAlerter>
+      </OutsideClickHandler>*/}
 
   // Meteor.startup(async () => {
   //   const configurations = await call('SIPPhone_get_params_connect');

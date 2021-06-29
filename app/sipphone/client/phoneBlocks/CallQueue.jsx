@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Modal,
   Box,
@@ -16,8 +16,14 @@ import {
 // const call_icon = "/icons/call-icon.svg"
 // const end_icon = "/icons/end2-icon.svg"
 
-export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
+export const CallQueue = ({ calls, favorites, handleAnswer, handleReject }) => {
   console.log("calls", calls)
+  // useEffect(() => {
+
+  //   res = favorites.filter(el => el.number===calls.nu)
+
+
+  // },[])
   return (
     <div>
       {calls.map((call) => {
@@ -31,7 +37,10 @@ export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
                       </Box>
 
                       <Label>
-                      {call.callNumber} - {call.displayName}
+                        {call.favoritesName ? call.favoritesName : call.displayName }
+                      </Label>
+                      <Label>
+                        {call.callNumber}
                       </Label>
                   </Box>
               </Modal.Content>
@@ -53,6 +62,44 @@ export const CallQueue = ({ calls, handleAnswer, handleReject }) => {
 export default CallQueue
 
 
+
+// export const CallQueue = ({ calls, favorites, handleAnswer, handleReject }) => {
+//   console.log("calls", calls)
+//   // useEffect(() => {
+//   //   res = favorites.filter(el => el.number===calls.nu)
+
+//   // },[])
+//   return (
+//     <div>
+//       {calls.map((call) => {
+//         const parsedCaller = call.callNumber.split('-')
+//         return (
+//           <Modal key={call.sessionId}>
+//               <Modal.Content>
+//                   <Box display="flex" flexDirection="column" pbs='x20'>
+//                       <Box textAlign='center' fontSize="x16" pbe='x20' >
+//                           Входящий вызов
+//                       </Box>
+
+//                       <Label>
+//                       {call.callNumber} - {favorites.filter(el => el.number===call.callNumber).displayName ? favorites.filter(el => el.number===call.callNumber).displayName : call.displayName }
+//                       </Label>
+//                   </Box>
+//               </Modal.Content>
+//               <Modal.Footer>
+//                   <ButtonGroup align='center'>
+//                       <Button onClick={() => handleAnswer(call.sessionId)} primary success>Принять</Button>
+//                       <Button onClick={() => handleReject(call.sessionId)} primary danger>Отклонить</Button>
+//                   </ButtonGroup>
+//               </Modal.Footer>
+//           </Modal>
+
+//         )
+//       })}
+
+//     </div>
+//   )
+// }
 
 {/* <Box
       display="flex"
