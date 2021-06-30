@@ -100,20 +100,26 @@ export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory }) => {
                                   </Box>
 
                                   <Box display="flex" flexDirection="column">
-                                    <Box color='default'>
+                                    <Box color={status === 'missed' ? 'danger' : 'default'}>
                                         {displayName ? displayName : number}
                                     </Box>
-                                    <Box>
+                                    <Box color={status === 'missed' ? 'danger' : 'info'}>
                                       {displayName ? number : null}
                                     </Box>
                                   </Box>
 
                               </Box>
 
-                              <Box display="flex"  flexDirection="row" verticalAlign='middle' style={{justifyContent: "space-end"}}>
+                              <Box
+                                display="flex"
+                                flexDirection="row"
+                                verticalAlign='middle'
+                                style={{justifyContent: "space-end"}}
+                                color={status === 'missed' ? 'danger' : 'info'}
+                                >
 
-                                  <Box display="flex" fontSize='x12' p={5} color='info' flexGrow={1} textAlign='end' >{formatDate(createdAt)}</Box>
-                                  <Box display="flex" fontSize='x12' p={5} color='info' flexGrow={1} textAlign='end' minWidth='50px'>
+                                  <Box display="flex" fontSize='x12' p={5} pb={10} flexGrow={1} textAlign='end' >{formatDate(createdAt)}</Box>
+                                  <Box display="flex" fontSize='x12' p={5} pb={10} flexGrow={1} textAlign='end' minWidth='50px'>
                                     {status === 'not answered' ? (
                                         '-'
                                       ): (

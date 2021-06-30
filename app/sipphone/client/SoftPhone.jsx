@@ -41,6 +41,7 @@ import { SipProvider, useSip } from './SipContext'
 
 import { setMissedSIP, setStatusSIP } from './lib/streamer'
 import FavoritesBlock from './phoneBlocks/FavoritesBlock'
+import { CompositionSettingsList } from 'twilio/lib/rest/video/v1/compositionSettings'
 
 //const SIPPhone_domain = useSetting('SIPPhone_domain')
 //console.log('SIPPhone_domain')
@@ -274,19 +275,75 @@ export const SoftPhone = ({
     setNotificationState((notification) => ({ ...notification, open: false }))
   }
 
-  const getDisplayName = (number, sessionId) => {
-    console.log("getDisplayName number", number)
-    console.log("getDisplayName sessionId", sessionId)
 
+  const updateDisplayName = (displayName, incomingCall=false) => {
+    const newProgressLocalStatePhone = _.cloneDeep(localStatePhone)
+
+    if (incomingCall) {
+
+      newProgressLocalStatePhone.phoneCalls[activeChannelNumber] = {
+        ...localStatePhone.phoneCalls[activeChannelNumber],
+        displayName: displayName,
+        isUpdateName: true
+      }
+      setLocalStatePhone((prevState) => ({
+        ...prevState,
+        phoneCalls: newProgressLocalStatePhone.phoneCalls,
+      }))
+
+    } else {
+
+      newProgressLocalStatePhone.displayCalls[activeChannelNumber] = {
+        ...localStatePhone.displayCalls[activeChannelNumber],
+        displayName: displayName,
+        isUpdateName: true
+      }
+      setLocalStatePhone((prevState) => ({
+        ...prevState,
+        displayCalls: newProgressLocalStatePhone.displayCalls,
+      }))
+
+    }
+
+  }
+
+  const getDisplayName = (number, pDisplayName='', incomingCall=false) => {
+    console.log("getDisplayName number", number)
+
+    //Поиск в избранном
     res = favorites.find(el => el.number===number)
     if (!res) {
-      displayName = "Неизвестный"
+      displayName = ''
     } else {
       displayName = res.displayName
     }
 
+    //Поиск в справочнике
+    if (displayName==='') {
+
+      console.log("getDisplayName   +++ Find users")
+      const result1 = APIClient.v1.get('sip.getDisplayName', { ipPhone: number })
+      result1.then((resolve) => {
+          console.log('getDisplayName users.info', resolve)
+          displayName = resolve.displayName
+          updateDisplayName(displayName, incomingCall)
+          // setInfo({
+          //     type: 'Звонок',
+          //     name: resolve.user.name,
+          //     title: resolve.user.title,
+          //     department: resolve.user.department,
+          //     username: resolve.user.username,
+          //     avatarUrl:  '/avatar/'+resolve.user.username,
+          // })
+          // setOpenNotifi(true)
+      })
+
+
+    }
+
     console.log("getDisplayName res", res)
     console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
+    console.log("getDisplayName phoneCalls", localStatePhone.phoneCalls)
 
     // setLocalStatePhone((prevState) => ({
     //   ...prevState,
@@ -298,21 +355,32 @@ export const SoftPhone = ({
     //   })
     // }))
 
-    const newProgressLocalStatePhone = _.cloneDeep(localStatePhone)
-    newProgressLocalStatePhone.displayCalls[activeChannelNumber] = {
-      ...localStatePhone.displayCalls[activeChannelNumber],
-      displayName: displayName
-    }
-    // Save new object into the array with display calls
 
-    setLocalStatePhone((prevState) => ({
-      ...prevState,
-      displayCalls: newProgressLocalStatePhone.displayCalls,
-    }))
+
+    if (displayName === '') {
+      if (pDisplayName === '') {
+        displayName = 'Неизвестный'
+      } else {
+        displayName = pDisplayName
+      }
+    }
+
+    if (displayName !== pDisplayName) {
+
+      updateDisplayName(displayName, incomingCall)
+    }
+
 
     console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
+    console.log("getDisplayName phoneCalls", localStatePhone.phoneCalls)
+    console.log("getDisplayName displayName", displayName)
 
+    // setTimeout(() => {
+    //   console.log('kkkkkkkkkkkkkkkkkkkkk')
 
+    // }, [300])
+
+    return displayName
 
   }
 
@@ -385,6 +453,8 @@ export const SoftPhone = ({
         // looks like new call its incoming call
         // Save new object with the Phone data of new incoming call into the array with Phone data
 
+
+
         setLocalStatePhone((prevState) => ({
           ...prevState,
           phoneCalls: [
@@ -399,10 +469,14 @@ export const SoftPhone = ({
               ring: false,
               duration: 0,
               direction: payload.direction,
+              isUpdateName: false  //Было ли обновление имени из справочника
               //favoritesName: favorites.find(el => el.number===payload.remote_identity.uri.user).displayName,
             },
           ],
         }))
+
+
+
 
         // callNumber:
         //         payload.remote_identity.display_name !== ''
@@ -427,11 +501,8 @@ export const SoftPhone = ({
           const notification = new Notification('Incoming Call', {
             requireInteraction: true, //Постоянно отображается
             icon: '/call-icon.png',
-            body: `Входящий вызов: ${
-              payload.remote_identity.display_name !== ''
-                ? `${payload.remote_identity.display_name || ''}`
-                : payload.remote_identity.uri.user
-            }`,
+            body: `Входящий вызов: ${payload.remote_identity.display_name} - ${payload.remote_identity.uri.user}`
+
           })
           notification.onclick = function () {
             document.getElementsByClassName('sipphone-box')[0].style.display =
@@ -466,6 +537,7 @@ export const SoftPhone = ({
           sessionId: payload.id,
           callNumber: payload.remote_identity.uri.user,
           callInfo: 'In Call',
+          isUpdateName: false
         }
         // Save new object into the array with display calls
 
@@ -535,6 +607,8 @@ export const SoftPhone = ({
             history.duration = Math.floor((timeNow - secondCheck[0].timeStart)/1000)  //Милисекунды в секунды
 
           }
+
+          console.log('end_time: ', data.end_time)
 
           Meteor.call(
             'siphistory.insert',
@@ -1094,6 +1168,16 @@ export const SoftPhone = ({
   const handleSettingsButton = () => {
     flowRoute.tmpEvent()
   }
+
+  const updateHistoryList = () => {
+    const history = APIClient.v1.get('sip.getHistory', {})
+    history.then((resolve) => {
+      setCallsHistory(resolve.history)
+    })
+
+  }
+
+
   const updateFavoritesList = () => {
     const favorites = APIClient.v1.get('sip.getFavorites', {})
       favorites.then((resolve) => {
@@ -1165,10 +1249,8 @@ export const SoftPhone = ({
 
 
     //Загружаем историю
-    const history = APIClient.v1.get('sip.getHistory', {})
-    history.then((resolve) => {
-      setCallsHistory(resolve.history)
-    })
+    updateHistoryList()
+
 
     //Загружаем избранное
     updateFavoritesList()
@@ -1179,11 +1261,11 @@ export const SoftPhone = ({
     console.log('localStatePhone', localStatePhone)
     console.log('displayCalls', localStatePhone.displayCalls)
 
-    res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
-    if (res) {
-      getDisplayName(res.callNumber, res.sessionId)
+    // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
+    // if (res) {
+    //   getDisplayName(res.callNumber)
 
-    }
+    // }
   }, [localStatePhone])
 
   // const historyCalls = useMemo(() => {
@@ -1247,10 +1329,19 @@ export const SoftPhone = ({
           <Divider />
           <Box display="flex" flexDirection="row" flexGrow={1}>
             <Box display="flex" flexGrow={2}>
-              <HistoryBlock handleCall={handleCall} handleFavorites={handleFavorites} callsHistory={callsHistory} />
+              <HistoryBlock
+                  handleCall={handleCall}
+                  handleFavorites={handleFavorites}
+                  callsHistory={callsHistory}
+              />
             </Box>
             <Box display="flex" flexGrow={1}>
-              <FavoritesBlock favorites={favorites} handleCall={handleCall} updateFavoritesList={updateFavoritesList}/>
+              <FavoritesBlock
+                  favorites={favorites}
+                  handleCall={handleCall}
+                  updateFavoritesList={updateFavoritesList}
+                  updateHistoryList={updateHistoryList}
+              />
             </Box>
           </Box>
           {/* <Box display="flex" flexGrow={1} bg='primary-500'>
@@ -1287,6 +1378,7 @@ export const SoftPhone = ({
           favorites={favorites}
           handleAnswer={handleAnswer}
           handleReject={handleReject}
+          getDisplayName={getDisplayName}
         />
 
       </div>

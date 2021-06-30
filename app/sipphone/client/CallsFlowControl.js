@@ -128,7 +128,7 @@ function CallsFlowControl() {
       case 'connecting':
         break;
       case 'ended':
-        this.onCallActionConnection('callEnded', callId);
+        this.onCallActionConnection('callEnded', callId, this.activeCall);
         this.removeCallFromQueue(callId);
         this.removeCallFromActiveCall(callId);
         this.removeCallFromHoldQueue(callId);

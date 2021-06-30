@@ -2,6 +2,7 @@ import { Mongo } from 'meteor/mongo'
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 import { DDPRateLimiter } from 'meteor/ddp-rate-limiter'
+import {sipHistoryUpdateName} from './sipHistory'
 
 export const SipFavoritesCollection = new Mongo.Collection('sip_favorites')
 
@@ -69,6 +70,8 @@ Meteor.methods({
                 userId: Meteor.userId(),
               }
           )
+
+          sipHistoryUpdateName(number, displayName)
 
       } else {
           console.log("Номера нет в избранном")

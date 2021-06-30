@@ -16,19 +16,27 @@ import {
 // const call_icon = "/icons/call-icon.svg"
 // const end_icon = "/icons/end2-icon.svg"
 
-export const CallQueue = ({ calls, favorites, handleAnswer, handleReject }) => {
+export const CallQueue = ({ calls, favorites, handleAnswer, handleReject, getDisplayName }) => {
+  console.log("render CallQueue")
   console.log("calls", calls)
-  // useEffect(() => {
+  useEffect(() => {
+    console.log("useEffect CallQueue")
 
-  //   res = favorites.filter(el => el.number===calls.nu)
+    calls.map((call) => {
+      if (!call.isUpdateName) {
+        getDisplayName(call.callNumber, call.displayName, true)
+      }
+    })
 
 
-  // },[])
+  },[calls])
+
+
   return (
     <div>
-      {calls.map((call) => {
-        const parsedCaller = call.callNumber.split('-')
-        return (
+      {calls.map((call) => (
+        // const parsedCaller = call.callNumber.split('-')
+        // return (
           <Modal key={call.sessionId}>
               <Modal.Content>
                   <Box display="flex" flexDirection="column" pbs='x20'>
@@ -52,8 +60,8 @@ export const CallQueue = ({ calls, favorites, handleAnswer, handleReject }) => {
               </Modal.Footer>
           </Modal>
 
-        )
-      })}
+        // )
+      ))}
 
     </div>
   )

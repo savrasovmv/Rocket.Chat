@@ -21,7 +21,7 @@ import {
 import moment from 'moment'
 import { useFormatDateAndTime } from '../../../../client/hooks/useFormatDateAndTime'
 
-export const FavoritesBlock = ({favorites, updateFavoritesList, handleCall}) => {
+export const FavoritesBlock = ({favorites, updateFavoritesList, updateHistoryList, handleCall}) => {
   console.log("render FavoritesBlock")
   const [value, setValue] = useState(false)
 
@@ -59,6 +59,7 @@ export const FavoritesBlock = ({favorites, updateFavoritesList, handleCall}) => 
     Meteor.call('sipfavorites.update', value._id, value.displayName, value.number)
     setValue(false)
     updateFavoritesList()
+    updateHistoryList()
   }
 
   const handleRemoveFavorites = () => {
