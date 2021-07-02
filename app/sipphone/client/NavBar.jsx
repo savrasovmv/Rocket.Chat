@@ -19,6 +19,7 @@ export const NavBar = ({
   isSettings,
   ipPhone,
   notify,
+  config
 }) => {
   const handleSettingsButton = (event) => {
     //console.log(isSettings)
@@ -38,6 +39,7 @@ export const NavBar = ({
         connectingPhone={connectingPhone}
         ipPhone={ipPhone}
         notify={notify}
+        config={config}
       />
       <Sidebar.TopBar.Actions>
         {/* <SettingsButton isSettings={isSettings} setIsSettings={setIsSettings} /> */}

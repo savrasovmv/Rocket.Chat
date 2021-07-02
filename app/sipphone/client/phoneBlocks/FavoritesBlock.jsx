@@ -80,6 +80,7 @@ export const FavoritesBlock = ({favorites, updateFavoritesList, updateHistoryLis
   return (
     <Box display="flex" flexDirection="column">
       <Sidebar.Section.Title>Избранное</Sidebar.Section.Title>
+
       {value ? (
         <Box display="flex" flexDirection="column" p="10px">
           <Label mbs="x10" fontSize="x14"> Имя </Label>
@@ -121,7 +122,7 @@ export const FavoritesBlock = ({favorites, updateFavoritesList, updateHistoryLis
                                         <Box display="flex"  flexDirection="row"   style={{justifyContent: "space-end"}}>
                                           <Box display="flex" flexDirection="column" flexGrow={1}>
                                             <Box>{displayName}</Box>
-                                            <Box>{number}</Box>
+                                            <Box color="info">{number}</Box>
 
                                           </Box>
 
@@ -132,7 +133,7 @@ export const FavoritesBlock = ({favorites, updateFavoritesList, updateHistoryLis
                                               <ButtonGroup align='end'>
                                                       <Button
                                                         small square
-                                                        onClick={(e) => handleCall(number, e)}
+                                                        onClick={(e) => handleCall(number, displayName, e)}
                                                         value={number}
                                                       >
                                                         <Icon color="success" name="phone" size='x24' />
@@ -142,7 +143,7 @@ export const FavoritesBlock = ({favorites, updateFavoritesList, updateHistoryLis
                                                         onClick={(e) => handleEditFavorites(displayName, number, _id)}
                                                         value={number}
                                                       >
-                                                        <Icon name="edit" size='x24' />
+                                                        <Icon color="info" name="edit" size='x24' />
                                                       </Button>
                                               </ButtonGroup>
                                             </Option.Menu>

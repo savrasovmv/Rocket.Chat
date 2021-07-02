@@ -253,6 +253,8 @@ export const SoftPhone = ({
   const [inputDevices, setInputDevices] = useState(getDefaultInDevices())
   const [outputDevices, setOutputDevices] = useState(getDefaultOutDevices())
   const [isSettings, setIsSettings] = useState(false)
+  const [displayNameState, setDisplayNameState] = useState(false)
+
 
   const hangleSettings = () => {
     setInputDevices(getDefaultInDevices())
@@ -322,20 +324,12 @@ export const SoftPhone = ({
     if (displayName==='') {
 
       console.log("getDisplayName   +++ Find users")
-      const result1 = APIClient.v1.get('sip.getDisplayName', { ipPhone: number })
+      const result1 = APIClient.v1.get('sip.getDisplayName', { callNumber: number })
       result1.then((resolve) => {
           console.log('getDisplayName users.info', resolve)
           displayName = resolve.displayName
           updateDisplayName(displayName, incomingCall)
-          // setInfo({
-          //     type: 'Звонок',
-          //     name: resolve.user.name,
-          //     title: resolve.user.title,
-          //     department: resolve.user.department,
-          //     username: resolve.user.username,
-          //     avatarUrl:  '/avatar/'+resolve.user.username,
-          // })
-          // setOpenNotifi(true)
+
       })
 
 
@@ -344,18 +338,6 @@ export const SoftPhone = ({
     console.log("getDisplayName res", res)
     console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
     console.log("getDisplayName phoneCalls", localStatePhone.phoneCalls)
-
-    // setLocalStatePhone((prevState) => ({
-    //   ...prevState,
-    //   displayCalls: _.map(localStatePhone.displayCalls, (a) => {
-    //     a.sessionId === sessionId ? {
-    //       ...a,
-    //       displayName: res,
-    //     } : a
-    //   })
-    // }))
-
-
 
     if (displayName === '') {
       if (pDisplayName === '') {
@@ -537,7 +519,8 @@ export const SoftPhone = ({
           sessionId: payload.id,
           callNumber: payload.remote_identity.uri.user,
           callInfo: 'In Call',
-          isUpdateName: false
+          isUpdateName: false,
+          //displayName: displayNameState
         }
         // Save new object into the array with display calls
 
@@ -547,7 +530,8 @@ export const SoftPhone = ({
         }))
         setdialState('')
 
-        // getDisplayName(payload.remote_identity.uri.user, payload)
+
+        //getDisplayName(payload.remote_identity.uri.user)
 
         break
       case 'callEnded':
@@ -602,13 +586,18 @@ export const SoftPhone = ({
             history.displayName = history.number
           }
 
-          if (timeNow > secondCheck[0].timeStart) {
+          // if (timeNow > secondCheck[0].timeStart) {
 
-            history.duration = Math.floor((timeNow - secondCheck[0].timeStart)/1000)  //Милисекунды в секунды
+          //   history.duration = Math.floor((timeNow - secondCheck[0].timeStart)/1000)  //Милисекунды в секунды
 
+          // }
+
+          if (data) {
+            history.duration = Math.floor((data.end_time - data.start_time)/1000)  //Милисекунды в секунды
+            console.log('history.duration', history.duration)
           }
 
-          console.log('end_time: ', data.end_time)
+          //console.log('end_time: ', data.end_time)
 
           Meteor.call(
             'siphistory.insert',
@@ -633,6 +622,11 @@ export const SoftPhone = ({
           ])
 
         }
+
+        console.log('----- Find displayCalls by payload', payload)
+        res = localStatePhone.displayCalls.find((el) => el.sessionId === payload)
+
+        console.log('result search', res)
 
 
         setLocalStatePhone((prevState) => ({
@@ -712,6 +706,10 @@ export const SoftPhone = ({
         }))
 
         break
+      case 'refer':
+        console.log('+++++ REFER')
+      break
+
       case 'hold':
         // let holdCall = localStatePhone.displayCalls.filter((item) => item.sessionId === payload);
 
@@ -859,16 +857,18 @@ export const SoftPhone = ({
       setdialState(dialState + event.currentTarget.value);*/
     setdialState(dialState + event)
     if (flowRoute.activeCall) {
-      //console.log('sendDTMF')
+      console.log('sendDTMF')
       flowRoute.activeCall.sendDTMF(`${event}`)
     }
   }
 
-  const handleCall = (number = '', event) => {
+  const handleCall = (number = '', displayName=false, event) => {
     //event.preventDefault();
     /*AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();*/
     //event.persist();
+
+    setDisplayNameState(displayName)
 
     console.log("handleCall", number)
     //console.log(event.target);
@@ -995,7 +995,7 @@ export const SoftPhone = ({
       //console.log('newCallTransferDisplayCalls')
       //console.log(newCallTransferDisplayCalls)
       flowRoute.activeCall.refer(dialState)
-      flowRoute.activeCall.sendDTMF(`##${dialState}`)
+      //flowRoute.activeCall.sendDTMF(`##${dialState}`)
     } else {
       notify('Введите номер для переадресации')
     }
@@ -1101,10 +1101,10 @@ export const SoftPhone = ({
           })
 
           if (transferChannel) {
+
             const opt = {
               replaces: transferChannel,
               callNumber: lineNumberCallTransfer[0].callNumber,
-
               mediaConstraints: {
                 audio: true,
               },
@@ -1221,6 +1221,8 @@ export const SoftPhone = ({
     console.log('config: ', config)
     console.log('ipPhone: ', ipPhone)
 
+
+
     flowRoute.config = config
     flowRoute.init()
     flowRoute.devicesInputId = inputDevices
@@ -1245,6 +1247,7 @@ export const SoftPhone = ({
       ringer.current.loop = true
       ringer.current.volume = parseInt(localStatePhone.ringVolume, 10) / 100
       flowRoute.ringer = ringer
+      navigator.mediaDevices.getUserMedia({ audio: true })
     } catch (e) {}
 
 
@@ -1261,11 +1264,11 @@ export const SoftPhone = ({
     console.log('localStatePhone', localStatePhone)
     console.log('displayCalls', localStatePhone.displayCalls)
 
-    // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
-    // if (res) {
-    //   getDisplayName(res.callNumber)
+    res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
+    if (res) {
+      getDisplayName(res.callNumber)
 
-    // }
+    }
   }, [localStatePhone])
 
   // const historyCalls = useMemo(() => {
@@ -1288,6 +1291,7 @@ export const SoftPhone = ({
             setIsSettings={setIsSettings}
             ipPhone={ipPhone}
             notify={notify}
+            config={config}
           />
 
           {notificationState.open ? (
@@ -1333,6 +1337,7 @@ export const SoftPhone = ({
                   handleCall={handleCall}
                   handleFavorites={handleFavorites}
                   callsHistory={callsHistory}
+                  favorites={favorites}
               />
             </Box>
             <Box display="flex" flexGrow={1}>

@@ -15,6 +15,7 @@ export const StatusBlock = ({
   connectedPhone,
   ipPhone,
   notify,
+  config
 }) => {
   const [status, setStatus] = useState('offline')
 
@@ -46,6 +47,7 @@ export const StatusBlock = ({
       {status ? <StatusBullet status={status} m="x10" /> : <StatusBullet />}
       <Label m="x10" fontSize="x16">
         {ipPhone} - {Meteor.user().name}
+        {config.isTransfer ? (' - переадресация на: ' + config.transferNumber ): null}
       </Label>
     </Box>
   )

@@ -115,4 +115,14 @@ settings.addGroup('SIPPhone', function () {
     this.add('SIPPhone_Sync_Test_Connect', 'SIPPhone_sync_test_connect', { type: 'action', actionText: 'Проверка соединения с FreeSWITCH'})
 
 
+    this.add('SIPPhone_Search_Favorites', '', {
+      type: 'boolean',
+      i18nLabel: 'Искать неизвестный номер по избранным всех пользователей',
+      enableQuery: {
+        _id: 'SIPPhone_Enable',
+        value: true,
+      },
+    });
+
+
 })

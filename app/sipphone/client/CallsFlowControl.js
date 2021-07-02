@@ -87,9 +87,12 @@ function CallsFlowControl() {
   };
 
   this.sessionEvent = (type, data, cause, callId) => {
-    // console.log(`Session: ${type}`);
-    // console.log('Data: ', data);
-    // console.log('callid: ', callId);
+    console.log("==============================");
+    console.log(`Session: ${type}`);
+    console.log('Data: ', data);
+    console.log('callid: ', callId);
+    console.log('cause: ', cause);
+    console.log("==============================");
 
     switch (type) {
       case 'terminated':

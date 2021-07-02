@@ -19,7 +19,7 @@ import moment from 'moment'
 import { useFormatDateAndTime } from '../../../../client/hooks/useFormatDateAndTime'
 import Discovery from 'aws-sdk/clients/discovery'
 
-export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory }) => {
+export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory, favorites }) => {
   //const formatDate = useFormatDateAndTime()
   //console.log('callsHistory', callsHistory)
   const toDay = moment().startOf('day')
@@ -34,7 +34,7 @@ export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory }) => {
 
   const formatTime = (duration) => {
     if (!duration) return '0:00'
-    var timestamp = Math.floor(duration / 1000);
+    var timestamp = duration;
 
     // 2
     //var hours = Math.floor(timestamp / 60 / 60);
@@ -59,6 +59,12 @@ export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory }) => {
     // ].join(':')
 
     return res;
+  }
+
+  const isFavorites = (number) => {
+    res = favorites.find((el) => el.number === number)
+    return res ? true : false
+
   }
 
   return (
@@ -143,7 +149,15 @@ export const HistoryBlock = ({ handleCall, handleFavorites, callsHistory }) => {
                                                 onClick={(e) => handleFavorites(displayName, number)}
                                                 value={number}
                                               >
-                                                <Icon color="warning" name="star" size='x24'/>
+                                                {isFavorites(number) ? (
+
+                                                  <Icon color="warning" name="star" size='x24'/>
+
+                                                  ):(
+
+                                                    <Icon color="info" name="star" size='x24'/>
+
+                                                )}
                                               </Button>
                                               </ButtonGroup>
                                       </Option.Menu>
