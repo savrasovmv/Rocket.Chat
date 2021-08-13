@@ -9,14 +9,14 @@ API.v1.addRoute(
 	{ authRequired: true },
 	{
 		get() {
-			console.log("+++++++++++ sip.getDisplayName +++++++++++++++")
+			//console.log("+++++++++++ sip.getDisplayName +++++++++++++++")
 			const { callNumber,  } = this.requestParams();
 
 			let displayName
 
 			user = Meteor.users.findOne({ipPhone: callNumber, active: true}, {$fields: {name: 1}});
 
-			console.log("+++++++++++ users", user)
+			//console.log("+++++++++++ users", user)
 
 			if (user) {
 				displayName = user.name
@@ -29,7 +29,7 @@ API.v1.addRoute(
 						}
 					)
 
-					console.log("+++++++++++ favorites", favorites)
+					//console.log("+++++++++++ favorites", favorites)
 					if (favorites) {
 						displayName = favorites.displayName
 					}
@@ -41,7 +41,8 @@ API.v1.addRoute(
 			let msg = 'Контакт'
 
 			if (!displayName) {
-				return API.v1.failure()
+				displayName = ''
+				//return API.v1.failure()
 			}
 
 			return API.v1.success({

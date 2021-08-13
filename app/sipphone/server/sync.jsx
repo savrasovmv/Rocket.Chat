@@ -60,6 +60,43 @@ Meteor.methods({
 });
 
 
+Meteor.methods({
+	'SIPPhone_get_access': async () => {
+
+        // console.log("++++ SIPPhone_get_access  +++++")
+
+		const user = Meteor.user();
+		if (!user) {
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_params_connect' });
+		}
+
+		if (settings.get('SIPPhone_Enable') !== true) {
+			return false
+		}
+
+        //Если это тестовый режим, перебираем имена пользователей
+        if (settings.get('SIPPhone_Enable_Test_Mode')) {
+            // console.log("++++SIPPhone_Enable_Test_Mode+++++")
+            listUsers = settings.get('SIPPhone_List_Users_Test_Mode').split(',')
+
+            // console.log("++++SIPPhone_Enable_Test_Mode listUsers", listUsers)
+            if (Array.isArray(listUsers)) {
+                console.log("Поиск пользователя в массиве")
+
+                res = listUsers.find((el) => el === user.username)
+                return res ? true : false
+            }
+
+            return false
+		}
+
+
+        return true
+
+
+	},
+});
+
 
 Meteor.methods({
 	'SIPPhone_get_params_connect': async () => {
@@ -106,7 +143,7 @@ Meteor.methods({
         }
 
         console.log("+++++++++++++++ Connect ODOO  ++++++++++++++++++++++")
-        console.log("+++ odoo_connect_param", odoo_connect_param)
+        // console.log("+++ odoo_connect_param", odoo_connect_param)
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,
@@ -133,7 +170,7 @@ Meteor.methods({
         }
         console.log("start searchRead fs.directory by username: ", user.username)
         const records = await odoo.searchRead('fs.directory', [['username', 'ilike', user.username], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
-        console.log(records);
+        // console.log(records);
 
         if (!records || records.length === 0) {
             return false
@@ -167,7 +204,7 @@ Meteor.methods({
             isTransfer: isTransfer,
             transferNumber: transferNumber
         }
-        console.log("Config = ", config)
+        // console.log("Config = ", config)
         return config
 
 

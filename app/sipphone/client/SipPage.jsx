@@ -12,6 +12,8 @@ import { SipPageBlock } from './SipPageBlock'
 //console.log('Start STREAMER')
 
 export const SipPage = () => {
+  if (!Meteor.userId()) return
+
   // const [config, setConfig] = useState(false)
   // const [ipPhone, setIpPhone] = useState(false)
 

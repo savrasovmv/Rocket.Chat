@@ -124,5 +124,23 @@ settings.addGroup('SIPPhone', function () {
       },
     });
 
+    this.add('SIPPhone_Enable_Test_Mode', false, {
+      type: 'boolean',
+      i18nLabel: 'Включить тестовый режим, доступ только определенным пользователям',
+      enableQuery: {
+        _id: 'SIPPhone_Enable',
+        value: true,
+      },
+    });
+
+    this.add('SIPPhone_List_Users_Test_Mode', '', {
+      type: 'string',
+      i18nLabel: 'Список имен пользователей через запятую, кому включен софтофон',
+      enableQuery: {
+        _id: 'SIPPhone_Enable_Test_Mode',
+        value: true,
+      },
+    });
+
 
 })

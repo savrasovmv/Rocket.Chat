@@ -21,6 +21,7 @@ export class UsersRaw extends BaseRaw {
 	}
 
 	findOneByUsername(username, options = null) {
+		username = username.toLowerCase()
 		const query = { username };
 
 		return this.findOne(query, options);

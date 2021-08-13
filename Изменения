@@ -215,3 +215,17 @@ const UserCard = forwardRef(({
 
 #######################################################
 #######################################################
+
+
+app/models/server/raw/Users.js
+
+Добавлена строка username = username.toLowerCase() приводит логин в нижний регистр
+
+	findOneByUsername(username, options = null) {
+		username = username.toLowerCase()
+		const query = { username };
+
+		return this.findOne(query, options);
+	}
+
+#######################################################

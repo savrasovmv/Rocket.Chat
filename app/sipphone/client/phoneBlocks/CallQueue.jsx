@@ -48,7 +48,7 @@ export const CallQueue = ({ calls, favorites, handleAnswer, handleReject, getDis
                         {call.favoritesName ? call.favoritesName : call.displayName }
                       </Label>
                       <Label>
-                        {call.callNumber}
+                        {call.callNumber !== call.displayName ? call.callNumber : null}
                       </Label>
                   </Box>
               </Modal.Content>

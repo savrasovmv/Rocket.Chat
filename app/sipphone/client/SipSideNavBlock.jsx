@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from 'react'
+import React, { useState, Fragment, useEffect, useMemo } from 'react'
 import { Meteor } from 'meteor/meteor'
 
 import { Mongo } from 'meteor/mongo'
@@ -13,6 +13,8 @@ import { FlowRouter } from 'meteor/kadira:flow-router'
 
 import { SoftPhone } from './SoftPhone.jsx'
 import { APIClient } from '../../utils/client'
+
+import { call } from '../../ui-utils/client';
 
 import { SearchInput, Button, Icon } from '@rocket.chat/fuselage'
 import {
@@ -35,6 +37,7 @@ import { getStatusSIP, getMissedSIP } from './lib/streamer'
 
 export const SipSideNavBlock = () => {
   //const { status } = useSip()
+  //if (!Meteor.userId()) return
 
   const [sipStatus, setSipStatus] = useState('offline')
   const [missed, setMissed] = useState(0)
@@ -52,16 +55,39 @@ export const SipSideNavBlock = () => {
     //console.log('Не определены параметры SIP')
     return
   }
-  if (!isPhone) {
-    const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
-    result.then((resolve) => {
-      const ipPhone = resolve.user.ipPhone
-      if (ipPhone) {
-        // console.log('Есть номера SIP:', ipPhone)
-        setIsPhone(true)
-      } else return
-    })
-  }
+  useMemo(async () => {
+    console.log('SIPPhone_get_access Start')
+
+    const access = await call('SIPPhone_get_access');
+
+    console.log('+++++++++++++++access', access)
+
+    if (access) {
+      const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
+      result.then((resolve) => {
+        const ipPhone = resolve.user.ipPhone
+        if (ipPhone) {
+          console.log('Есть номера SIP:', ipPhone)
+          setIsPhone(true)
+        } else return
+      })
+    } else return
+
+
+  }, [])
+
+
+  // if (!isPhone) {
+
+  //   const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
+  //   result.then((resolve) => {
+  //     const ipPhone = resolve.user.ipPhone
+  //     if (ipPhone) {
+  //       console.log('Есть номера SIP:', ipPhone)
+  //       setIsPhone(true)
+  //     } else return
+  //   })
+  // }
 
   const handleCall = (event) => {
     const htmlSoftPhoneBox = document.getElementsByClassName('sipphone-box')[0]
@@ -105,7 +131,7 @@ export const SipSideNavBlock = () => {
 
   },[])
 
-  return (
+  return isPhone && (
     <Box
       display="flex"
       flexDirection="column"
@@ -122,7 +148,7 @@ export const SipSideNavBlock = () => {
           <Sidebar.Item.Title>
             <Box display="inline-flex">
               <Box marginInlineEnd="x10">
-                <StatusBullet status={sipStatus} /> &nbsp;&nbsp;Телефон
+                <StatusBullet status={sipStatus} /> &nbsp;&nbsp;Rocket.Phone
               </Box>
               {missed > 0 ? (
                 <Box size="x5">

@@ -117,11 +117,13 @@ export const PhoneBlock = ({
     transferControl,
   } = activeChannel
 
-  const [viewKeyPad, setView] = useState(false)
+  const [viewKeyPad, setViewKeyPad] = useState(false)
 
-  const handleDial = () => setView((prev) => !prev)
+  const handleKeyPadButton = () => {
+    setViewKeyPad((prev) => !prev)
+  }
 
-  // const handleDial = (event) => {
+  // const handleKeyPadButton = (event) => {
   //   if (viewKeyPad === false) {
   //     setView(true)
   //   } else {
@@ -180,9 +182,29 @@ export const PhoneBlock = ({
           setTypeNumSearch(false)
         }
         //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
+        // const query = {
+        //   active: true,
+        //   $and: [
+        //     {$or: [
+        //       {ipPhone: {$ne: null}},
+        //       {telephoneNumber: {$ne: null}},
+        //       {mobile: {$ne: null}},
+        //       {homePhone: {$ne: null}},
+        //       ]},
+        //     {$or: [
+        //       {ipPhone: {$regex: dialState}},
+        //       {telephoneNumber:  {$regex: dialState}},
+        //       {mobile:  {$regex: dialState}},
+        //       {homePhone:  {$regex: dialState}},
+
+        //     ]}
+        //  ]
+
+        // }
         const result = APIClient.v1.get('users.list', {
           /* prettier-ignore */
           query: '{ \
+                                "active": true,\
                                 "$and":[\
                                         {"$or": [\
                                               {"ipPhone": {"$ne": null}},\
@@ -218,6 +240,10 @@ export const PhoneBlock = ({
   const outsideClick = () => {
     setUsers([])
   }
+
+  // const outsideClickKeypadBlock = () => {
+  //   setViewKeyPad(false)
+  // }
 
   console.log('Render')
   return (
@@ -310,7 +336,7 @@ export const PhoneBlock = ({
                 color="info"
                 is={Button}
                 margin="x1"
-                onClick={handleDial}
+                onClick={handleKeyPadButton}
               >
                 <Box>
                   <Icon name="dialpad" size="x36" />
@@ -473,12 +499,15 @@ export const PhoneBlock = ({
                 </Box>
               )}
             </Box>
-            <Box display="flex" justifyContent="center">
-              <KeypadBlock
-                viewKeyPad={viewKeyPad}
-                handlePressKey={handlePressKey}
-              />
-            </Box>
+
+            {/* <OutsideClickHandler onOutsideClick={outsideClickKeypadBlock}> */}
+              <Box display="flex" justifyContent="center">
+                  <KeypadBlock
+                    viewKeyPad={viewKeyPad}
+                    handlePressKey={handlePressKey}
+                  />
+              </Box>
+            {/* </OutsideClickHandler> */}
             <Box display="flex" justifyContent="center">
               <InfoBlock
                 displayCall={displayCall}

@@ -25,7 +25,7 @@ export const SipPageBlock = () => {
 
     const configurations = await call('SIPPhone_get_params_connect');
 
-    console.log('+++++++++++++++configurations', configurations)
+    //console.log('+++++++++++++++configurations', configurations)
 
     if (configurations) {
       //Преобразуем строку сокета в объект
@@ -63,11 +63,11 @@ export const SipPageBlock = () => {
 
 
 
-  return config && ipPhone ? (
+  return (
     <OutsideClickHandler onOutsideClick={outsideClick}>
-      <SoftPhone config={config} ipPhone={ipPhone} />
+      {config && ipPhone ? <SoftPhone config={config} ipPhone={ipPhone} /> : <div>"Отсутствует конфигурация для подключения к телефонии"</div>}
     </OutsideClickHandler>
-  ) : null
+  )
 }
 
 export default SipPageBlock

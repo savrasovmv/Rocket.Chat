@@ -341,16 +341,16 @@ export const SoftPhone = ({
 
     if (displayName === '') {
       if (pDisplayName === '') {
-        displayName = 'Неизвестный'
+        displayName = number
       } else {
         displayName = pDisplayName
       }
     }
 
-    if (displayName !== pDisplayName) {
+    //if (displayName !== pDisplayName) {
 
       updateDisplayName(displayName, incomingCall)
-    }
+    //}
 
 
     console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
@@ -765,7 +765,7 @@ export const SoftPhone = ({
         }))
         break
       case 'notify':
-        notify(payload)
+        //notify(payload)
         break
       default:
         break
@@ -1264,11 +1264,11 @@ export const SoftPhone = ({
     console.log('localStatePhone', localStatePhone)
     console.log('displayCalls', localStatePhone.displayCalls)
 
-    res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
-    if (res) {
-      getDisplayName(res.callNumber)
+    // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
+    // if (res) {
+    //   getDisplayName(res.callNumber)
 
-    }
+    // }
   }, [localStatePhone])
 
   // const historyCalls = useMemo(() => {
