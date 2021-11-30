@@ -28,7 +28,6 @@ Meteor.methods({
         odoo_password = settings.get('SIPPhone_Server_Sync_password')
         odoo_db = settings.get('SIPPhone_Server_Sync_DB')
 
-        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,
@@ -40,16 +39,14 @@ Meteor.methods({
         const connect = await odoo.connect()
         .then(
             async resolve => {
-                console.log("resolve")
                 if (!resolve) {return false}
                 return true
             },
             reject => {
-                console.log("-------------------reject", reject)
                 return false
             }
         )
-        console.log("++++ Status Connection to Odoo", connect)
+
         if (!connect) {
             return false
         } else {
@@ -63,8 +60,6 @@ Meteor.methods({
 Meteor.methods({
 	'SIPPhone_get_access': async () => {
 
-        // console.log("++++ SIPPhone_get_access  +++++")
-
 		const user = Meteor.user();
 		if (!user) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_params_connect' });
@@ -76,13 +71,10 @@ Meteor.methods({
 
         //Если это тестовый режим, перебираем имена пользователей
         if (settings.get('SIPPhone_Enable_Test_Mode')) {
-            // console.log("++++SIPPhone_Enable_Test_Mode+++++")
+
             listUsers = settings.get('SIPPhone_List_Users_Test_Mode').split(',')
 
-            // console.log("++++SIPPhone_Enable_Test_Mode listUsers", listUsers)
             if (Array.isArray(listUsers)) {
-                console.log("Поиск пользователя в массиве")
-
                 res = listUsers.find((el) => el === user.username)
                 return res ? true : false
             }
@@ -109,22 +101,6 @@ Meteor.methods({
 			return false
 		}
 
-        // stunServers = settings.get('SIPPhone_STUN_Servers')
-        // config = {
-        //     domain: '192.168.1.8', // sip-server@your-domain.io
-        //     authorization_user: '110rc',
-        //     uri: 'sip:110rc@192.168.1.8', // sip:sip-user@your-domain.io
-        //     password: 'Gfhjkm12@', //  PASSWORD ,
-        //     ws_servers: 'https://fsmin.fineapple.xyz:7443', //ws server
-        //     sockets: 'wss://fsmin.fineapple.xyz:7443',
-        //     display_name: '110', //jssip Display Name
-        //     debug: true, // Turn debug messages on
-        //     stun_servers: stunServers.split(','),
-        //     connection_recovery_min_interval: 30,
-        //     connection_recovery_max_interval: 80,
-        // }
-        // return config
-        console.log("SIPPhone_get_params_connect");
 
         const Odoo = require('odoo-await');
 
@@ -142,8 +118,6 @@ Meteor.methods({
             password: odoo_password
         }
 
-        console.log("+++++++++++++++ Connect ODOO  ++++++++++++++++++++++")
-        // console.log("+++ odoo_connect_param", odoo_connect_param)
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,
@@ -155,22 +129,17 @@ Meteor.methods({
         const connect = await odoo.connect()
         .then(
             async resolve => {
-                console.log("resolve")
                 if (!resolve) {return false}
                 return true
             },
             reject => {
-                console.log("-------------------reject", reject)
                 return false
             }
         )
-        console.log("++++ Status Connection to Odoo", connect)
         if (!connect) {
             return false
         }
-        console.log("start searchRead fs.directory by username: ", user.username)
         const records = await odoo.searchRead('fs.directory', [['username', 'ilike', user.username], ['active', '=', true ]], ['number','regname', 'password', 'is_transfer', 'transfer_number'], {limit: 1});
-        // console.log(records);
 
         if (!records || records.length === 0) {
             return false
@@ -204,7 +173,6 @@ Meteor.methods({
             isTransfer: isTransfer,
             transferNumber: transferNumber
         }
-        // console.log("Config = ", config)
         return config
 
 
@@ -233,7 +201,6 @@ Meteor.methods({
         odoo_password = settings.get('SIPPhone_Server_Sync_password')
         odoo_db = settings.get('SIPPhone_Server_Sync_DB')
 
-        console.log("+++++++++++++++ Connect ODOO ++++++++++++++++++++++")
         const odoo = new Odoo({
             baseUrl: odoo_host,
             port: odoo_port,
@@ -245,22 +212,18 @@ Meteor.methods({
         const connect = await odoo.connect()
         .then(
             async resolve => {
-                console.log("resolve")
                 if (!resolve) {return false}
                 return true
             },
             reject => {
-                console.log("-------------------reject", reject)
                 return false
             }
         )
-        console.log("++++ Status Connection to Odoo", connect)
         if (!connect) {
             return false
         }
 
         const action_update = await odoo.execute_kw('fs.directory', 'update_transfer_api', [[regname, isTransfer, transferNumber]])
-        console.log(action_update);
         return action_update
 
 

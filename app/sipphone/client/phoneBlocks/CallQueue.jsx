@@ -17,17 +17,12 @@ import {
 // const end_icon = "/icons/end2-icon.svg"
 
 export const CallQueue = ({ calls, favorites, handleAnswer, handleReject, getDisplayName }) => {
-  console.log("render CallQueue")
-  console.log("calls", calls)
   useEffect(() => {
-    console.log("useEffect CallQueue")
-
     calls.map((call) => {
       if (!call.isUpdateName) {
         getDisplayName(call.callNumber, call.displayName, true)
       }
     })
-
 
   },[calls])
 

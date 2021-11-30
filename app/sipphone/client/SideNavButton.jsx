@@ -5,7 +5,7 @@ export const SideNavButton = () => {
 
   return (
     <div className="SipCallButton">
-        <p>Rocket.Phone</p>
+        <p>Телефон</p>
     </div>
   );
 };

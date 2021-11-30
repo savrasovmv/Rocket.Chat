@@ -10,7 +10,6 @@ API.v1.addRoute(
 			// if (!this.queryParams.msgId) {
 			// 	return API.v1.failure('The "msgId" query parameter must be provided.');
 			// }
-			//console.log('**************************************')
 			let msg = 'История звонков'
 			const history = SipHistoryCollection.find(
 				{
@@ -38,11 +37,9 @@ API.v1.addRoute(
 
 // export const streamer = new Meteor.Streamer('sip')
 
-// console.log('Start STREAMER SERVER')
 // streamer.allowRead('all')
 // streamer.allowWrite('all')
 
 // streamer.on('message', function (sipStatus) {
-// 	console.log('sipStatus: ' + sipStatus)
 // 	streamer.emit('message1', sipStatus)
 // })

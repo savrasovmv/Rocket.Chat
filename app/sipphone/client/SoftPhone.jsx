@@ -92,6 +92,7 @@ var transferLine = ''
 const flowRoute = new CallsFlowControl()
 const player = createRef() //элемент звука
 const ringer = createRef() //элемент для рингтона
+const ringerOut = createRef() //элемент имитации вызова
 const dialState = '1002'
 export const SoftPhone = ({
   config,
@@ -310,8 +311,6 @@ export const SoftPhone = ({
   }
 
   const getDisplayName = (number, pDisplayName='', incomingCall=false) => {
-    console.log("getDisplayName number", number)
-
     //Поиск в избранном
     res = favorites.find(el => el.number===number)
     if (!res) {
@@ -323,10 +322,8 @@ export const SoftPhone = ({
     //Поиск в справочнике
     if (displayName==='') {
 
-      console.log("getDisplayName   +++ Find users")
       const result1 = APIClient.v1.get('sip.getDisplayName', { callNumber: number })
       result1.then((resolve) => {
-          console.log('getDisplayName users.info', resolve)
           displayName = resolve.displayName
           updateDisplayName(displayName, incomingCall)
 
@@ -334,10 +331,6 @@ export const SoftPhone = ({
 
 
     }
-
-    console.log("getDisplayName res", res)
-    console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
-    console.log("getDisplayName phoneCalls", localStatePhone.phoneCalls)
 
     if (displayName === '') {
       if (pDisplayName === '') {
@@ -353,9 +346,6 @@ export const SoftPhone = ({
     //}
 
 
-    console.log("getDisplayName displayCalls", localStatePhone.displayCalls)
-    console.log("getDisplayName phoneCalls", localStatePhone.phoneCalls)
-    console.log("getDisplayName displayName", displayName)
 
     // setTimeout(() => {
     //   console.log('kkkkkkkkkkkkkkkkkkkkk')
@@ -372,7 +362,6 @@ export const SoftPhone = ({
   flowRoute.connectedPhone = localStatePhone.connectedPhone
   flowRoute.engineEvent = (event, payload) => {
     // Listen Here for Engine "UA jssip" events
-    console.log(event)
     switch (event) {
       case 'connecting':
         break
@@ -402,14 +391,7 @@ export const SoftPhone = ({
   }
 
   flowRoute.onCallActionConnection = async (type, payload, data) => {
-    console.log('type', type)
-    //console.log(type)
-    console.log('payload', payload)
-    // console.log(payload)
-    console.log('data', data)
-    // console.log(data)
-    console.log('displayCalls', localStatePhone.displayCalls)
-    // console.log(localStatePhone.displayCalls)
+    console.log('onCallActionConnection type', type)
     switch (type) {
       case 'reinvite':
         // looks like its Attended Transfer
@@ -538,10 +520,6 @@ export const SoftPhone = ({
         // Call is ended, lets delete the call from calling queue
         // Call is ended, lets check and delete the call from  display calls list
         //        const ifExist= _.findIndex(localStatePhone.displayCalls,{sessionId:e.sessionId})
-        console.log('+++++++ callEnded')
-
-
-        console.log(localStatePhone)
 
         let duration = 0
         let timeNow = new Date
@@ -594,7 +572,6 @@ export const SoftPhone = ({
 
           if (data) {
             history.duration = Math.floor((data.end_time - data.start_time)/1000)  //Милисекунды в секунды
-            console.log('history.duration', history.duration)
           }
 
           //console.log('end_time: ', data.end_time)
@@ -623,10 +600,7 @@ export const SoftPhone = ({
 
         }
 
-        console.log('----- Find displayCalls by payload', payload)
         res = localStatePhone.displayCalls.find((el) => el.sessionId === payload)
-
-        console.log('result search', res)
 
 
         setLocalStatePhone((prevState) => ({
@@ -707,7 +681,7 @@ export const SoftPhone = ({
 
         break
       case 'refer':
-        console.log('+++++ REFER')
+
       break
 
       case 'hold':
@@ -852,12 +826,10 @@ export const SoftPhone = ({
 
   const handlePressKey = (event) => {
     //event.persist();
-    //console.log(event)
     /*console.log(event.currentTarget.value)
       setdialState(dialState + event.currentTarget.value);*/
     setdialState(dialState + event)
     if (flowRoute.activeCall) {
-      console.log('sendDTMF')
       flowRoute.activeCall.sendDTMF(`${event}`)
     }
   }
@@ -875,27 +847,30 @@ export const SoftPhone = ({
     //console.log(event.target.value);
     if (number.length > 0) {
       setdialState(number)
-      if (number.match(/^[0-9]+$/) != null) {
-        console.log('Start Call of number' + number)
+      number = Number(number.replace(/\D+/g,""))
+      if (number != null) {
+        console.log('Start Call of number ' + number)
+        // console.log('Start Call of number' + number)
         flowRoute.call(number.toString())
       }
+      // if (number.match(/^[0-9]+$/) != null) {
+      //   console.log('Start Call of number' + number)
+      //   flowRoute.call(number.toString())
+      // }
     }
     //console.log('Click Call:' + dialState)
     //event.persist();
-    if (dialState.match(/^[0-9]+$/) != null) {
+
+    if (dialState != null) {
+      number = Number(dialState.replace(/\D+/g,""))
       console.log('Start Call of dialState', dialState)
-      flowRoute.call(dialState.toString())
+      flowRoute.call(number.toString())
     }
   }
 
   const handleEndCall = (event) => {
     //event.persist();
     //flowRoute.hungup(event.currentTarget.value);
-    console.log('activeChannelNumber', activeChannelNumber)
-    console.log(
-      'sessionId',
-      localStatePhone.displayCalls[activeChannelNumber].sessionId
-    )
 
     //Meteor.call('siphistory.insert', "22222222");
     flowRoute.hungup(
@@ -912,10 +887,6 @@ export const SoftPhone = ({
   }
 
   const handleHold = (sessionId) => {
-    //console.log(flowRoute.activeChannel)
-    // console.log('Click Hold', flowRoute.activeChannel)
-    // const { hold, sessionId } = flowRoute.activeChannel
-    console.log('Click Hold sessionId', sessionId)
     const holdLine = localStatePhone.displayCalls.filter(
       (item) => item.sessionId === sessionId
     )
@@ -1195,12 +1166,10 @@ export const SoftPhone = ({
   }
 
   useEffect(() => {
-    console.log('before mediadevices enumeration')
 
     navigator.mediaDevices
       .enumerateDevices()
       .then((sourceInfos) => {
-        console.log('mediadevices enumeration gets sourceInfos', sourceInfos)
         setlocalMediaDevices(sourceInfos)
       })
       .catch((error) => {
@@ -1209,7 +1178,6 @@ export const SoftPhone = ({
   }, [])
 
   useEffect(() => {
-    console.log('Update inputDevices')
     // console.log(calls)
     // console.log(flowRoute.player)
 
@@ -1217,12 +1185,6 @@ export const SoftPhone = ({
   }, [inputDevices])
 
   useEffect(() => {
-    console.log('INIT CONNECTIONS')
-    console.log('config: ', config)
-    console.log('ipPhone: ', ipPhone)
-
-
-
     flowRoute.config = config
     flowRoute.init()
     flowRoute.devicesInputId = inputDevices
@@ -1247,6 +1209,11 @@ export const SoftPhone = ({
       ringer.current.loop = true
       ringer.current.volume = parseInt(localStatePhone.ringVolume, 10) / 100
       flowRoute.ringer = ringer
+
+      ringerOut.current.src = '/callerRington.mp3'
+      ringerOut.current.loop = true
+      flowRoute.ringerOut = ringerOut
+
       navigator.mediaDevices.getUserMedia({ audio: true })
     } catch (e) {}
 
@@ -1261,8 +1228,6 @@ export const SoftPhone = ({
   }, [])
 
   useEffect(() => {
-    console.log('localStatePhone', localStatePhone)
-    console.log('displayCalls', localStatePhone.displayCalls)
 
     // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
     // if (res) {
@@ -1376,6 +1341,9 @@ export const SoftPhone = ({
       </div>
       <div hidden>
         <audio preload="auto" ref={ringer} />
+      </div>
+      <div hidden>
+        <audio preload="auto" ref={ringerOut} />
       </div>
       <div className="call-queue-box">
         <CallQueue

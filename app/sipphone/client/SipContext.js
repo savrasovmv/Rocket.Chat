@@ -32,9 +32,9 @@ export const SipProvider = ({ children }) => {
 	const [transferNumber, setTransferNumber] = useState('')
 
 	const handleStatus = (newstatus) => {
-		console.log('NEW STATUS', newstatus)
+		// console.log('NEW STATUS', newstatus)
 		setStatusPhone(newstatus)
-		console.log('NEW STATUS PHONE', statusPhone)
+		// console.log('NEW STATUS PHONE', statusPhone)
 	}
 
 	const value = {
@@ -53,7 +53,7 @@ export const SipProvider = ({ children }) => {
 				};
 
 
-	console.log('STATUS', statusPhone)
+	// console.log('STATUS', statusPhone)
 
 	return (
 		<SipContext.Provider

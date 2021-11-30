@@ -148,7 +148,7 @@ export const SipSideNavBlock = () => {
           <Sidebar.Item.Title>
             <Box display="inline-flex">
               <Box marginInlineEnd="x10">
-                <StatusBullet status={sipStatus} /> &nbsp;&nbsp;Rocket.Phone
+                <StatusBullet status={sipStatus} /> &nbsp;&nbsp;Телефон
               </Box>
               {missed > 0 ? (
                 <Box size="x5">

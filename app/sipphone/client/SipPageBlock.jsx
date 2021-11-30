@@ -23,31 +23,35 @@ export const SipPageBlock = () => {
   useMemo(async () => {
     console.log('SIPPhone_get_params_connect Start')
 
-    const configurations = await call('SIPPhone_get_params_connect');
+    const access = await call('SIPPhone_get_access');
 
-    //console.log('+++++++++++++++configurations', configurations)
+    if (access) {
+      const configurations = await call('SIPPhone_get_params_connect');
 
-    if (configurations) {
-      //Преобразуем строку сокета в объект
-      configurations.sockets = new WebSocketInterface(configurations.sockets)
+      console.log('+++++++++++++++configurations', configurations)
 
-      setConfig(configurations)
-      setIpPhone(configurations.display_name)
-    } else {
-      const interval = setInterval(async () => {
-        const configurations = await call('SIPPhone_get_params_connect');
+      if (configurations) {
+        //Преобразуем строку сокета в объект
+        configurations.sockets = new WebSocketInterface(configurations.sockets)
 
-        console.log('+++++++++++++++configurations', configurations)
+        setConfig(configurations)
+        setIpPhone(configurations.display_name)
+      } else {
+        const interval = setInterval(async () => {
+          const configurations = await call('SIPPhone_get_params_connect');
 
-        if (configurations) {
-          //Преобразуем строку сокета в объект
-          configurations.sockets = new WebSocketInterface(configurations.sockets)
+          console.log('+++++++++++++++configurations', configurations)
 
-          setConfig(configurations)
-          setIpPhone(configurations.display_name)
-          clearInterval(interval)
-        }
-      },[60000])
+          if (configurations) {
+            //Преобразуем строку сокета в объект
+            configurations.sockets = new WebSocketInterface(configurations.sockets)
+
+            setConfig(configurations)
+            setIpPhone(configurations.display_name)
+            clearInterval(interval)
+          }
+        },[300000])
+      }
     }
 
   }, [])

@@ -34,9 +34,6 @@ Meteor.methods({
 })
 
 export const sipHistoryUpdateName = (number, displayName) => {
-  console.log('+++++ sipHistoryUpdateName +++++++++')
-  console.log('number', number)
-  console.log('displayName', displayName)
   SipHistoryCollection.update(
     {
       number: number,

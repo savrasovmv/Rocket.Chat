@@ -245,7 +245,6 @@ export const PhoneBlock = ({
   //   setViewKeyPad(false)
   // }
 
-  console.log('Render')
   return (
     <Fragment>
       <Box display="flex" justifyContent="center" margin="x16">
@@ -343,7 +342,7 @@ export const PhoneBlock = ({
                 </Box>
 
                 <Box>
-                  <small>Книпки</small>
+                  <small>Кнопки</small>
                 </Box>
                 <Box>
                   <small>набора</small>

@@ -32,10 +32,8 @@ export const StatusBlock = ({
   }, [connectingPhone, connectedPhone])
 
   useEffect(() => {
-    console.log('Изменился СТАТУС:', status)
     //streamer.emit('message', status)
     if (status) {
-      console.log('SEND status:', status)
       setStatusSIP(status)
     }
 

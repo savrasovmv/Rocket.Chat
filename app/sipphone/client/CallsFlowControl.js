@@ -8,9 +8,9 @@ function CallsFlowControl() {
     this.onCallActionConnection('notify', message);
   };
   this.tmpEvent = () => {
-    console.log(this.activeCall);
-    console.log(this.callsQueue);
-    console.log(this.holdCallsQueue);
+    // console.log(this.activeCall);
+    // console.log(this.callsQueue);
+    // console.log(this.holdCallsQueue);
   };
   this.onCallActionConnection = () => {};
   this.engineEvent = () => {};
@@ -52,6 +52,7 @@ function CallsFlowControl() {
   this.player = {};
   this.devicesInputId = true;
   this.ringer = null;
+  this.ringerOut = null;
   this.connectedPhone = null;
   this.config = {};
   this.initiated = false;
@@ -62,6 +63,14 @@ function CallsFlowControl() {
   this.stopRing = () => {
     this.ringer.current.currentTime = 0;
     this.ringer.current.pause();
+  };
+	this.playRingOut = () => {
+    this.ringerOut.current.currentTime = 0;
+    this.ringerOut.current.play();
+  };
+  this.stopRingOut = () => {
+    this.ringerOut.current.currentTime = 0;
+    this.ringerOut.current.pause();
   };
   this.removeCallFromQueue = (callId) => {
     _.remove(this.callsQueue, (calls) => calls.id === callId);
@@ -100,6 +109,7 @@ function CallsFlowControl() {
         break;
       case 'accepted':
         // this.startCall(data);
+				this.stopRingOut();
         break;
       case 'reinvite':
         this.onCallActionConnection('reinvite', callId, data);
@@ -138,6 +148,7 @@ function CallsFlowControl() {
         if (this.callsQueue.length === 0) {
           this.stopRing();
         }
+				this.stopRingOut();
         break;
       case 'failed':
         this.onCallActionConnection('callEnded', callId);
@@ -145,7 +156,9 @@ function CallsFlowControl() {
         this.removeCallFromActiveCall(callId);
         if (this.callsQueue.length === 0) {
           this.stopRing();
+
         }
+				this.stopRingOut();
         break;
       default:
         break;
@@ -163,6 +176,7 @@ function CallsFlowControl() {
     } else {
       this.activeCall = call;
       this.onCallActionConnection('outgoingCall', call);
+			this.playRingOut();
       this.connectAudio();
     }
     const defaultCallEventsToHandle = [
@@ -229,11 +243,11 @@ function CallsFlowControl() {
     }
     if (this.activeCall) {
       this.notify('Already have an active call');
-      console.log('Already has active call');
+      // console.log('Already has active call');
       return;
     }
-		console.log('phone.call')
-		console.log(`sip:${to}@${this.config.domain}`)
+		// console.log('phone.call')
+		// console.log(`sip:${to}@${this.config.domain}`)
     this.phone.call(`sip:${to}@${this.config.domain}`, {
       extraHeaders: ['First: first', 'Second: second'],
       RTCConstraints: {
@@ -249,10 +263,10 @@ function CallsFlowControl() {
   this.answer = (sessionId) => {
     if (this.activeCall) {
       this.notify('Already have an active call');
-      console.log('Already has active call');
+      // console.log('Already has active call');
     } else if (this.activeChannel.inCall) {
       this.notify('Current chanel is busy');
-      console.log('Chanel is Busy');
+      // console.log('Chanel is Busy');
     } else {
       // Stop the annoying ring ring
       this.stopRing();
