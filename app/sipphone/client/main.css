@@ -10,16 +10,18 @@
 	z-index: 0;
 
 	display: none;
-	/* flex-direction: column;*/
+
+	/* flex-direction: column; */
 	flex: 1 1 100%;
 
 	width: 1vw;
 
 	height: 100%;
+
 	background-color: white;
 }
 
-.sipphone-box >div {
+.sipphone-box > div {
 	display: flex;
 	flex: 1 1 100%;
 
@@ -29,7 +31,12 @@
 }
 
 .history {
-	height: 100%; flex-grow: 1; overflow-y: auto; will-change: transform; width: 100%;
+	overflow-y: auto;
+
+	width: 100%;
+	height: 100%;
+	flex-grow: 1;
+	will-change: transform;
 }
 
 .call-queue-box {
@@ -37,17 +44,21 @@
 	z-index: 999990;
 	top: 30%;
 	left: 40%;
+
 	display: inline-block;
 }
 
 .soft-phone-box {
 	position: relative;
 	z-index: 999;
+
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 100%;
+
 	width: 100%;
 	height: 100%;
+
 	background-color: white;
 
 	/* position: relative;
