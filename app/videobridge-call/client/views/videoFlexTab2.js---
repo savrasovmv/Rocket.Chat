@@ -152,7 +152,6 @@ Template.videoFlexTab2.onRendered(function() {
 							clearInterval(closeInterval);
 						}, 300);
 						//console.log("4444444444444444444444", room.usernames)
-						console.log("4444444444444444444444", rname)
 
 
 						const jitsiUrl = `${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`

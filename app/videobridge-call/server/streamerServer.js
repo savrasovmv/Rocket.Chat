@@ -7,7 +7,7 @@ import {
 	Integrations,
 	Users,
 } from '../../models'
-import {streamerJitsiCall, streamName } from '../lib/streamer'
+import { streamerJitsiCall, streamName } from '../lib/streamer'
 //import {createMeetURL} from './../lib/createMeet'
 //import {generateMeetURL} from './methods/jitsiGenerateToken'
 
@@ -15,7 +15,7 @@ streamerJitsiCall.allowRead('logged')
 streamerJitsiCall.allowWrite('logged')
 
 
-export const sendStartCallJitsi = (userId=false, roomId=false) => {
+export const sendStartCallJitsi = (userId = false, roomId = false) => {
 	console.log("----------- sendStartCallJitsi-----------", userId, roomId)
 	if (userId && roomId) {
 		const subscriptions = Subscriptions.findByRoomId(roomId, {
@@ -55,11 +55,10 @@ export const sendStartCallJitsi = (userId=false, roomId=false) => {
 				count: count
 			}
 			members.map((id) => {
-				console.log('STREEM to USER_ID', id)
 				if (id == userId) {
-					streamerJitsiCall.emit(id + '/'+ streamName, valueToCaller) //Данные для инициатора вызова
+					streamerJitsiCall.emit(id + '/' + streamName, valueToCaller) //Данные для инициатора вызова
 				} else {
-					streamerJitsiCall.emit(id + '/'+ streamName, valueToUser) //Запрос о готовности клиента
+					streamerJitsiCall.emit(id + '/' + streamName, valueToUser) //Запрос о готовности клиента
 				}
 			})
 		}
@@ -73,16 +72,12 @@ export const sendStartCallJitsi = (userId=false, roomId=false) => {
 streamerJitsiCall.on(streamName, function (value) {
 	//Обязательные параметры type, roomId, userId
 
-	console.log("------------------- CallJitsi-----------------")
-	console.log("------value", value)
-	console.log("--------------------------------------------------")
-
 	let valueToCaller = {}
 	let valueToUser = {}
 
 
 	if (value.type && value.userId && value.roomId) {
-		switch(value.type) {
+		switch (value.type) {
 			// case 'start':
 			// 	//Отправляем инициатору данные о участиках конференции
 			// 	//Опрашиваем юзера о готовности принять вызов. отправляем ему ask
@@ -144,12 +139,11 @@ streamerJitsiCall.on(streamName, function (value) {
 						initUserId: value.userId,
 					}
 					value.members.map((m) => {
-						console.log('STREEM to USER_ID', m)
-						streamerJitsiCall.emit(m.userId + '/'+ streamName, valueToUsers) //Отмена вызова
+						streamerJitsiCall.emit(m.userId + '/' + streamName, valueToUsers) //Отмена вызова
 					})
 				}
 
-			break
+				break
 
 			case 'reject':
 				// Если юзер отклонил входящий вызов
@@ -162,9 +156,9 @@ streamerJitsiCall.on(streamName, function (value) {
 						rejectUserId: value.userId, //юзер который отказлся принять вызов
 					}
 					//console.log('STREEM to USER_ID')
-					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Отказ от принятия входящего вызова
+					streamerJitsiCall.emit(value.initUserId + '/' + streamName, valueToUsers) //Отказ от принятия входящего вызова
 				}
-			break
+				break
 
 			case 'answer':
 				// Если юзер принял входящий вызов, необходимо прекратить звонок на других устройствах
@@ -180,18 +174,18 @@ streamerJitsiCall.on(streamName, function (value) {
 					// streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
 					// streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
 					//Говорим что ответили на другом устройстве
-					streamerJitsiCall.emit(value.userId + '/'+ streamName, {type: 'finishInCall', roomId: value.roomId, status: 'finishInCall'}) //Закончить вызов если ответивший имеет несколько запущенных клиентов
+					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', roomId: value.roomId, status: 'finishInCall' }) //Закончить вызов если ответивший имеет несколько запущенных клиентов
 				}
 
-			break
+				break
 
 			case 'connect':
 				// Опоздавший юзер
 				if (value.userId) {
-					streamerJitsiCall.emit(value.userId + '/'+ streamName, {type: 'connect', roomId: value.roomId})
+					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'connect', roomId: value.roomId })
 				}
 
-			break
+				break
 
 		}
 	}

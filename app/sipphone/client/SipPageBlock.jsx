@@ -17,18 +17,40 @@ import OutsideAlerter from './hooks/OutsideAlerter'
 export const SipPageBlock = () => {
 
   const [connect, setConnect] = useState()
+  const [connect2, setConnect2] = useState(1)
+  const [connectAccess, setConnectAccess] = useState(false)
+  const [intervalConnect, setIntervalConnect] = useState(10000)
 
   const {config, setConfig, ipPhone, setIpPhone} = useSipContext()
 
   useMemo(async () => {
-    console.log('SIPPhone_get_params_connect Start')
+    console.log('Запрос разрешения использовать телефон')
 
     const access = await call('SIPPhone_get_access');
 
     if (access) {
-      const configurations = await call('SIPPhone_get_params_connect');
+      console.log('Есть доступ к телефону')
+      setConnectAccess(true)
+    } else {
+      console.log('Нет доступа к телефону')
+    }
 
-      console.log('+++++++++++++++configurations', configurations)
+  }, [])
+
+  useMemo(async () => {
+
+    console.log('Функция Запрос параметров')
+    if (connectAccess) {
+      console.log('Запрос параметров подключения телефона ....')
+
+
+      let configurations = await call('SIPPhone_get_params_connect');
+
+      if (configurations) {
+        console.log('Парамтры подключения телефона получены')
+      } else {
+        console.log('Парамтры подключения телефона не получены')
+      }
 
       if (configurations) {
         //Преобразуем строку сокета в объект
@@ -38,23 +60,30 @@ export const SipPageBlock = () => {
         setIpPhone(configurations.display_name)
       } else {
         const interval = setInterval(async () => {
-          const configurations = await call('SIPPhone_get_params_connect');
 
-          console.log('+++++++++++++++configurations', configurations)
+          console.log('Попытка подключения', connect2)
 
-          if (configurations) {
-            //Преобразуем строку сокета в объект
-            configurations.sockets = new WebSocketInterface(configurations.sockets)
+          if (connect2 > 5) {
+            setIntervalConnect(60000)
 
-            setConfig(configurations)
-            setIpPhone(configurations.display_name)
-            clearInterval(interval)
           }
-        },[300000])
+          if (connect2 > 10) {
+            setIntervalConnect(600000)
+
+          }
+
+          setConnect2(connect2+1)
+          clearInterval(interval)
+
+        },[intervalConnect])
       }
     }
 
-  }, [])
+
+  }, [connectAccess,connect2])
+
+
+
 
 
   const outsideClick = () => {

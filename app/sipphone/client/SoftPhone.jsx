@@ -255,6 +255,7 @@ export const SoftPhone = ({
   const [outputDevices, setOutputDevices] = useState(getDefaultOutDevices())
   const [isSettings, setIsSettings] = useState(false)
   const [displayNameState, setDisplayNameState] = useState(false)
+  const [callNumber, setCallNumber] = useState(false)
 
 
   const hangleSettings = () => {
@@ -512,6 +513,11 @@ export const SoftPhone = ({
         }))
         setdialState('')
 
+        // Установка displayName
+        setCallNumber(payload.remote_identity.uri.user)
+
+        // getDisplayName(payload.remote_identity.uri.user)
+
 
         //getDisplayName(payload.remote_identity.uri.user)
 
@@ -530,7 +536,8 @@ export const SoftPhone = ({
           direction: '',
           number: '',
           displayName: '',
-          duration: 0
+          duration: 0,
+          sessionId: ''
         }
 
         //Пропущенный входящий звонок
@@ -557,6 +564,7 @@ export const SoftPhone = ({
 
           }
 
+          history.sessionId = secondCheck[0].sessionId
           history.direction = secondCheck[0].direction
           history.number = secondCheck[0].callNumber
           history.displayName = secondCheck[0].displayName ? secondCheck[0].displayName : ''
@@ -564,17 +572,28 @@ export const SoftPhone = ({
             history.displayName = history.number
           }
 
-          // if (timeNow > secondCheck[0].timeStart) {
-
-          //   history.duration = Math.floor((timeNow - secondCheck[0].timeStart)/1000)  //Милисекунды в секунды
-
-          // }
-
           if (data) {
             history.duration = Math.floor((data.end_time - data.start_time)/1000)  //Милисекунды в секунды
           }
 
-          //console.log('end_time: ', data.end_time)
+        } else {
+          // Пропущенный вызов
+          if (firstCheck.length === 1) {
+
+            history.status = 'missed'
+            history.sessionId = firstCheck[0].sessionId
+            history.direction = firstCheck[0].direction
+            history.number = firstCheck[0].callNumber
+            history.displayName = firstCheck[0].displayName ? firstCheck[0].displayName : ''
+            if (history.displayName === 'Неизвестный') {
+              history.displayName = history.number
+            }
+
+          }
+
+        }
+
+        if (history.status !== '') {
 
           Meteor.call(
             'siphistory.insert',
@@ -593,11 +612,10 @@ export const SoftPhone = ({
               displayName: history.displayName,
               duration: history.duration,
               createdAt: new Date(),
-              _id: secondCheck[0].sessionId,
+              _id: history.sessionId,
             },
             ...call,
           ])
-
         }
 
         res = localStatePhone.displayCalls.find((el) => el.sessionId === payload)
@@ -826,8 +844,6 @@ export const SoftPhone = ({
 
   const handlePressKey = (event) => {
     //event.persist();
-    /*console.log(event.currentTarget.value)
-      setdialState(dialState + event.currentTarget.value);*/
     setdialState(dialState + event)
     if (flowRoute.activeCall) {
       flowRoute.activeCall.sendDTMF(`${event}`)
@@ -842,9 +858,8 @@ export const SoftPhone = ({
 
     setDisplayNameState(displayName)
 
-    console.log("handleCall", number)
-    //console.log(event.target);
-    //console.log(event.target.value);
+    console.log("handleCall")
+
     if (number.length > 0) {
       setdialState(number)
       number = Number(number.replace(/\D+/g,""))
@@ -861,7 +876,7 @@ export const SoftPhone = ({
     //console.log('Click Call:' + dialState)
     //event.persist();
 
-    if (dialState != null) {
+    if (dialState.length > 0) {
       number = Number(dialState.replace(/\D+/g,""))
       console.log('Start Call of dialState', dialState)
       flowRoute.call(number.toString())
@@ -1158,7 +1173,7 @@ export const SoftPhone = ({
   }
 
   const handleFavorites = (displayName, number) => {
-    console.log(displayName, number)
+    // console.log(displayName, number)
     Meteor.call('sipfavorites.insert',displayName, number)
     updateFavoritesList()
 
@@ -1228,13 +1243,24 @@ export const SoftPhone = ({
   }, [])
 
   useEffect(() => {
+    // Установка displayName при исходящем звонке
+    if (callNumber) {
+      getDisplayName(callNumber)
+      setCallNumber(false)
+    }
 
-    // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
-    // if (res) {
-    //   getDisplayName(res.callNumber)
+  }, [callNumber])
 
-    // }
-  }, [localStatePhone])
+  // useEffect(() => {
+
+  //   console.log(localStatePhone)
+
+  //   // res = localStatePhone.displayCalls.find((el) => el.inCall && !el.displayName)
+  //   // if (res) {
+  //   //   getDisplayName(res.callNumber)
+
+  //   // }
+  // }, [localStatePhone])
 
   // const historyCalls = useMemo(() => {
   //   console.log('useMemo CALLS')

@@ -32,11 +32,9 @@ export const CallOutView = ({infoCall, handleCancel}) => {
     const {members, status} = infoCall
 
     const setRejectStatus = (userId) => {
-        console.log('setRejectStatus')
         if (userId) {
             const result = APIClient.v1.get('users.info', { userId: userId })
                 result.then((resolve) => {
-                    console.log('setRejectStatus users.info', resolve)
 
                     setUsersStatusInfo(prevState => [
                         prevState,
@@ -70,7 +68,6 @@ export const CallOutView = ({infoCall, handleCancel}) => {
                 })
                 const result = APIClient.v1.get('users.info', { userId: callId })
                 result.then((resolve) => {
-                    console.log(resolve)
                     setInfo({
                         name: resolve.user.name,
                         title: resolve.user.title,

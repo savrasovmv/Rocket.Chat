@@ -60,7 +60,7 @@ export const SipSideNavBlock = () => {
 
     const access = await call('SIPPhone_get_access');
 
-    console.log('+++++++++++++++access', access)
+    // console.log('+++++++++++++++access', access)
 
     if (access) {
       const result = APIClient.v1.get('users.info', { userId: Meteor.userId() })
