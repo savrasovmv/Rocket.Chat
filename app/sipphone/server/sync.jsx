@@ -13,7 +13,7 @@ Meteor.methods({
 	async SIPPhone_sync_test_connect() {
 		const user = Meteor.user();
 		if (!user) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_set_param_transfer' });
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_sync_test_connect' });
 		}
 
 		if (settings.get('SIPPhone_Enable') !== true) {
@@ -62,7 +62,7 @@ Meteor.methods({
 
 		const user = Meteor.user();
 		if (!user) {
-			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_params_connect' });
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_access' });
 		}
 
 		if (settings.get('SIPPhone_Enable') !== true) {
@@ -92,8 +92,21 @@ Meteor.methods({
 
 Meteor.methods({
 	'SIPPhone_get_params_connect': async () => {
+
+        if (!Meteor.userId()) {
+			throw new Meteor.Error('error-invalid-userID', 'Invalid userId', { method: 'SIPPhone_get_params_connect' });
+		}
+
 		const user = Meteor.user();
 		if (!user) {
+			const user = Users.findOneById(uid, {
+                fields: {
+                    username: 1,
+                },
+            });
+		}
+
+        if (!user) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'SIPPhone_get_params_connect' });
 		}
 
