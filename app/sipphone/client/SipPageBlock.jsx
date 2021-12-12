@@ -24,7 +24,7 @@ export const SipPageBlock = () => {
   const {config, setConfig, ipPhone, setIpPhone} = useSipContext()
 
   useMemo(async () => {
-    console.log('Запрос разрешения использовать телефон')
+    console.log('Запрос разрешения использовать телефон', Meteor.userId())
 
     const access = await call('SIPPhone_get_access');
 
@@ -37,50 +37,93 @@ export const SipPageBlock = () => {
 
   }, [])
 
-  useMemo(async () => {
 
-    console.log('Функция Запрос параметров')
+
+  const getConfig = async () => {
+    console.log('getConfig', Meteor.userId())
+
+    const configurations = await call('SIPPhone_get_params_connect');
+    if (configurations) {
+      console.log('Парамтры подключения телефона получены')
+      configurations.sockets = new WebSocketInterface(configurations.sockets)
+
+      setConfig(configurations)
+      setIpPhone(configurations.display_name)
+    } else {
+      console.log('Парамтры подключения телефона не получены')
+      const interval = setInterval(() => {
+
+        console.log('Попытка подключения', connect2)
+
+        if (connect2 > 5) {
+          setIntervalConnect(60000)
+        }
+
+        setConnect2(connect2+1)
+        clearInterval(interval)
+
+      },[intervalConnect])
+    }
+
+  }
+
+  useEffect( () => {
+
+    console.log('Функция Запрос параметров', Meteor.userId())
     if (connectAccess) {
       console.log('Запрос параметров подключения телефона ....')
+      getConfig()
 
 
-      let configurations = await call('SIPPhone_get_params_connect');
-
-      if (configurations) {
-        console.log('Парамтры подключения телефона получены')
-      } else {
-        console.log('Парамтры подключения телефона не получены')
-      }
-
-      if (configurations) {
-        //Преобразуем строку сокета в объект
-        configurations.sockets = new WebSocketInterface(configurations.sockets)
-
-        setConfig(configurations)
-        setIpPhone(configurations.display_name)
-      } else {
-        const interval = setInterval(async () => {
-
-          console.log('Попытка подключения', connect2)
-
-          if (connect2 > 5) {
-            setIntervalConnect(60000)
-
-          }
-          if (connect2 > 10) {
-            setIntervalConnect(600000)
-
-          }
-
-          setConnect2(connect2+1)
-          clearInterval(interval)
-
-        },[intervalConnect])
-      }
     }
 
 
   }, [connectAccess,connect2])
+
+  // useMemo(async () => {
+
+  //   console.log('Функция Запрос параметров')
+  //   if (connectAccess) {
+  //     console.log('Запрос параметров подключения телефона ....')
+
+
+  //     const configurations = await call('SIPPhone_get_params_connect');
+
+  //     if (configurations) {
+  //       console.log('Парамтры подключения телефона получены')
+  //     } else {
+  //       console.log('Парамтры подключения телефона не получены')
+  //     }
+
+  //     if (configurations) {
+  //       //Преобразуем строку сокета в объект
+  //       configurations.sockets = new WebSocketInterface(configurations.sockets)
+
+  //       setConfig(configurations)
+  //       setIpPhone(configurations.display_name)
+  //     } else {
+  //       const interval = setInterval(async () => {
+
+  //         console.log('Попытка подключения', connect2)
+
+  //         if (connect2 > 5) {
+  //           setIntervalConnect(60000)
+
+  //         }
+  //         if (connect2 > 10) {
+  //           setIntervalConnect(600000)
+
+  //         }
+
+  //         setConnect2(connect2+1)
+  //         clearInterval(interval)
+
+  //       },[intervalConnect])
+  //     }
+  //   }
+
+
+  // }, [connectAccess,connect2])
 
 
 
