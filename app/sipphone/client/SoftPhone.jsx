@@ -862,7 +862,8 @@ export const SoftPhone = ({
 
     if (number.length > 0) {
       setdialState(number)
-      number = Number(number.replace(/\D+/g,""))
+      //number = Number(number.replace(/\D+/g,""))
+      number = number.replace(/[^0-9]/g,"")
       if (number != null) {
         console.log('Start Call of number ' + number)
         // console.log('Start Call of number' + number)
@@ -877,7 +878,8 @@ export const SoftPhone = ({
     //event.persist();
 
     if (dialState.length > 0) {
-      number = Number(dialState.replace(/\D+/g,""))
+      //number = Number(dialState.replace(/\D+/g,""))
+      number = dialState.replace(/[^0-9]/g,"")
       console.log('Start Call of dialState', dialState)
       flowRoute.call(number.toString())
     }
