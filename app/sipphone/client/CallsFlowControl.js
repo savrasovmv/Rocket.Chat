@@ -105,7 +105,15 @@ function CallsFlowControl() {
 
     switch (type) {
       case 'terminated':
-        //  this.endCall(data, cause);
+        console.log('terminated: ', callId);
+        this.onCallActionConnection('callEnded', callId, this.activeCall);
+        this.removeCallFromQueue(callId);
+        this.removeCallFromActiveCall(callId);
+        this.removeCallFromHoldQueue(callId);
+        if (this.callsQueue.length === 0) {
+          this.stopRing();
+        }
+        //this.endCall(data, cause);
         break;
       case 'accepted':
         // this.startCall(data);
