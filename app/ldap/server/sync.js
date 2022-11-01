@@ -573,6 +573,54 @@ export function sync() {
 		ldap.connectSync();
 
 		let users;
+
+		//Savrasov Убираем полную синхронизацию
+		// if (settings.get('LDAP_Background_Sync_Keep_Existant_Users_Updated') === true) {
+		// 	users = Users.findLDAPUsers();
+		// }
+
+		if (settings.get('LDAP_Background_Sync_Import_New_Users') === true) {
+			importNewUsers(ldap);
+		}
+
+		//Savrasov Убираем полную синхронизацию
+		// if (settings.get('LDAP_Background_Sync_Keep_Existant_Users_Updated') === true) {
+		// 	users.forEach(function(user) {
+		// 		let ldapUser;
+
+		// 		if (user.services && user.services.ldap && user.services.ldap.id) {
+		// 			ldapUser = ldap.getUserByIdSync(user.services.ldap.id, user.services.ldap.idAttribute);
+		// 		} else {
+		// 			ldapUser = ldap.getUserByUsernameSync(user.username);
+		// 		}
+
+		// 		if (ldapUser) {
+		// 			syncUserData(user, ldapUser, ldap);
+		// 		}
+
+		// 		callbacks.run('ldap.afterSyncExistentUser', { ldapUser, user });
+		// 	});
+		// }
+	} catch (error) {
+		logger.error(error);
+		return error;
+	}
+	return true;
+}
+
+
+//Savrasov start
+export function sync_full() {
+	if (settings.get('LDAP_Enable') !== true) {
+		return;
+	}
+
+	const ldap = new LDAP();
+
+	try {
+		ldap.connectSync();
+
+		let users;
 		if (settings.get('LDAP_Background_Sync_Keep_Existant_Users_Updated') === true) {
 			users = Users.findLDAPUsers();
 		}
@@ -605,6 +653,30 @@ export function sync() {
 	return true;
 }
 
+const jobNameFull = 'LDAP_Sync_Full';
+
+const addCronJobFull = _.debounce(Meteor.bindEnvironment(function addCronJobDebounced() {
+	if (settings.get('LDAP_Background_Sync_Full') !== true) {
+		logger.info('Disabling LDAP Background Sync Full');
+		if (SyncedCron.nextScheduledAtDate(jobNameFull)) {
+			SyncedCron.remove(jobNameFull);
+		}
+		return;
+	}
+
+	if (settings.get('LDAP_Background_Sync_Interval_Full')) {
+		logger.info('Enabling LDAP Background Sync Full');
+		SyncedCron.add({
+			name: jobNameFull,
+			schedule: (parser) => parser.text(settings.get('LDAP_Background_Sync_Interval_Full')),
+			job() {
+				sync_full();
+			},
+		});
+	}
+}), 500);
+//End
+
 const jobName = 'LDAP_Sync';
 
 const addCronJob = _.debounce(Meteor.bindEnvironment(function addCronJobDebounced() {
@@ -626,11 +698,20 @@ const addCronJob = _.debounce(Meteor.bindEnvironment(function addCronJobDebounce
 			},
 		});
 	}
+	
 }), 500);
+
+
+
 
 Meteor.startup(() => {
 	Meteor.defer(() => {
 		settings.get('LDAP_Background_Sync', addCronJob);
 		settings.get('LDAP_Background_Sync_Interval', addCronJob);
+
+		//Savrasov Start
+		settings.get('LDAP_Background_Sync_Full', addCronJobFull);
+		settings.get('LDAP_Background_Sync_Interval_Full', addCronJobFull);
+		//End
 	});
 });

@@ -32,6 +32,14 @@ settings.addGroup('LDAP', function() {
 		{ _id: 'LDAP_Background_Sync', value: true },
 	];
 
+	//Savrasov Start
+	const backgroundSyncQueryFull = [
+		enableQuery,
+		{ _id: 'LDAP_Background_Sync_Full', value: true },
+	];
+	// End
+
+
 	this.add('LDAP_Enable', false, { type: 'boolean', public: true });
 	this.add('LDAP_Login_Fallback', false, { type: 'boolean', enableQuery: null });
 	this.add('LDAP_Find_User_After_Login', true, { type: 'boolean', enableQuery });
@@ -127,8 +135,16 @@ settings.addGroup('LDAP', function() {
 		this.add('LDAP_Background_Sync', false, { type: 'boolean', enableQuery });
 		this.add('LDAP_Background_Sync_Interval', 'Every 24 hours', { type: 'string', enableQuery: backgroundSyncQuery });
 		this.add('LDAP_Background_Sync_Import_New_Users', true, { type: 'boolean', enableQuery: backgroundSyncQuery });
-		this.add('LDAP_Background_Sync_Keep_Existant_Users_Updated', true, { type: 'boolean', enableQuery: backgroundSyncQuery });
-
+		//Savrsov убрал пункт из раздела, перенес в полную синхронизацию
+		// this.add('LDAP_Background_Sync_Keep_Existant_Users_Updated', true, { type: 'boolean', enableQuery: backgroundSyncQuery });
+		
 		this.add('LDAP_Sync_Now', 'ldap_sync_now', { type: 'action', actionText: 'Execute_Synchronization_Now' });
+		
+		//Savrasov Start
+		this.add('LDAP_Background_Sync_Full', false, { type: 'boolean', enableQuery, i18nLabel: 'Фоновая синхронизация (ПОЛНАЯ)'} );
+		this.add('LDAP_Background_Sync_Keep_Existant_Users_Updated', true, { type: 'boolean', enableQuery: backgroundSyncQuery });
+		this.add('LDAP_Background_Sync_Interval_Full', 'At 6:00 am', { type: 'string', enableQuery: backgroundSyncQueryFull, i18nLabel: 'Интервал для полной фоновой синхронизации' });
+		this.add('LDAP_Sync_Now_Full', 'ldap_sync_now_full', { type: 'action', actionText: 'Выполнить полную синхронизацию сейчас' });
+		//End
 	});
 });
