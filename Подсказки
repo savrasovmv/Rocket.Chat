@@ -13,7 +13,7 @@ meteor build --server-only --directory /homt/user/build/rc-build
 Сжать и получить архив rc-build3.10.3-rc1.tar.gz
 
 Передать архив на удаленный сервер
-sudo scp -P 22 rc-build3.10.3-rc1.tar.gz user@109.194.174.140:/home/user
+sudo scp -P 22 rc-build3.10.3-rc1.tar.gz user@ip:/home/user
 
 
 MONGO

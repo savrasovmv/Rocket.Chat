@@ -48,47 +48,7 @@ import { CompositionSettingsList } from 'twilio/lib/rest/video/v1/compositionSet
 //console.log(SIPPhone_domain)
 
 var transferLine = ''
-/*const config = {
-  domain: 'fs2.fineapple.xyz', // sip-server@your-domain.io
-  uri: 'sip:1011@fs2.fineapple.xyz', // sip:sip-user@your-domain.io
-  password: 'Gfhjkm12@', //  PASSWORD ,
-  ws_servers: 'https://fs2.fineapple.xyz:7443', //ws server
-  sockets: new WebSocketInterface('wss://fs2.fineapple.xyz:7443'),
-  display_name: '1011', //jssip Display Name
-  debug: true, // Turn debug messages on
-  stun_servers: ['stun.l.google.com:19302', 'stun4.l.google.com:19302,'],
-}*/
-/*const config = {
-    domain: 'fs.tmenergo.ru', // sip-server@your-domain.io
-    uri: 'sip:1003@fs.tmenergo.ru', // sip:sip-user@your-domain.io
-    password: 'Gfhjkm12@', //  PASSWORD ,
-    ws_servers: 'https://fs.tmenergo.ru:7443', //ws server
-    sockets: new WebSocketInterface('wss://fs.tmenergo.ru:7443'),
-    display_name: '1003',//jssip Display Name
-    debug: true // Turn debug messages on
 
-};*/
-/*const config = {
-    domain: 'sip2.fineapple.xyz', // sip-server@your-domain.io
-    uri: 'sip:110_webrtc@sip2.fineapple.xyz', // sip:sip-user@your-domain.io
-    password: 'Gfhjkm12@', //  PASSWORD ,
-    //ws_servers: '[{"ws_uri":"wss://sip2.fineapple.xyz/ws","sip_uri":"<sip:sip2.fineapple.xyz;transport=ws;lr>","weight":0,"status":0,"scheme":"WSS"}]', //ws server
-    ws_servers: 'wss://sip2.fineapple.xyz/ws', //ws server
-    sockets: new WebSocketInterface('wss://sip2.fineapple.xyz/ws'),
-    display_name: '110',//jssip Display Name
-    debug: true // Turn debug messages on
-
-};*/
-/*const config = {
-    domain: 'sip.tmenergo.ru', // sip-server@your-domain.io
-    uri: 'sip:savrasovmv@sip.tmenergo.ru:8082', // sip:sip-user@your-domain.io
-    password: 'KtdNjkcnjq1', //  PASSWORD ,
-    ws_servers: 'wss://sip.tmenergo.ru:8082/ws', //ws server
-    sockets: new WebSocketInterface('wss://sip.tmenergo.ru:8082/ws'),
-    display_name: '110',//jssip Display Name
-    debug: true // Turn debug messages on
-
-};*/
 const flowRoute = new CallsFlowControl()
 const player = createRef() //элемент звука
 const ringer = createRef() //элемент для рингтона
@@ -107,18 +67,7 @@ export const SoftPhone = ({
   connectOnStart = true,
   timelocale = 'UTC',
 }) => {
-  // const config = {
-  //   domain: sipDomain, //'fs2.fineapple.xyz', // sip-server@your-domain.io
-  //   uri: 'sip:1011@' + sipDomain, // sip:sip-user@your-domain.io
-  //   password: 'Gfhjkm12@', //  PASSWORD ,
-  //   ws_servers: 'https://' + wsServers + ':' + wsPort, //'https://fs2.fineapple.xyz:7443', //ws server
-  //   sockets: new WebSocketInterface('wss://' + sipDomain + ':' + wsPort),
-  //   display_name: '1011', //jssip Display Name
-  //   debug: true, // Turn debug messages on
-  //   stun_servers: stunServers.split(','),
-  // }
-  // console.log('SIPPhone config')
-  //console.log('SoftPhone ipPhone', ipPhone)
+
 
   const defaultSoftPhoneState = {
     displayCalls: [

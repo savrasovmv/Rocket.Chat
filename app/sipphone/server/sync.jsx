@@ -181,11 +181,11 @@ Meteor.methods({
             transferNumber = records[0].transfer_number
 
             config = {
-                domain: sipDomain, //'fs2.fineapple.xyz', // sip-server@your-domain.io
+                domain: sipDomain, //'fs2.your-domain.io', 
                 authorization_user: regname,
                 uri: 'sip:' + regname + '@' + sipDomain, // sip:sip-user@your-domain.io
                 password: password, //  PASSWORD ,
-                ws_servers: 'https://' + wsServers + ':' + wsPort, //'https://fs2.fineapple.xyz:7443', //ws server
+                ws_servers: 'https://' + wsServers + ':' + wsPort, //'https://fs2.your-domain.io:7443', //ws server
                 sockets: 'wss://' + wsServers + ':' + wsPort,
                 display_name: number.toString(), //jssip Display Name
                 debug: true, // Turn debug messages on
