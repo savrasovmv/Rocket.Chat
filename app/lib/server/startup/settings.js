@@ -1299,10 +1299,33 @@ settings.addGroup('Push', function() {
 			enableQuery: pushEnabledWithoutGateway,
 			secret: true,
 		});
-		return this.add('Push_gcm_project_number', '', {
+		this.add('Push_gcm_project_number', '', {
 			type: 'string',
 			public: true,
 			enableQuery: pushEnabledWithoutGateway,
+			secret: true,
+		});
+		this.add('Push_UseLegacy', true, {
+			type: 'boolean',
+			public: true,
+			i18nLabel: 'Использовать старое API, выключите, что бы использовать Firebase Cloud Messaging API (v1)',
+			enableQuery: pushEnabledWithoutGateway,
+		});
+		return this.add('Push_google_api_credentials', '', {
+			type: 'code',
+			enableQuery: [
+				{
+					_id: 'Push_enable',
+					value: true,
+				}, {
+					_id: 'Push_enable_gateway',
+					value: false,
+				},
+				{
+					_id: 'Push_UseLegacy',
+					value: false,
+				},
+			],
 			secret: true,
 		});
 	});

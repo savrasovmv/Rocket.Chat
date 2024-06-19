@@ -9,10 +9,62 @@ import { sendGCM } from './gcm';
 import { logger, LoggerManager } from './logger';
 import { settings } from '../../settings/server';
 
+import { JWT } from 'google-auth-library';
+import Ajv from 'ajv';
+import { sendFCM } from './fcm';
+
 export const _matchToken = Match.OneOf({ apn: String }, { gcm: String });
 export const appTokensCollection = new Mongo.Collection('_raix_push_app_tokens');
 
 appTokensCollection._ensureIndex({ userId: 1 });
+
+const ajv = new Ajv({
+	coerceTypes: true,
+});
+
+
+export const FCMCredentialsValidationSchema = {
+	type: 'object',
+	properties: {
+		type: {
+			type: 'string',
+		},
+		project_id: {
+			type: 'string',
+		},
+		private_key_id: {
+			type: 'string',
+		},
+		private_key: {
+			type: 'string',
+		},
+		client_email: {
+			type: 'string',
+		},
+		client_id: {
+			type: 'string',
+		},
+		auth_uri: {
+			type: 'string',
+		},
+		token_uri: {
+			type: 'string',
+		},
+		auth_provider_x509_cert_url: {
+			type: 'string',
+		},
+		client_x509_cert_url: {
+			type: 'string',
+		},
+		universe_domain: {
+			type: 'string',
+		},
+	},
+	required: ['client_email', 'project_id', 'private_key_id', 'private_key'],
+};
+
+
+export const isFCMCredentials = ajv.compile(FCMCredentialsValidationSchema);
 
 export class PushClass {
 	options = {}
@@ -88,15 +140,72 @@ export class PushClass {
 			}
 		} else if (app.token.gcm) {
 			countGcm.push(app._id);
-
+			
 			// Send to GCM
 			// We do support multiple here - so we should construct an array
 			// and send it bulk - Investigate limit count of id's
-			if (this.options.gcm && this.options.gcm.apiKey) {
+			const useLegacyProvider = settings.get('Push_UseLegacy');
+			const usePushEnable = settings.get('Push_enable');
+
+
+
+
+			if (usePushEnable && !useLegacyProvider) {
+				// override this.options.gcm.apiKey with the oauth2 token
+				const { projectId, token } = Promise.await(this.getNativeNotificationAuthorizationCredentials())
+				const sendGCMOptions = {
+					...this.options,
+					gcm: {
+						...this.options.gcm,
+						apiKey: token,
+						projectNumber: projectId,
+					},
+				};
+
+				sendFCM({
+					userTokens: app.token.gcm,
+					notification,
+					_replaceToken: this.replaceToken,
+					_removeToken: this.removeToken,
+					options: sendGCMOptions,
+				});
+			} else if (this.options.gcm && this.options.gcm.apiKey) {
 				sendGCM({ userTokens: app.token.gcm, notification, _replaceToken: this._replaceToken, _removeToken: this._removeToken, options: this.options });
 			}
 		} else {
 			throw new Error('send got a faulty query');
+		}
+	}
+
+	async getNativeNotificationAuthorizationCredentials(token, projectId) {
+		const credentialsString = settings.get('Push_google_api_credentials');
+
+		if (!credentialsString.trim()) {
+			throw new Error('Push_google_api_credentials is not set');
+		}
+
+		try {
+			const credentials = JSON.parse(credentialsString);
+			if (!isFCMCredentials(credentials)) {
+				throw new Error('Push_google_api_credentials is not in the correct format');
+			}
+
+			const client = new JWT({
+				email: credentials.client_email,
+				key: credentials.private_key,
+				keyId: credentials.private_key_id,
+				scopes: 'https://www.googleapis.com/auth/firebase.messaging',
+			});
+
+			await client.authorize();
+
+			return {
+				token: client.credentials.access_token,
+				projectId: credentials.project_id,
+			};
+		} catch (error) {
+			logger.error('Error getting FCM token', error);
+			throw new Error('Error getting FCM token');
 		}
 	}
 
@@ -198,6 +307,7 @@ export class PushClass {
 			],
 		};
 
+		
 		appTokensCollection.find(query).forEach((app) => {
 			logger.debug('send to token', app.token);
 

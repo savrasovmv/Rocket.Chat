@@ -29,6 +29,7 @@ Meteor.methods({
 			});
 		}
 
+
 		const query = {
 			$and: [{
 				userId: user._id,
@@ -44,7 +45,6 @@ Meteor.methods({
 				}],
 			}],
 		};
-
 		const tokens = appTokensCollection.find(query).count();
 
 		if (tokens === 0) {
