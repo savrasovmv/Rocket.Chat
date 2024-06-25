@@ -17,6 +17,8 @@ import { Messages, Rooms, Subscriptions } from '../../../models/client';
 import { hasAtLeastOnePermission } from '../../../authorization/client';
 import { modal } from './modal';
 
+
+
 const call = (method, ...args) => new Promise((resolve, reject) => {
 	Meteor.call(method, ...args, function(err, data) {
 		if (err) {
@@ -210,6 +212,39 @@ Meteor.startup(async function() {
 		},
 		order: -3,
 		group: ['message', 'menu'],
+	});
+
+	// Savrasov переслать сообщение
+	MessageAction.addButton({
+		id: 'forward-message',
+		icon: 'reply',
+		label: 'Переслать сообщение',
+		context: ['message', 'message-mobile', 'threads'],
+		type: 'communication',
+		async action(_, props) {
+
+			const { msg: message } = messageArgs(this);
+			const permalink = await MessageAction.getPermaLink(message._id);
+			modal.open({
+				title: 'Переслать сообщение',
+				content: 'ForwardMessage',
+				data: {
+					messageId: message._id,
+					permalink,
+					onForward(result) {
+						// Открыть комнату в которую переслали сообщение
+						roomTypes.openRouteLink(result.t, result);
+						modal.close();
+					},
+				},
+				modifier: 'modal',
+				showConfirmButton: false,
+				showCancelButton: false,
+				confirmOnEnter: false,
+			});
+		},
+		order: 0,
+		group: 'message',
 	});
 
 	MessageAction.addButton({

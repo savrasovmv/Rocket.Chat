@@ -25,6 +25,10 @@ import { resetUserE2EEncriptionKey } from '../../../../server/lib/resetUserE2EKe
 import { setUserStatus } from '../../../../imports/users-presence/server/activeUsers';
 import { resetTOTP } from '../../../2fa/server/functions/resetTOTP';
 
+
+import { Rooms } from '../../../models/server';
+import { escapeRegExp } from '../../../../lib/escapeRegExp'
+
 API.v1.addRoute('users.create', { authRequired: true }, {
 	post() {
 		check(this.bodyParams, {
@@ -791,7 +795,7 @@ API.v1.addRoute('users.logoutOtherClients', { authRequired: true }, {
 API.v1.addRoute('users.autocomplete', { authRequired: true }, {
 	get() {
 		const { selector } = this.queryParams;
-
+		console.log("+++++ users.autocomplete selector", JSON.parse(selector))
 		if (!selector) {
 			return API.v1.failure('The \'selector\' param is required');
 		}
@@ -800,6 +804,62 @@ API.v1.addRoute('users.autocomplete', { authRequired: true }, {
 			uid: this.userId,
 			selector: JSON.parse(selector),
 		})));
+	},
+});
+
+// Savrasov поиск пользователей и групп, для пересылки сообщений
+API.v1.addRoute('roomslist.autocomplete', { authRequired: true }, {
+	get() {
+		const { selector } = this.queryParams;
+
+		if (!selector) {
+			return API.v1.failure('The \'selector\' param is required');
+		}
+		const query = JSON.parse(selector)
+		
+		// Получаем пользователей
+		const susers = Promise.await(findUsersToAutocomplete({
+			uid: this.userId,
+			selector: {term: query.text},
+		}))
+
+		const nameRegex = new RegExp(`^${ escapeRegExp(query.text).trim() }`, 'i');
+		const rquery = {
+			t: {
+				$in: ['c', 'p'],
+			},
+			$or: [
+				{name: nameRegex},
+				{fname: nameRegex},
+			]
+		};
+
+		const options = {
+			fields: {
+				_id: 1,
+				name: 1,
+				fname: 1,
+				usernames: 1,
+				t: 1,
+				avatarETag: 1,
+			},
+			limit: 10,
+			sort: {
+				name: 1,
+			},
+		};
+		// Получаем комнаты
+		const srooms = Promise.await(
+			Rooms.find(rquery, options).fetch()
+		)
+
+		// Если задан fname то отображаем его
+		var ssrooms = srooms.map((item) => { 
+			return {...item, text: item.fname ? item.fname : item.name }
+        })
+
+		return API.v1.success({items:[...susers.items, ...ssrooms]});
+
 	},
 });
 

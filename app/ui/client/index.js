@@ -30,6 +30,7 @@ import './views/404/roomNotFound';
 import './views/app/burger';
 import './views/app/createChannel';
 import './views/app/CreateDirectMessage';
+import './views/app/ForwardMessage';
 import './views/app/editStatus';
 import './views/app/home';
 import './views/app/roomSearch';

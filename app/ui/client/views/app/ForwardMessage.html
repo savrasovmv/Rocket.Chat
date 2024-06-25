@@ -1,0 +1,36 @@
+<template name="ForwardMessage">
+
+	<section class="create-channel">
+		<div class="create-channel__wrapper">
+			<form id="create-dm" class="create-channel__content">
+				<div class="create-channel__inputs">
+					{{> SearchCreateDiscussion
+						selector=roomSelector
+						onClickTag=onClickTagRoom
+						deleteLastItem=deleteLastItemRoom
+						list=selectedRoom
+						onSelect=onSelectRoom
+						collection='UserAndRoom'
+						field='name'
+						sort='name'
+						label="Канал или группа, куда необходимо переслать сообщение"
+						placeholder="Выберите канал или группу"
+						name="forwardChannel"
+						disabled=disabled
+						description=targetChannelText
+						noMatchTemplate="roomSearchEmpty"
+						templateItem="popupList_item_fname"
+						template="roomSearch"
+						modifier=roomModifier
+						endpoint='roomslist.autocomplete'
+						autocomplete='isShowing'
+					}}
+					
+				</div>
+			</form>
+			<div class="rc-input">
+				<button form="forward-m" class="rc-button rc-button--primary js-save-dm {{forwardIsDisabled}}" {{forwardIsDisabled}}>Переслать</button>
+			</div>
+		</div>
+	</section>
+</template>

@@ -52,3 +52,15 @@
 		<span class="rc-popup-list__item-name">{{{modifier item.custom_name}}}</span>
 	</li>
 </template>
+
+
+
+<!-- Savrasov отображения списка пользователей и каналов, для канала показываем fname -->
+<template name="popupList_item_fname">
+	<li class="rc-popup-list__item">
+		<span class="rc-popup-list__item-image">
+			{{>avatar username=item.name roomIcon=true}}
+		</span>
+		<span class="rc-popup-list__item-name">{{#if item.fname}} {{{modifier item.fname}}}{{else}}{{{modifier item.name}}}{{/if}}</span>
+	</li>
+</template>
