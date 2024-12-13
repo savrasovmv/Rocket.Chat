@@ -46,6 +46,7 @@ function AccountProfileForm({ values, handlers, user, settings, onSaveStateChang
 		statusType,
 		customFields,
 		nickname,
+		ipPhone,
 	} = values;
 
 	const {
@@ -60,6 +61,7 @@ function AccountProfileForm({ values, handlers, user, settings, onSaveStateChang
 		handleBio,
 		handleCustomFields,
 		handleNickname,
+		handleIpPhone,
 	} = handlers;
 
 	const previousEmail = getUserEmailAddress(user);

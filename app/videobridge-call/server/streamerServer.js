@@ -16,7 +16,7 @@ streamerJitsiCall.allowWrite('logged')
 
 
 export const sendStartCallJitsi = (userId = false, roomId = false) => {
-	console.log("----------- sendStartCallJitsi-----------", userId, roomId)
+	// console.log("----------- sendStartCallJitsi-----------", userId, roomId)
 	if (userId && roomId) {
 		const subscriptions = Subscriptions.findByRoomId(roomId, {
 			fields: { 'u._id': 1 },

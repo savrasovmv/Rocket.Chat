@@ -29,6 +29,7 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 	const canResetTOTP = usePermission('edit-other-user-totp');
 	const canEditOtherUserActiveStatus = usePermission('edit-other-user-active-status');
 	const canDeleteUser = usePermission('delete-user');
+	const canUpdateUser = usePermission('delete-user');
 
 	const enforcePassword = useSetting('Accounts_TwoFactorAuthentication_Enforce_Password_Fallback');
 
@@ -176,6 +177,22 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 		id: _id,
 	}), [_id, userRoute]);
 
+
+	// Savrasov, действие Обновить польователя из LDAP
+	const updateUserLDAP = useMethod('ldap_sync_user');
+	const updateUserLDAPClick = useCallback(async () => {
+		try {
+			await updateUserLDAP(_id);
+			const message = 'Обновить польователя из LDAP';
+			dispatchToastMessage({ type: 'success', message: t(message) });
+			onChange();
+		} catch (error) {
+			dispatchToastMessage({ type: 'error', message: error });
+		}
+	}, [_id, dispatchToastMessage, onChange, updateUserLDAP, t]);
+	///////////////////////////
+
+
 	const options = useMemo(() => ({
 		...canDirectMessage && { directMessage: {
 			icon: 'chat',
@@ -192,6 +209,21 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 			label: isAdmin ? t('Remove_Admin') : t('Make_Admin'),
 			action: changeAdminStatus,
 		} },
+		...canUpdateUser && { updateUser: { //Savrasov, обновить из АД
+			icon: 'globe',
+			label: t('Обновить из LDAP'),
+			action: updateUserLDAPClick,
+		} },
+		...canEditOtherUserActiveStatus && { changeActiveStatus: {
+			icon: 'user',
+			label: isActive ? t('Deactivate') : t('Activate'),
+			action: changeActiveStatus,
+		} },
+		...canDeleteUser && { delete: {
+			icon: 'trash',
+			label: t('Delete'),
+			action: confirmDeleteUser,
+		} },
 		...canResetE2EEKey && enforcePassword && { resetE2EEKey: {
 			icon: 'key',
 			label: t('Reset_E2E_Key'),
@@ -201,16 +233,6 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 			icon: 'key',
 			label: t('Reset_TOTP'),
 			action: confirmResetTOTP,
-		} },
-		...canDeleteUser && { delete: {
-			icon: 'trash',
-			label: t('Delete'),
-			action: confirmDeleteUser,
-		} },
-		...canEditOtherUserActiveStatus && { changeActiveStatus: {
-			icon: 'user',
-			label: isActive ? t('Deactivate') : t('Activate'),
-			action: changeActiveStatus,
 		} },
 	}), [
 		t,
@@ -232,6 +254,8 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 		confirmResetE2EEKey,
 		confirmResetTOTP,
 		username,
+		canUpdateUser,
+		updateUserLDAPClick,
 	]);
 
 	const { actions: actionsDefinition, menu: menuOptions } = useUserInfoActionsSpread(options);

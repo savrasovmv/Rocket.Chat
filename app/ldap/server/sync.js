@@ -610,6 +610,38 @@ export function sync() {
 
 
 //Savrasov start
+//Синхронизация одного пользователя
+export function sync_user(user) {
+	if (settings.get('LDAP_Enable') !== true) {
+		return;
+	}
+
+	const ldap = new LDAP();
+
+	try {
+		ldap.connectSync();
+		let ldapUser;
+
+		if (user.services && user.services.ldap && user.services.ldap.id) {
+			ldapUser = ldap.getUserByIdSync(user.services.ldap.id, user.services.ldap.idAttribute);
+		} else {
+			ldapUser = ldap.getUserByUsernameSync(user.username);
+		}
+
+		if (ldapUser) {
+			syncUserData(user, ldapUser, ldap);
+		}
+
+		callbacks.run('ldap.afterSyncExistentUser', { ldapUser, user });
+	} catch (error) {
+		logger.error(error);
+		return error;
+	}
+	return true;
+}
+
+
+//полная синхронизация
 export function sync_full() {
 	if (settings.get('LDAP_Enable') !== true) {
 		return;

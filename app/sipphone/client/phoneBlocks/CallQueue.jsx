@@ -20,10 +20,9 @@ export const CallQueue = ({ calls, favorites, handleAnswer, handleReject, getDis
   useEffect(() => {
     calls.map((call) => {
       if (!call.isUpdateName) {
-        getDisplayName(call.callNumber, call.displayName, true)
+        getDisplayName(call.sessionId, call.callNumber, call.displayName, true)
       }
     })
-
   },[calls])
 
 

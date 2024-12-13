@@ -205,6 +205,7 @@ export const SoftPhone = ({
   const [isSettings, setIsSettings] = useState(false)
   const [displayNameState, setDisplayNameState] = useState(false)
   const [callNumber, setCallNumber] = useState(false)
+  // const [updatePhoneCall, setUpdatePhoneCall] = useState(false)
 
 
   const hangleSettings = () => {
@@ -229,19 +230,25 @@ export const SoftPhone = ({
   }
 
 
-  const updateDisplayName = (displayName, incomingCall=false) => {
+  const updateDisplayName = (sessionId, displayName, number, incomingCall=false) => {
     const newProgressLocalStatePhone = _.cloneDeep(localStatePhone)
-
+    console.log("updateDisplayName", number)
     if (incomingCall) {
 
-      newProgressLocalStatePhone.phoneCalls[activeChannelNumber] = {
-        ...localStatePhone.phoneCalls[activeChannelNumber],
-        displayName: displayName,
-        isUpdateName: true
-      }
+      const newPhoneCalls = _.map(
+        localStatePhone.phoneCalls,
+        (a) =>
+          a.sessionId === sessionId
+            ? {
+                ...a,
+                displayName: displayName,
+                isUpdateName: true
+              }
+             : a
+      )
       setLocalStatePhone((prevState) => ({
         ...prevState,
-        phoneCalls: newProgressLocalStatePhone.phoneCalls,
+        phoneCalls: newPhoneCalls, 
       }))
 
     } else {
@@ -260,13 +267,19 @@ export const SoftPhone = ({
 
   }
 
-  const getDisplayName = (number, pDisplayName='', incomingCall=false) => {
+
+
+  const getDisplayName = (sessionId, number, pDisplayName='', incomingCall=false) => {
+
+    console.log("getDisplayName ", number, pDisplayName)
     //Поиск в избранном
     res = favorites.find(el => el.number===number)
     if (!res) {
       displayName = ''
     } else {
       displayName = res.displayName
+      // setUpdatePhoneCall({sessionId: sessionId, number: number, displayName: displayName})
+      updateDisplayName(sessionId, displayName, number , incomingCall)
     }
 
     //Поиск в справочнике
@@ -275,7 +288,9 @@ export const SoftPhone = ({
       const result1 = APIClient.v1.get('sip.getDisplayName', { callNumber: number })
       result1.then((resolve) => {
           displayName = resolve.displayName
-          updateDisplayName(displayName, incomingCall)
+
+          // setUpdatePhoneCall({sessionId: sessionId, number: number, displayName: displayName})
+          updateDisplayName(sessionId, displayName, number , incomingCall)
 
       })
 
@@ -287,12 +302,13 @@ export const SoftPhone = ({
         displayName = number
       } else {
         displayName = pDisplayName
+
       }
     }
 
     //if (displayName !== pDisplayName) {
 
-      updateDisplayName(displayName, incomingCall)
+      // updateDisplayName(displayName, number, incomingCall)
     //}
 
 
@@ -368,7 +384,7 @@ export const SoftPhone = ({
         // Save new object with the Phone data of new incoming call into the array with Phone data
 
 
-
+        console.log("incomingCall", payload.remote_identity.uri.user)
         setLocalStatePhone((prevState) => ({
           ...prevState,
           phoneCalls: [
@@ -391,7 +407,7 @@ export const SoftPhone = ({
 
 
 
-
+ 
         // callNumber:
         //         payload.remote_identity.display_name !== ''
         //           ? `${payload.remote_identity.display_name || ''}`

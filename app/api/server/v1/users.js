@@ -462,6 +462,15 @@ API.v1.addRoute('users.update', { authRequired: true, twoFactorRequired: true },
 				sendWelcomeEmail: Match.Maybe(Boolean),
 				verified: Match.Maybe(Boolean),
 				customFields: Match.Maybe(Object),
+				company: Match.Maybe(String), //Savrasov, доп поля
+				physicalDeliveryOfficeName: Match.Maybe(String),
+				department: Match.Maybe(String),
+				title: Match.Maybe(String),
+				telephoneNumber: Match.Maybe(String),
+				ipPhone: Match.Maybe(String),
+				mobile: Match.Maybe(String),
+				homePhone: Match.Maybe(String),
+				enableSIP: Match.Maybe(Boolean),
 			}),
 		});
 
@@ -481,6 +490,7 @@ API.v1.addRoute('users.update', { authRequired: true, twoFactorRequired: true },
 			});
 		}
 		const { fields } = this.parseJsonQuery();
+
 
 		return API.v1.success({ user: Users.findOneById(this.bodyParams.userId, { fields }) });
 	},

@@ -43,6 +43,7 @@ export function UserInfoWithData({ uid, username, ...props }) {
 			ipPhone,
 			mobile,
 			homePhone,
+			enableSIP,
 		} = user;
 		return {
 			name,
@@ -60,6 +61,7 @@ export function UserInfoWithData({ uid, username, ...props }) {
 			title: user.title,
 			telephoneNumber: user.telephoneNumber,
 			ipPhone: user.ipPhone,
+			enableSIP: user.enableSIP,
 			mobile: user.mobile,
 			homePhone: user.homePhone,
 			utcOffset,

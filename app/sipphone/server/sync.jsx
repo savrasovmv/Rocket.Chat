@@ -75,9 +75,20 @@ Meteor.methods({
 			return false
 		}
 
+        if (!user.ipPhone) {
+            return false
+        }
+
+
         //Если это тестовый режим, перебираем имена пользователей
         if (settings.get('SIPPhone_Enable_Test_Mode')) {
+            // Если у пользователя выставлено Включить SIP
+            if (user.enableSIP) {
 
+                return true
+            }
+
+            // Перебор в строке (временное решение, потом удалить)
             listUsers = settings.get('SIPPhone_List_Users_Test_Mode').split(',')
 
             if (Array.isArray(listUsers)) {

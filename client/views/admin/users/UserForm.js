@@ -25,6 +25,15 @@ export default function UserForm({ formValues, formHandlers, availableRoles, app
 		customFields,
 		joinDefaultChannels,
 		sendWelcomeEmail,
+		company, //Savrasov, доп поля
+		physicalDeliveryOfficeName,
+		department,
+		title,
+		telephoneNumber,
+		ipPhone,
+		mobile,
+		homePhone,
+		enableSIP,
 	} = formValues;
 
 	const {
@@ -42,6 +51,17 @@ export default function UserForm({ formValues, formHandlers, availableRoles, app
 		handleCustomFields,
 		handleJoinDefaultChannels,
 		handleSendWelcomeEmail,
+		
+		handleCompany, //Savrasov, доп поля
+		handlePhysicalDeliveryOfficeName,
+		handleDepartment,
+		handleTitle,
+		handleTelephoneNumber,
+		handleIpPhone,
+		handleMobile,
+		handleHomePhone,
+		handleEnableSIP,
+		
 	} = formHandlers;
 
 	const onLoadCustomFields = useCallback((hasCustomFields) => setHasCustomFields(hasCustomFields), []);
@@ -55,6 +75,62 @@ export default function UserForm({ formValues, formHandlers, availableRoles, app
 					<TextInput flexGrow={1} value={name} onChange={handleName}/>
 				</Field.Row>
 			</Field>, [t, name, handleName])}
+
+			{useMemo(() => <Field>
+				<Field.Label>{t('Организация')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={company} onChange={handleCompany} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, company, handleCompany])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Комната')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={physicalDeliveryOfficeName} onChange={handlePhysicalDeliveryOfficeName} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, physicalDeliveryOfficeName, handlePhysicalDeliveryOfficeName])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Подразделение')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={department} onChange={handleDepartment} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, department, handleDepartment])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Должность')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={title} onChange={handleTitle} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, title, handleTitle])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Внутренний номер')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={ipPhone} onChange={handleIpPhone} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+				<Field.Row>
+					<Box flexGrow={1} display='flex' flexDirection='row' alignItems='center' justifyContent='space-between' mbs='x4'>
+						<Box>{t('Включить SIP')}</Box><ToggleSwitch checked={enableSIP} onChange={handleEnableSIP} />
+					</Box>
+				</Field.Row>
+			</Field>, [t, ipPhone, handleIpPhone, enableSIP, handleEnableSIP])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Телефонный номер')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={telephoneNumber} onChange={handleTelephoneNumber} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, telephoneNumber, handleTelephoneNumber])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Мобильный номер 1')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={mobile} onChange={handleMobile} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, mobile, handleMobile])}
+			{useMemo(() => <Field>
+				<Field.Label>{t('Мобильный номер 2')}</Field.Label>
+				<Field.Row>
+					<TextInput flexGrow={1} value={homePhone} onChange={handleHomePhone} addon={<Icon name='edit' size='x20'/>}/>
+				</Field.Row>
+			</Field>, [t, homePhone, handleHomePhone])}
+
+
 			{useMemo(() => <Field>
 				<Field.Label>{t('Username')}</Field.Label>
 				<Field.Row>

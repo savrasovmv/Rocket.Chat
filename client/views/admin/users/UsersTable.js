@@ -18,10 +18,13 @@ const style = {
 
 const sortDir = (sortDir) => (sortDir === 'asc' ? 1 : -1);
 
-const UserRow = ({ emails, _id, username, name, roles, status, avatarETag, onClick, mediaQuery, active }) => {
+const UserRow = ({ emails, _id, username, name, roles, status, enableSIP, avatarETag, onClick, mediaQuery, active }) => {
 	const t = useTranslation();
-
 	const statusText = active ? t(capitalize(status)) : t('Disabled');
+
+
+	//Savrasov Добавляем поле enableSIP
+	const statusSIP = enableSIP ? t('Enabled') : t('Disabled');
 	return <Table.Row onKeyDown={onClick(_id)} onClick={onClick(_id)} tabIndex={0} role='link' action qa-user-id={_id}>
 		<Table.Cell style={style}>
 			<Box display='flex' alignItems='center'>
@@ -40,12 +43,13 @@ const UserRow = ({ emails, _id, username, name, roles, status, avatarETag, onCli
 		<Table.Cell style={style}>{emails && emails.length && emails[0].address}</Table.Cell>
 		{mediaQuery && <Table.Cell style={style}>{roles && roles.join(', ')}</Table.Cell>}
 		<Table.Cell fontScale='p1' color='hint' style={style}>{statusText}</Table.Cell>
+		<Table.Cell fontScale='p1' color='hint' style={style}>{statusSIP}</Table.Cell>
 	</Table.Row>;
 };
 
 
 const useQuery = ({ text, itemsPerPage, current }, sortFields) => useMemo(() => ({
-	fields: JSON.stringify({ name: 1, username: 1, emails: 1, roles: 1, status: 1, avatarETag: 1, active: 1 }),
+	fields: JSON.stringify({ name: 1, username: 1, emails: 1, roles: 1, status: 1, avatarETag: 1, active: 1, enableSIP: 1  }),
 	query: JSON.stringify({
 		$or: [
 			{ 'emails.address': { $regex: text || '', $options: 'i' } },
@@ -104,6 +108,12 @@ export function UsersTable() {
 			preparedSort.push(['active', sortDirection === 'asc' ? 'desc' : 'asc']);
 		}
 
+		//Savrasov сортировка
+		if (id === 'enableSIP') {
+			preparedSort = []
+			preparedSort.push(['enableSIP', sortDirection]);
+		}
+
 		setSort(preparedSort);
 	}, [sort]);
 
@@ -125,6 +135,9 @@ export function UsersTable() {
 			</GenericTable.HeaderCell>}
 			<GenericTable.HeaderCell key={'status'} direction={sort[0][1]} active={sort[0][0] === 'status'} onClick={onHeaderClick} sort='status' w='x100'>
 				{t('Status')}
+			</GenericTable.HeaderCell>
+			<GenericTable.HeaderCell key={'enableSIP'} direction={sort[0][1]} active={sort[0][0] === 'enableSIP'}  onClick={onHeaderClick} sort='SIP' w='x100'>
+				{t('SIP')}
 			</GenericTable.HeaderCell>
 		</>}
 		results={data.users}

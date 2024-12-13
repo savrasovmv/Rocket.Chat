@@ -42,6 +42,17 @@ const getInitialValue = (data) => ({
 	requirePasswordChange: data.setRandomPassword || false,
 	customFields: data.customFields ?? {},
 	statusText: data.statusText ?? '',
+	
+	company: data.company ?? '',
+	physicalDeliveryOfficeName: data.physicalDeliveryOfficeName ?? '',
+	department: data.department ?? '',
+	title: data.title ?? '',
+	telephoneNumber: data.telephoneNumber ?? '',
+	ipPhone: data.ipPhone ?? '',
+	enableSIP: data.enableSIP || false,
+	mobile: data.mobile ?? '',
+	homePhone: data.homePhone ?? '',
+
 });
 
 export function EditUser({ data, roles, ...props }) {

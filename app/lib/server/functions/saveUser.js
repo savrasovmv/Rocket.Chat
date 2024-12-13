@@ -359,6 +359,36 @@ export const saveUser = function(userId, userData) {
 		updateUser.$set['emails.0.verified'] = userData.verified;
 	}
 
+	//Savrasov, доп поля
+	if (userData.company || userData.company==='') {
+		updateUser.$set.company = userData.company;
+	}
+	if (userData.physicalDeliveryOfficeName || userData.physicalDeliveryOfficeName==='') {
+		updateUser.$set.physicalDeliveryOfficeName = userData.physicalDeliveryOfficeName;
+	}
+	if (userData.department || userData.department==='') {
+		updateUser.$set.department = userData.department;
+	}
+	if (userData.title || userData.title==='') {
+		updateUser.$set.title = userData.title;
+	}
+	if (userData.telephoneNumber || userData.telephoneNumber==='') {
+		updateUser.$set.telephoneNumber = userData.telephoneNumber;
+	}
+	if (userData.ipPhone || userData.ipPhone==='') {
+		updateUser.$set.ipPhone = userData.ipPhone;
+	}
+	if (userData.mobile || userData.mobile==='') {
+		updateUser.$set.mobile = userData.mobile;
+	}
+	if (userData.homePhone || userData.homePhone==='') {
+		updateUser.$set.homePhone = userData.homePhone;
+	}
+	if (typeof userData.enableSIP === 'boolean') {
+		updateUser.$set.enableSIP = true ? userData.enableSIP : false;
+	}
+
+
 	Meteor.users.update({ _id: userData._id }, updateUser);
 
 	if (sendPassword) {

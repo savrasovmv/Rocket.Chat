@@ -28,6 +28,7 @@ const defaultFields = {
 	ipPhone: 1,
 	mobile: 1,
 	homePhone: 1,
+	enableSIP: 1,
 };
 
 const fullFields = {
