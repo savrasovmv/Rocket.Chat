@@ -7,6 +7,11 @@ git push origin master --no-verify
 
 
 METEOR
+Запуск, разработка
+meteor npm start
+
+
+
 Скомпилировать сервер
 meteor build --server-only --directory /homt/user/build/rc-build
 

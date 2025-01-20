@@ -479,9 +479,9 @@ export const SoftPhone = ({
         setdialState('')
 
         // Установка displayName
-        setCallNumber(payload.remote_identity.uri.user)
+        setCallNumber({sessionId: payload.id, number: payload.remote_identity.uri.user})
 
-        // getDisplayName(payload.remote_identity.uri.user)
+        // getDisplayName(payload.id, payload.remote_identity.uri.user)
 
 
         //getDisplayName(payload.remote_identity.uri.user)
@@ -832,6 +832,7 @@ export const SoftPhone = ({
       if (number != null) {
         console.log('Start Call of number ' + number)
         // console.log('Start Call of number' + number)
+        // getDisplayName(number.toString())
         flowRoute.call(number.toString())
       }
       // if (number.match(/^[0-9]+$/) != null) {
@@ -846,6 +847,7 @@ export const SoftPhone = ({
       //number = Number(dialState.replace(/\D+/g,""))
       number = dialState.replace(/[^0-9]/g,"")
       console.log('Start Call of dialState', dialState)
+      // getDisplayName(number.toString())
       flowRoute.call(number.toString())
     }
   }
@@ -1212,8 +1214,8 @@ export const SoftPhone = ({
   useEffect(() => {
     // Установка displayName при исходящем звонке
     if (callNumber) {
-      getDisplayName(callNumber)
-      setCallNumber(false)
+      getDisplayName(callNumber.sessionId, callNumber.number)
+      // setCallNumber(false)
     }
 
   }, [callNumber])

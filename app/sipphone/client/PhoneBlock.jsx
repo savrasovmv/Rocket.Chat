@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react'
+import { useCallback } from "react";
 import { Meteor } from 'meteor/meteor'
 import PropTypes from 'prop-types'
 import { SearchInput, Button, Icon } from '@rocket.chat/fuselage'
@@ -15,6 +16,8 @@ import {
   Tabs,
   Tooltip,
 } from '@rocket.chat/fuselage'
+
+import _ from 'underscore';
 
 import SearchList from '../../../client/sidebar/search/SearchList'
 import { useOutsideClick } from '../../../client/hooks/useOutsideClick'
@@ -167,72 +170,75 @@ export const PhoneBlock = ({
     }
   }, [inCall])
 
+
+  
+
+  // Поиск с задержкой
+  // debounce - выполняет последнюю фукцию после задержки. Необходима при вводе в строку поиска, что бы не отправлять множество запросов.
+  const updateSearchUserList = useCallback(
+     _.debounce((dialState) => {
+      // console.log('updateSearchUserList dialState', dialState)
+      if (!dialState) {
+        setUsers([])
+        return
+      }
+      if (/^[0-9]+$/.test(dialState)) {
+        //console.log('Введены цифры')
+        setTypeNumSearch(true)
+      } else {
+        //console.log('Введены буквы')
+        setTypeNumSearch(false)
+      }
+    
+      const result = APIClient.v1.get('users.list', {
+        /* prettier-ignore */
+        query: '{ \
+                              "active": true,\
+                              "$and":[\
+                                      {"$or": [\
+                                            {"ipPhone": {"$ne": null}},\
+                                            {"telephoneNumber": {"$ne": null}},\
+                                            {"mobile": {"$ne": null}},\
+                                            {"homePhone": {"$ne": null}}\
+                                            ]\
+                                      },\
+                                      {\
+                                        "$or": [\
+                                            {"ipPhone": {"$regex": "'+dialState+'" }},\
+                                            {"telephoneNumber": {"$regex": "'+dialState+'" }},\
+                                            {"mobile": {"$regex": "'+dialState+'" }},\
+                                            {"homePhone": {"$regex": "'+dialState+'" }},\
+                                            {"name": {"$regex": "'+dialState+'" , "$options": "i"}}\
+                                            ] \
+                                      }\
+                                ]\
+                            }',
+      })
+      
+
+      result.then((resolve) => {
+        setUsers(resolve.users)
+        console.log('updateSearchUserList resulr')
+      })
+    }, 500, false),
+    []
+  )
+
   useEffect(() => {
-    //console.log('Update search')
+    // console.log('useEffect Update search')
     if (openSearch && !inCall) {
       const arr = []
       //console.log('Update search')
       if (dialState) {
         // console.log('====================================')
-        if (/^[0-9]+$/.test(dialState)) {
-          //console.log('Введены цифры')
-          setTypeNumSearch(true)
-        } else {
-          //console.log('Введены буквы')
-          setTypeNumSearch(false)
-        }
-        //"telephoneNumber":"telephoneNumber","ipPhone":"ipPhone","mobile":"mobile","homePhone":"homePhone"}
-        // const query = {
-        //   active: true,
-        //   $and: [
-        //     {$or: [
-        //       {ipPhone: {$ne: null}},
-        //       {telephoneNumber: {$ne: null}},
-        //       {mobile: {$ne: null}},
-        //       {homePhone: {$ne: null}},
-        //       ]},
-        //     {$or: [
-        //       {ipPhone: {$regex: dialState}},
-        //       {telephoneNumber:  {$regex: dialState}},
-        //       {mobile:  {$regex: dialState}},
-        //       {homePhone:  {$regex: dialState}},
-
-        //     ]}
-        //  ]
-
-        // }
-        const result = APIClient.v1.get('users.list', {
-          /* prettier-ignore */
-          query: '{ \
-                                "active": true,\
-                                "$and":[\
-                                        {"$or": [\
-                                              {"ipPhone": {"$ne": null}},\
-                                              {"telephoneNumber": {"$ne": null}},\
-                                              {"mobile": {"$ne": null}},\
-                                              {"homePhone": {"$ne": null}}\
-                                              ]\
-                                        },\
-                                        {\
-                                          "$or": [\
-                                              {"ipPhone": {"$regex": "'+dialState+'" }},\
-                                              {"telephoneNumber": {"$regex": "'+dialState+'" }},\
-                                              {"mobile": {"$regex": "'+dialState+'" }},\
-                                              {"homePhone": {"$regex": "'+dialState+'" }},\
-                                              {"name": {"$regex": "'+dialState+'" , "$options": "i"}}\
-                                              ] \
-                                        }\
-                                  ]\
-                              }',
-        })
-
-        result.then((resolve) => {
-          setUsers(resolve.users)
-        })
-      } else {
-        setUsers([])
-      }
+        updateSearchUserList(dialState)
+      } 
     }
+    if (!dialState) {
+      setUsers([])
+      updateSearchUserList(dialState) // очистить список
+    }
+
   }, [dialState])
 
   const [searchOpen, setSearchOpen] = useState(false)
