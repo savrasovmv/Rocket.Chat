@@ -33,6 +33,7 @@ Meteor.methods({
 			const user = Meteor.user();
 			payload.context = {
 				user: {
+					username: user.username,
 					name: user.name,
 					email: user.emails[0].address,
 					avatar: Meteor.absoluteUrl(`avatar/${ user.username }`),
@@ -63,6 +64,8 @@ Meteor.methods({
 			exp: jws.IntDate.get(`now + ${ JITSI_OPTIONS.jitsi_lifetime_token }`),
 			aud: 'RocketChat',
 			room: jitsiLimitTokenToRoom ? jitsiRoom : '*',
+			confName: room.t === 'd' ? room.usernames.join(' x ') : room.fname, //Savrasov Название комнаты для конференции FSMeet
+			// confName: room.fname, //Savrasov Название комнаты для конференции FSMeet
 			context: '', // first empty
 		};
 

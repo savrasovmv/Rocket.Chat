@@ -196,7 +196,20 @@ API.v1.addRoute('users.info', { authRequired: true }, {
 		const { username, userId } = this.requestParams();
 		const { fields } = this.parseJsonQuery();
 
-		const user = getFullUserDataByIdOrUsername({ userId: this.userId, filterId: userId, filterUsername: username });
+
+		// Savrasov - если нет username userId, например когда пользователь окрывает чат с самим с собой и нажимает информация о контакте, то нужно вернуть информацию о самом себе
+		let uuId; 
+
+		if (!username && !userId) {
+			uuId = this.userId // Подставляем свое айди
+		} else {
+			
+			uuId = userId
+		}
+		
+		// Заменил filterId: uuId на переменную
+		const user = getFullUserDataByIdOrUsername({ userId: this.userId, filterId: uuId, filterUsername: username });
+		// const user = getFullUserDataByIdOrUsername({ userId: this.userId, filterId: userId, filterUsername: username });
 
 		if (!user) {
 			return API.v1.failure('User not found.');

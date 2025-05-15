@@ -371,6 +371,32 @@ export const JitsiCall = () => {
                     console.error('Failed to load Jitsi API', error);
                 }
 
+                window.addEventListener("message", (e) => {
+                    var data = e.data;
+                    var type = data.type;
+                    var body = data.body;
+
+                    console.log("RECEIVED message from CHILD TO PARENT", data)
+            
+                    if(type === "videoConferenceLeft" && body) {
+                        // Conference finish
+                      console.log("message -> videoConferenceLeft")
+                      setSignal({roomId: roomId, status: 'finishCall'})
+                      return
+                    } else if (type === "text-msg" && body) {
+                      console.log("TEXT MESSAGE RECEIVED FROM CHILD");
+                      //Additional functionality ...
+                    }
+
+                    if(type === "participantJoined" && body) {
+                        // Conference finish
+                      console.log("message -> participantJoined")
+                      setSignal({roomId: roomId, status: 'answer', participantJoined: body})
+                      setSignal({roomId: roomId, status: 'addMembers', value: body})
+                      return
+                    }
+                  });
+
         })
     }
 
