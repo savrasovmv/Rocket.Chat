@@ -8,6 +8,10 @@ import {
 	Users,
 } from '../../models'
 import { streamerJitsiCall, streamName } from '../lib/streamer'
+
+import fetch from 'node-fetch';
+import type { RequestInit, Response } from 'node-fetch';
+import { settings } from '../../settings';
 //import {createMeetURL} from './../lib/createMeet'
 //import {generateMeetURL} from './methods/jitsiGenerateToken'
 
@@ -15,13 +19,76 @@ streamerJitsiCall.allowRead('logged')
 streamerJitsiCall.allowWrite('logged')
 
 
-export const sendStartCallJitsi = (userId = false, roomId = false) => {
+async function createSessionFSMeet(roomId, rcSession) {
+    try {
+
+		const uid = Meteor.userId();
+
+		const user = Users.findOneById(uid, {
+			fields: {
+				username: 1,
+				type: 1,
+			},
+		});
+
+		const room = Rooms.findOneById(roomId);
+		const domain = settings.get('Jitsi_Domain');
+		const fs_token = settings.get('JitsiCall_FSMeet_Token');
+		
+		const url = `https://${domain}/conference/rc/create`
+		const data = {
+			username: user.username,
+			confName: room.t === 'd' ? room.usernames.join(' x ') : room.fname,
+			rcSession: rcSession,
+			token: fs_token
+		}
+		const response = await fetch(url, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			credentials: 'same-origin', // include, *same-origin, omit
+			headers: new Headers({
+				//   Authorization: 'Bearer my-secret-key',
+				'Content-Type': 'application/json'
+			}),
+			redirect: 'follow', // manual, *follow, error
+			referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: JSON.stringify(data) // body data type must match "Content-Type" header
+		});
+		const resdata = await response.json();
+		return resdata;
+    } catch (err) {
+		return {
+			result: {
+					success: false,
+					'text': err
+				}
+		};
+    }
+}
+
+
+export const sendStartCallJitsi = async (userId = false, roomId = false) => {
 	// console.log("----------- sendStartCallJitsi-----------", userId, roomId)
 	if (userId && roomId) {
 		const subscriptions = Subscriptions.findByRoomId(roomId, {
 			fields: { 'u._id': 1 },
 			sort: { 'u.username': 1 },
 		})
+
+		// Случайная трока для сессии
+		const rcSession = Math.random().toString(36).substring(2, 12 + 2)
+
+		if (settings.get('JitsiCall_FSMeet_Enabled')) {
+
+			const resfs = await createSessionFSMeet(roomId, rcSession);
+			console.log("+++++++++++++=resfs", resfs)
+			if (!resfs.result.success) {
+				return false
+			}
+		}
+
+
 
 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
 		//console.log('+++++++++++++++++++ members', members)
@@ -34,6 +101,7 @@ export const sendStartCallJitsi = (userId = false, roomId = false) => {
 				initUserId: userId,
 				count: count,
 				members: [],
+				rcSession: rcSession,
 				//date: new Date()
 			}
 
@@ -52,7 +120,8 @@ export const sendStartCallJitsi = (userId = false, roomId = false) => {
 				type: "inCall",
 				roomId: roomId,
 				initUserId: userId,
-				count: count
+				count: count,
+				rcSession: rcSession,
 			}
 			members.map((id) => {
 				if (id == userId) {
@@ -61,7 +130,10 @@ export const sendStartCallJitsi = (userId = false, roomId = false) => {
 					streamerJitsiCall.emit(id + '/' + streamName, valueToUser) //Запрос о готовности клиента
 				}
 			})
+			return true
 		}
+
+		return false
 
 	}
 
@@ -164,14 +236,14 @@ streamerJitsiCall.on(streamName, function (value) {
 				// Если юзер принял входящий вызов, необходимо прекратить звонок на других устройствах
 				// Параметры type, roomId, userId, initUserId
 				if (value.initUserId) {
-					// valueToUsers = {
-					// 	type: 'answer',
-					// 	roomId: value.roomId,
-					// 	initUserId: value.initUserId,
-					// 	answerUserId: value.userId, //юзер который принял входящий вызов
-					// }
+					valueToUsers = {
+						type: 'answer',
+						roomId: value.roomId,
+						initUserId: value.initUserId,
+						answerUserId: value.userId, //юзер который принял входящий вызов
+					}
 					//console.log('STREEM to USER_ID')
-					// streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
+					streamerJitsiCall.emit(value.initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
 					// streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
 					//Говорим что ответили на другом устройстве
 					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', roomId: value.roomId, status: 'finishInCall' }) //Закончить вызов если ответивший имеет несколько запущенных клиентов

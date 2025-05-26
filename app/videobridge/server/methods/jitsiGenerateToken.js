@@ -6,7 +6,7 @@ import { settings } from '../../../settings';
 import { canAccessRoom } from '../../../authorization/server/functions/canAccessRoom';
 
 Meteor.methods({
-	'jitsi:generateAccessToken': (rid) => {
+	'jitsi:generateAccessToken': (rid, rcSession) => {
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'jitsi:generateToken' });
 		}
@@ -66,6 +66,7 @@ Meteor.methods({
 			room: jitsiLimitTokenToRoom ? jitsiRoom : '*',
 			confName: room.t === 'd' ? room.usernames.join(' x ') : room.fname, //Savrasov Название комнаты для конференции FSMeet
 			// confName: room.fname, //Savrasov Название комнаты для конференции FSMeet
+			rcSession: rcSession, // Сессия РЧ для FsMeet
 			context: '', // first empty
 		};
 

@@ -230,6 +230,25 @@ Meteor.startup(function() {
 				i18nLabel: 'Включить отладку (вывод в консоль системных сообщений)',
 				public: true,
 			});
+
+			this.add('JitsiCall_FSMeet_Enabled', false, {
+				type: 'boolean',
+				enableQuery: [
+					{ _id: 'Jitsi_Enabled', value: true },
+				],
+				alert: 'Включает доп функциона для звонков через FSMeet',
+				i18nLabel: 'Использовать FSMeet',
+				public: true,
+			});
+			this.add('JitsiCall_FSMeet_Token', '', {
+				type: 'string',
+				enableQuery: [
+					{ _id: 'JitsiCall_Enabled', value: true },
+					{ _id: 'JitsiCall_FSMeet_Enabled', value: true },
+				],
+				i18nLabel: 'Токен доступа для подключения к FSMeet (задается на сервере fsmeet в системных параметрах, параметр: fs_token)',
+				public: true,
+			});
 		});
 	});
 });

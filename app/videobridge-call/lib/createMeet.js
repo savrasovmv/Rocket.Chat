@@ -32,7 +32,7 @@ import { Users, Rooms } from '../../models';
 
 // }
 
-export const getJitsiParam = async (roomId) => {
+export const getJitsiParam = async (roomId, rcSession) => {
 
 	const rid = roomId ? roomId : Session.get('openedRoom');
 	const domain = settings.get('Jitsi_Domain');
@@ -49,11 +49,15 @@ export const getJitsiParam = async (roomId) => {
 
 
 
-	const accessToken = isEnabledTokenAuth && await call('jitsi:generateAccessToken', rid);
+	const accessToken = isEnabledTokenAuth && await call('jitsi:generateAccessToken', rid, rcSession);
 
 	jitsiRoomActive = jitsiRoom;
 	const queryString = accessToken ? `?jwt=${ accessToken }` : '';
-	url = `${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`
+	if (settings.get('JitsiCall_FSMeet_Enabled')) {
+		url = `${ (noSsl ? 'http://' : 'https://') + domain }/conference/rc/${ jitsiRoom }${ queryString }`
+	} else {
+		url = `${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }${ queryString }`
+	}
 	const el = document.getElementsByClassName('jitsi-container')[0]
 	const options = {
 		roomName: jitsiRoom,
@@ -64,7 +68,7 @@ export const getJitsiParam = async (roomId) => {
 
 	}
 	return {
-		domain: domain,
+		domain: settings.get('JitsiCall_FSMeet_Enabled') ?`${domain}/conference/rc` : domain,
 		options: options
 	}
 

@@ -120,6 +120,7 @@ export const JitsiCall = () => {
             if (!value.type) {
                 return
             }
+            console.log("+++++++++setResponse", value)
             setResponse(value)
         })
         //debug('JitsiCall Tracker.autorun')
@@ -232,6 +233,8 @@ export const JitsiCall = () => {
         debug('setStatusMeet ', value)
         debug('prev meetInfo ', meetInfo)
 
+        console.log("+++++=setStatusMeet", value)
+
         const res = meetInfo.find((item) => item.roomId === value.roomId)
         debug('res meetInfo ', res)
         if (res) {
@@ -330,12 +333,12 @@ export const JitsiCall = () => {
         ))
     }
 
-    const startJitsiMeet = (roomId) => {
+    const startJitsiMeet = (roomId, rcSession) => {
         //Перед созданием окна получаем ссылку jitsi
         //document.getElementsByClassName('jitsicall-box')[0].style.display = 'inline-block'
 
         debug('startJitsiMeet')
-        getJitsiParam(roomId)
+        getJitsiParam(roomId, rcSession)
         .then((resolve) => {
             debug('getJitsiParam resolve: ', resolve)
             const {domain, options} = resolve
@@ -367,18 +370,19 @@ export const JitsiCall = () => {
                     //jitsiApi[roomId].dispose();
                     setSignal({roomId: roomId, status: 'finishCall'})
                 });
-                } catch (error) {
-                    console.error('Failed to load Jitsi API', error);
-                }
 
+
+                // Окно fsmeet сообщения
                 window.addEventListener("message", (e) => {
                     var data = e.data;
                     var type = data.type;
                     var body = data.body;
-
+    
                     console.log("RECEIVED message from CHILD TO PARENT", data)
+                    console.log("RECEIVED message from CHILD TO PARENT data.type", data.type)
+                    console.log("RECEIVED message from CHILD TO PARENT data.body", data.body)
             
-                    if(type === "videoConferenceLeft" && body) {
+                    if(type === "videoConferenceLeft" && body) { 
                         // Conference finish
                       console.log("message -> videoConferenceLeft")
                       setSignal({roomId: roomId, status: 'finishCall'})
@@ -387,7 +391,7 @@ export const JitsiCall = () => {
                       console.log("TEXT MESSAGE RECEIVED FROM CHILD");
                       //Additional functionality ...
                     }
-
+    
                     if(type === "participantJoined" && body) {
                         // Conference finish
                       console.log("message -> participantJoined")
@@ -397,6 +401,10 @@ export const JitsiCall = () => {
                     }
                   });
 
+            } catch (error) {
+                console.error('Failed to load Jitsi API', error);
+            }
+                
         })
     }
 
@@ -422,7 +430,7 @@ export const JitsiCall = () => {
         if (!res) {
             value.status = 'outCall'
             setMeetInfo((prevState) => ([...prevState, value]))
-            startJitsiMeet(value.roomId)
+            // startJitsiMeet(value.roomId) // Убрал, подключение только после ответа участника
             localStorage.removeItem('JitsiCall_'+value.roomId);
             timer[value.roomId] = setTimeout(() => {
                 setSignal({roomId: value.roomId, status: 'checkCall'})
@@ -456,7 +464,7 @@ export const JitsiCall = () => {
         if (!res) {
             value.status = 'answer'
             setMeetInfo((prevState) => ([...prevState, value]))
-            startJitsiMeet(value.roomId)
+            startJitsiMeet(value.roomId, value.rcSession)
         }
     }
 
@@ -487,6 +495,28 @@ export const JitsiCall = () => {
                                     roomId: value.roomId,
                                     membersUserId: value.rejectUserId,
                                     statusUser: 'reject'
+                                })
+        }
+    }
+
+
+    const answerFromUsers = (value) => {
+        //Юзер принял входящий звонок
+        debug('answerFromUsers', value)
+        const res = meetInfo.find((item) => item.roomId === value.roomId)
+        if (!res) {
+            return
+        }
+        if (res.status !== 'answer') {
+            //Меняем статус конференции на 'answer'
+            setStatusMeet({roomId: value.roomId, status: 'answer'})
+            startJitsiMeet(value.roomId, res.rcSession)
+        } else {
+            //Изменяем статус у участника конференции
+            setStatusMeetMembers({
+                                    roomId: value.roomId,
+                                    membersUserId: value.userId,
+                                    statusUser: 'answer'
                                 })
         }
     }
@@ -533,6 +563,8 @@ export const JitsiCall = () => {
         //Прием звонка
         debug('handleAnswer', roomId)
         const res = meetInfo.find((item) => item.roomId === roomId)
+
+        console.log("++++++handleAnswer res", res)
         if (res) {
             //Ищем идущие конференции, и завершаем их
             const answer = meetInfo.find((item) => item.status === 'answer')
@@ -546,12 +578,13 @@ export const JitsiCall = () => {
                     userId: userID,
                     initUserId: res.initUserId,
                 }
-
+                
                 streamerJitsiCall.emit(streamName, valueToServer)
-
+                
+                console.log("++++++handleAnswer streamerJitsiCall", valueToServer)
                 //Устанавливаем статус answer ответившему, чтобы исключить дубликат подключения если открыто два клиента у одного пользователя
                 setStatusMeet({roomId: roomId, status: 'answer'})
-                startJitsiMeet(roomId)
+                startJitsiMeet(roomId, res.rcSession)
             }
         }
     }
@@ -590,6 +623,9 @@ export const JitsiCall = () => {
             break
             case 'reject':
                 rejectFromUsers(response)
+            break
+            case 'answer':
+                answerFromUsers(response)
             break
             case 'finishInCall':
                 setStatusMeet({roomId: response.roomId, status: response.status})
