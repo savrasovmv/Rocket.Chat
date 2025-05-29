@@ -33,7 +33,21 @@ export class RoomsRaw extends BaseRaw {
 	}
 
 	findByNameContainingAndTypes(name, types, discussion = false, options = {}) {
+		// Savrasov Если в поиске комнат ввести 'логин x логин', т.е разделитель ' x ' (пробел икс пробел)
+		// то будем искать где два пользователя входят в комнату
+		// Нужно что бы найти переписка двоих пользователей.
+		// Поиск нечеткий, достаточно начала логина
+		
+		// Разбиваем строку 
+		const nameList = name.split(' x ').map((n) => new RegExp(escapeRegExp(n).trim(), 'i'))
 		const nameRegex = new RegExp(escapeRegExp(name).trim(), 'i');
+
+		let nameSearch = nameRegex
+		if (nameList.length>1) {
+			nameSearch={$all:nameList} 
+			// Все логины должны быть в массиве usernames 
+			// Пример: db.rocketchat_room.find({t:'d', usernames:{$all:[/admin/i,/user1/i]}})
+		} 
 		const query = {
 			t: {
 				$in: types,
@@ -42,11 +56,13 @@ export class RoomsRaw extends BaseRaw {
 			$or: [
 				{ name: nameRegex },
 				{
-					t: 'd',
-					usernames: nameRegex,
+					t: 'd', 
+					usernames: nameSearch, // Изменил поиск
+					// usernames: nameRegex,
 				},
 			],
 		};
+		
 		return this.find(query, options);
 	}
 

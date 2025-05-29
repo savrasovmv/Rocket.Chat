@@ -214,6 +214,11 @@ export const UserInfoActions = ({ username, _id, isActive, isAdmin, onChange }) 
 			label: t('Обновить из LDAP'),
 			action: updateUserLDAPClick,
 		} },
+		// ...canEditOtherUserInfo && { showRoomUser: { //Savrasov, обновить из АД
+		// 	icon: 'hashtag',
+		// 	label: t('Переписка пользователя'),
+		// 	action: updateUserLDAPClick,
+		// } },
 		...canEditOtherUserActiveStatus && { changeActiveStatus: {
 			icon: 'user',
 			label: isActive ? t('Deactivate') : t('Activate'),
