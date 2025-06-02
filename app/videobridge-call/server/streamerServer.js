@@ -82,7 +82,6 @@ export const sendStartCallJitsi = async (userId = false, roomId = false) => {
 		if (settings.get('JitsiCall_FSMeet_Enabled')) {
 
 			const resfs = await createSessionFSMeet(roomId, rcSession);
-			console.log("+++++++++++++=resfs", resfs)
 			if (!resfs.result.success) {
 				return false
 			}
@@ -91,9 +90,7 @@ export const sendStartCallJitsi = async (userId = false, roomId = false) => {
 
 
 		const members = subscriptions.fetch().map((s) => s.u && s.u._id)
-		//console.log('+++++++++++++++++++ members', members)
 		const count = members.length
-		//console.log('+++++++++++++++++++ count', count)
 		if (members) {
 			valueToCaller = {
 				type: "outCall",

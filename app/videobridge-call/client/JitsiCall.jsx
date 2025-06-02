@@ -1,7 +1,7 @@
 import React, { useState, Fragment, createRef,useEffect } from 'react'
 import { Meteor } from 'meteor/meteor'
 import { Tracker } from 'meteor/tracker';
-import { streamerJitsiCall, streamName, sendBusy } from './../lib/streamer'
+import { streamerJitsiCall, streamName, sendBusy, getStreemerMeet } from './../lib/streamer'
 import { CallOutView } from './CallOutView'
 import { CallInView } from './CallInView'
 import {createMeetURL, getJitsiParam} from './../lib/createMeet'
@@ -32,7 +32,7 @@ import * as CONSTANTS from '../constants';
 import { TimeSync } from 'meteor/mizzao:timesync';
 
 
-const userID = Meteor.userId()
+
 
 var openWindows = {}
 var timer = {}
@@ -114,31 +114,22 @@ export const JitsiCall = () => {
 
     const htmlJistsiBox = document.getElementsByClassName('jitsicall-box')[0]
 
+    const userID = Meteor.userId()
+
     useEffect(() => {
-        streamerJitsiCall.on(userID + '/' + streamName, function (value) {
-            debug('streamerJitsiCall LOADED')
-            if (!value.type) {
-                return
-            }
-            console.log("+++++++++setResponse", value)
-            setResponse(value)
-        })
         //debug('JitsiCall Tracker.autorun')
+        getStreemerMeet(setResponse)
+        // streamerJitsiCall.on(userID + '/' + streamName, function (value) {
+        //     debug('streamerJitsiCall LOADED')
+        //     if (!value.type) {
+        //         return
+        //     }
+        //     setResponse(value)
+        // })
         htmlJistsiBox.style.position = 'absolute'
 
     }, [])
-    // Meteor.startup(() => {
-    //     Tracker.autorun(() => {
-    //         streamerJitsiCall.on(userID + '/' + streamName, function (value) {
-    //             debug('streamerJitsiCall')
-    //             if (!value.type) {
-    //                 return
-    //             }
-    //             setResponse(value)
-    //         })
-    //         debug('JitsiCall Tracker.autorun')
-    //     });
-    // })
+    
 
     const addJitsiMembers = (value) => {
         setJitsiMembers((prevState) => ([...prevState, value]))
@@ -232,8 +223,6 @@ export const JitsiCall = () => {
     const setStatusMeet = (value) => {
         debug('setStatusMeet ', value)
         debug('prev meetInfo ', meetInfo)
-
-        console.log("+++++=setStatusMeet", value)
 
         const res = meetInfo.find((item) => item.roomId === value.roomId)
         debug('res meetInfo ', res)
@@ -352,8 +341,6 @@ export const JitsiCall = () => {
                     //При подключении участника
                     debug('Api participantJoined', value)
                     setSignal({roomId: roomId, status: 'answer', participantJoined: value})
-
-                    debug('++++++++++++++++++++++++',jitsiApi[roomId].getNumberOfParticipants())
                     setSignal({roomId: roomId, status: 'addMembers', value: value})
                 });
                 jitsiApi[roomId].addEventListener('participantLeft', (value) => {
@@ -378,23 +365,16 @@ export const JitsiCall = () => {
                     var type = data.type;
                     var body = data.body;
     
-                    console.log("RECEIVED message from CHILD TO PARENT", data)
-                    console.log("RECEIVED message from CHILD TO PARENT data.type", data.type)
-                    console.log("RECEIVED message from CHILD TO PARENT data.body", data.body)
-            
                     if(type === "videoConferenceLeft" && body) { 
                         // Conference finish
-                      console.log("message -> videoConferenceLeft")
                       setSignal({roomId: roomId, status: 'finishCall'})
                       return
                     } else if (type === "text-msg" && body) {
-                      console.log("TEXT MESSAGE RECEIVED FROM CHILD");
                       //Additional functionality ...
                     }
     
                     if(type === "participantJoined" && body) {
                         // Conference finish
-                      console.log("message -> participantJoined")
                       setSignal({roomId: roomId, status: 'answer', participantJoined: body})
                       setSignal({roomId: roomId, status: 'addMembers', value: body})
                       return
@@ -413,6 +393,7 @@ export const JitsiCall = () => {
         intervalHandler[roomId] = setInterval(() => {
             if (Meteor.status().connected) {
                 debug('update jitsiTimeout')
+
                 return call('jitsi:updateTimeout', roomId, 'update');
             }
         }, [CONSTANTS.HEARTBEAT]);
@@ -564,7 +545,6 @@ export const JitsiCall = () => {
         debug('handleAnswer', roomId)
         const res = meetInfo.find((item) => item.roomId === roomId)
 
-        console.log("++++++handleAnswer res", res)
         if (res) {
             //Ищем идущие конференции, и завершаем их
             const answer = meetInfo.find((item) => item.status === 'answer')
@@ -581,7 +561,6 @@ export const JitsiCall = () => {
                 
                 streamerJitsiCall.emit(streamName, valueToServer)
                 
-                console.log("++++++handleAnswer streamerJitsiCall", valueToServer)
                 //Устанавливаем статус answer ответившему, чтобы исключить дубликат подключения если открыто два клиента у одного пользователя
                 setStatusMeet({roomId: roomId, status: 'answer'})
                 startJitsiMeet(roomId, res.rcSession)

@@ -54,7 +54,6 @@ Meteor.methods({
 				//Старт звонка
 				if (settings.get('JitsiCall_FSMeet_Enabled')) {
 					const r = await sendStartCallJitsi(userId = uid, roomId = rid)
-					console.log("+++++++++++=r", r)
 					if (!r) {
 
 						console.log("++++++ERRRRRRRR")

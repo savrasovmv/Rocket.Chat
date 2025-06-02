@@ -104,6 +104,19 @@ export const connectToMeet = () => {
 
 
 
+export const getStreemerMeet = (setFunc) => {
+	const userId = Meteor.userId()
+	streamerJitsiCall.on(userId + '/' + streamName, function (value) {
+		console.log('streamerJitsiCall LOADED')
+		if (!value.type) {
+			return
+		}
+		setFunc(value)
+	})
+}
+
+
+
 // export const sendBusy = (value) => {
 // 	console.log("----------- sendBusy-----------")
 
