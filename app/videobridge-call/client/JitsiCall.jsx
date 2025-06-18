@@ -379,6 +379,21 @@ export const JitsiCall = () => {
                       setSignal({roomId: roomId, status: 'addMembers', value: body})
                       return
                     }
+
+                    // if(type === "addParticipantByName" && body) {
+                    //     // Conference finish
+                    //     let id = 'WPi38KypBTDuCQDqZ'
+                    //     valueToUser = {
+                    //         type: "inCall",
+                    //         roomId: false,
+                    //         initUserId: userID,
+                    //         count: 2,
+                    //         rcSession: rcSession,
+                    //     }
+                    //     streamerJitsiCall.emit(id + '/' + streamName, valueToUser)
+                    //     // start(roomId)
+                    //   return
+                    // }
                   });
 
             } catch (error) {
@@ -543,6 +558,7 @@ export const JitsiCall = () => {
     const handleAnswer = (roomId) => {
         //Прием звонка
         debug('handleAnswer', roomId)
+        debug('handleAnswer meetInfo', meetInfo)
         const res = meetInfo.find((item) => item.roomId === roomId)
 
         if (res) {
