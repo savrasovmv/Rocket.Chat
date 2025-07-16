@@ -4,6 +4,7 @@ import { Random } from 'meteor/random';
 
 import { _matchToken, appTokensCollection } from './push';
 import { logger } from './logger';
+import { boolean } from '@storybook/addon-knobs';
 
 Meteor.methods({
 	'raix:push-update'(options) {
@@ -15,6 +16,7 @@ Meteor.methods({
 			appName: String,
 			userId: Match.OneOf(String, null),
 			metadata: Match.Optional(Object),
+			appVersion: Match.OneOf(String, null), //Savrasov
 		});
 
 		// The if user id is set then user id should match on client and connection
@@ -38,6 +40,8 @@ Meteor.methods({
 				$and: [
 					{ token: options.token }, // Match token
 					{ appName: options.appName }, // Match appName
+					{ appVersion: options.appVersion }, //Savrasov  Match appVersion
+					
 					{ token: { $exists: true } }, // Make sure token exists
 				],
 			});
@@ -49,6 +53,7 @@ Meteor.methods({
 			doc = {
 				token: options.token,
 				appName: options.appName,
+				appVersion: options.appVersion,   //Savrasov
 				userId: options.userId,
 				enabled: true,
 				createdAt: new Date(),
@@ -62,8 +67,10 @@ Meteor.methods({
 			// The user wanted us to use a specific id, we didn't find this while
 			// searching. The client could depend on the id eg. as reference so
 			// we respect this and try to create a document with the selected id;
+			logger.debug('Inserrt push token from app');
 			appTokensCollection._collection.insert(doc);
 		} else {
+			logger.debug('Update push token from app');
 			// We found the app so update the updatedAt and set the token
 			appTokensCollection.update({ _id: doc._id }, {
 				$set: {
@@ -88,7 +95,7 @@ Meteor.methods({
 			}
 		}
 
-		logger.debug('updated', doc);
+		logger.debug('Push token updated', doc);
 
 		// Return the doc we want to use
 		return doc;

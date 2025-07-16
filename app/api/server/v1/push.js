@@ -10,13 +10,17 @@ import { Users, Messages, Rooms } from '../../../models/server';
 
 API.v1.addRoute('push.token', { authRequired: true }, {
 	post() {
-		const { type, value, appName } = this.bodyParams;
+		const { type, value, appName, appVersion=null } = this.bodyParams; //Savrasov add appVersion Если это старое приложение то версия равна null
 		let { id } = this.bodyParams;
+
+		console.log("+++++++push.toke this.bodyParams", this.bodyParams)
 
 		if (id && typeof id !== 'string') {
 			throw new Meteor.Error('error-id-param-not-valid', 'The required "id" body param is invalid.');
 		} else {
 			id = Random.id();
+
+			console.log("++++++++id random")
 		}
 
 		if (!type || (type !== 'apn' && type !== 'gcm')) {
@@ -31,7 +35,7 @@ API.v1.addRoute('push.token', { authRequired: true }, {
 			throw new Meteor.Error('error-appName-param-not-valid', 'The required "appName" body param is missing or invalid.');
 		}
 
-
+		
 		let result;
 		Meteor.runAsUser(this.userId, () => {
 			result = Meteor.call('raix:push-update', {
@@ -39,6 +43,7 @@ API.v1.addRoute('push.token', { authRequired: true }, {
 				token: { [type]: value },
 				appName,
 				userId: this.userId,
+				appVersion: appVersion //Savrasov
 			});
 		});
 

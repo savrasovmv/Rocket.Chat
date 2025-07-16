@@ -4,7 +4,7 @@ import type { RequestInit, Response } from 'node-fetch';
 
 import type { PendingPushNotification } from './definition';
 import { logger } from './logger';
-import type { NativeNotificationParameters } from './push';
+// import type { NativeNotificationParameters } from './push';
 
 type FCMDataField = Record<string, any>;
 
@@ -152,8 +152,17 @@ function getFCMMessagesFromPushData(userTokens: string[], notification: PendingP
 	return userTokens.map((token) => ({ message: { ...message, token } }));
 }
 
-export const sendFCM = function ({ userTokens, notification, _removeToken, options }: NativeNotificationParameters): void {
+
+type SendFCMField = {
+	userTokens:String & [];
+	notification:FCMNotificationField;
+	_removeToken:void, 
+	options: {}
+};
+
+export const sendFCM = function ({userTokens, notification, _removeToken, options}: SendFCMField ): void {
 	const tokens = typeof userTokens === 'string' ? [userTokens] : userTokens;
+
 	if (!tokens.length) {
 		logger.log('sendFCM no push tokens found');
 		return;

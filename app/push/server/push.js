@@ -149,8 +149,10 @@ export class PushClass {
 
 
 
-
-			if (usePushEnable && !useLegacyProvider) {
+			// console.log("+++++appVersion", app.appVersion)
+			// if (usePushEnable && !useLegacyProvider) {
+			// Savrasov отправляем FCM если есть версия приложения, т.е новое приложение
+			if (usePushEnable && app.appVersion!==null) {
 				// override this.options.gcm.apiKey with the oauth2 token
 				const { projectId, token } = Promise.await(this.getNativeNotificationAuthorizationCredentials())
 				const sendGCMOptions = {
@@ -165,8 +167,8 @@ export class PushClass {
 				sendFCM({
 					userTokens: app.token.gcm,
 					notification,
-					_replaceToken: this.replaceToken,
-					_removeToken: this.removeToken,
+					// _replaceToken: this.replaceToken,
+					_removeToken: this._removeToken,
 					options: sendGCMOptions,
 				});
 			} else if (this.options.gcm && this.options.gcm.apiKey) {
@@ -307,6 +309,35 @@ export class PushClass {
 			],
 		};
 
+
+
+		// let appList = [
+		// 	{
+		// 		"_id" : "H5BF4hDdw2HfDDYvx",
+		// 		"token" : {
+		// 			"gcm" : "e6TUSoFDSESae9qqlPBhfl:APA91bGBzDAKck4OBxoWuCub-OePow7WnCW5GlU7N_8SWdKiwYZJcN-DulY4ilzE33AoqhuvyBSS7XMGf5SycxiF8zPEOlSlJgJIzpR1hDF64KjvqmvGIf0"
+		// 		},
+		// 		"appName" : "ru.ets.rc",
+		// 		"userId" : "w6CWtkJigesxDGNep",
+		// 		"enabled" : true,
+		// 	},
+			
+		// 	{
+		// 		"_id" : "b8CQ9gz7K5ZxmDps3",
+		// 		"token" : {
+		// 			"apn" : "477c310a664e2979dc68303fef94b8ccaa0335c17d0907b5ccb75087aaa0c627"
+		// 		},
+		// 		"appName" : "ru.ets.rc",
+		// 		"userId" : "CjDPzJN2dDzZDie84",
+		// 		"enabled" : true,
+		// 	}
+		// ]
+
+		// appList.map((app)=> {
+
+		// 	console.log("+++++app", app)
+		// 	this.sendNotificationNative(app, notification, countApn, countGcm)
+		// })
 		
 		appTokensCollection.find(query).forEach((app) => {
 			logger.debug('send to token', app.token);

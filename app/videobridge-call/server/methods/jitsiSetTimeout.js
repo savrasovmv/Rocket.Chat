@@ -115,6 +115,7 @@ Meteor.methods({
 			Rooms.setJitsiTimeout(roomId, nextTimeOut);
 			originalMessage = Messages.findOne({ rid: roomId, t: "jitsi_call_started" }, { sort: { ts: -1 } });
 			originalMessage.text = text
+			originalMessage.msg = text
 			originalMessage.time = time
 
 			delete originalMessage.actionLinks
