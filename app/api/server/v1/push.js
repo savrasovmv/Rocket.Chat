@@ -23,7 +23,7 @@ API.v1.addRoute('push.token', { authRequired: true }, {
 			console.log("++++++++id random")
 		}
 
-		if (!type || (type !== 'apn' && type !== 'gcm')) {
+		if (!type || (type !== 'apn' && type !== 'gcm' && type !== 'apnvoip' && type !== 'gcmvoip')) {
 			throw new Meteor.Error('error-type-param-not-valid', 'The required "type" body param is missing or invalid.');
 		}
 
@@ -61,6 +61,10 @@ API.v1.addRoute('push.token', { authRequired: true }, {
 				'token.apn': token,
 			}, {
 				'token.gcm': token,
+			},{
+				'token.apnvoip': token,
+			}, {
+				'token.gcmvoip': token,
 			}],
 			userId: this.userId,
 		});

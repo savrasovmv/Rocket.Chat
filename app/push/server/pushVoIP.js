@@ -4,7 +4,7 @@ import { Mongo } from 'meteor/mongo';
 import { HTTP } from 'meteor/http';
 import _ from 'underscore';
 
-import { initAPN, sendAPN } from './apn';
+import { initAPNVoIP, sendAPNVoIP } from './apnVoIP';
 import { sendGCM } from './gcm';
 import { logger, LoggerManager } from './logger';
 import { settings } from '../../settings/server';
@@ -13,10 +13,13 @@ import { JWT } from 'google-auth-library';
 import Ajv from 'ajv';
 import { sendFCM } from './fcm';
 
-export const _matchToken = Match.OneOf({ apn: String }, { apnvoip: String }, { gcm: String }, { gcmvoip: String });
-export const appTokensCollection = new Mongo.Collection('_raix_push_app_tokens');
 
-appTokensCollection._ensureIndex({ userId: 1 });
+import {appTokensCollection, _matchToken} from './push'
+
+// export const _matchToken = Match.OneOf({ apn: String }, { apnvoip: String }, { gcm: String }, { gcmvoip: String });
+// export const appTokensCollection = new Mongo.Collection('_raix_push_app_tokens');
+
+// appTokensCollection._ensureIndex({ userId: 1 });
 
 const ajv = new Ajv({
 	coerceTypes: true,
@@ -66,7 +69,7 @@ export const FCMCredentialsValidationSchema = {
 
 export const isFCMCredentials = ajv.compile(FCMCredentialsValidationSchema);
 
-export class PushClass {
+export class PushClassVoIP {
 	options = {}
 
 	isConfigured = false
@@ -98,7 +101,7 @@ export class PushClass {
 		logger.debug('Configure', this.options);
 
 		if (this.options.apn) {
-			initAPN({ options: this.options, absoluteUrl: Meteor.absoluteUrl() });
+			initAPNVoIP({ options: this.options, absoluteUrl: Meteor.absoluteUrl() });
 		}
 	}
 
@@ -129,16 +132,16 @@ export class PushClass {
 	}
 
 	sendNotificationNative(app, notification, countApn, countGcm) {
-		logger.debug('send to token', app.token);
+		logger.debug('send VoIP to token', app.token);
 
-		if (app.token.apn) {
+		if (app.token.apnvoip) {
 			countApn.push(app._id);
 			// Send to APN
 			if (this.options.apn) {
-				notification.topic = app.appName;
-				sendAPN({ userToken: app.token.apn, notification, _removeToken: this._removeToken });
+				notification.topic = `${app.appName}.voip`;
+				sendAPNVoIP({ userToken: app.token.apnvoip, notification, _removeToken: this._removeToken });
 			}
-		} else if (app.token.gcm) {
+		} else if (app.token.gcmvoip) {
 			countGcm.push(app._id);
 			
 			// Send to GCM
@@ -284,68 +287,34 @@ export class PushClass {
 	}
 
 	sendNotification(notification = { badge: 0 }) {
-		logger.debug('Sending notification', notification);
+		logger.debug('Sending notification VoIP', notification);
 
 		const countApn = [];
 		const countGcm = [];
 
-		if (notification.from !== String(notification.from)) {
-			throw new Error('Push.send: option "from" not a string');
-		}
-		if (notification.title !== String(notification.title)) {
-			throw new Error('Push.send: option "title" not a string');
-		}
-		if (notification.text !== String(notification.text)) {
-			throw new Error('Push.send: option "text" not a string');
-		}
+		// if (notification.from !== String(notification.from)) {
+		// 	throw new Error('Push.send: option "from" not a string');
+		// }
+		// if (notification.title !== String(notification.title)) {
+		// 	throw new Error('Push.send: option "title" not a string');
+		// }
+		// if (notification.text !== String(notification.text)) {
+		// 	throw new Error('Push.send: option "text" not a string');
+		// }
 
-		logger.debug(`send message "${ notification.title }" to userId`, notification.userId);
+		logger.debug(`send VoIP push "${ notification.title }" to userId`, notification.userId);
 
 		const query = {
 			userId: notification.userId,
 			$or: [
-				{ 'token.apn': { $exists: true } },
-				{ 'token.gcm': { $exists: true } },
+				{ 'token.apnvoip': { $exists: true } },
+				{ 'token.gcmvoip': { $exists: true } },
 			],
 		};
-
-
-
-		// let appList = [
-		// 	{
-		// 		"_id" : "H5BF4hDdw2HfDDYvx",
-		// 		"token" : {
-		// 			"gcm" : "e6TUSoFDSESae9qqlPBhfl:APA91bGBzDAKck4OBxoWuCub-OePow7WnCW5GlU7N_8SWdKiwYZJcN-DulY4ilzE33AoqhuvyBSS7XMGf5SycxiF8zPEOlSlJgJIzpR1hDF64KjvqmvGIf0"
-		// 		},
-		// 		"appName" : "ru.ets.rc",
-		// 		"userId" : "w6CWtkJigesxDGNep",
-		// 		"enabled" : true,
-		// 	},
-			
-		// 	{
-		// 		"_id" : "b8CQ9gz7K5ZxmDps3",
-		// 		"token" : {
-		// 			"apn" : "477c310a664e2979dc68303fef94b8ccaa0335c17d0907b5ccb75087aaa0c627"
-		// 		},
-		// 		"appName" : "ru.ets.rc",
-		// 		"userId" : "CjDPzJN2dDzZDie84",
-		// 		"enabled" : true,
-		// 	}
-		// ]
-
-		// appList.map((app)=> {
-
-		// 	console.log("+++++app", app)
-		// 	this.sendNotificationNative(app, notification, countApn, countGcm)
-		// })
+	
 		
 		appTokensCollection.find(query).forEach((app) => {
-			logger.debug('send to token', app.token);
-
-			if (this._shouldUseGateway()) {
-				return this.sendNotificationGateway(app, notification, countApn, countGcm);
-			}
-
+			logger.debug('send VoIP to token', app.token);
 			return this.sendNotificationNative(app, notification, countApn, countGcm);
 		});
 
@@ -377,7 +346,7 @@ export class PushClass {
 
 
 
-	sendVoIP(userId, payload) {
+	sendVoIP(userId, notification) {
 		console.log("++++++++++++++=======sendVoIP==========================")
 		const query = {
 			userId: userId,
@@ -448,10 +417,8 @@ export class PushClass {
 		// set or we default to "<SERVER>" as the creator of the notification
 		// If current user not set see if we can set it to the logged in user
 		// this will only run on the client if Meteor.userId is available
-		logger.debug("+++++Push send(options)", options);
-		const currentUser = options.createdBy || '<SERVER>';
-
-		if (options?.payload?.messageType === 'jitsi_call_started') return //Savrasov не отправляем пушь если это сообщение jitsi_call_started, т.к шлем Voip push
+		logger.debug("+++++Push VoIP send(options)", options);
+		const currentUser = options.initUserId || '<SERVER>';
 
 		// Rig the notification object
 		const notification = Object.assign({
@@ -459,29 +426,29 @@ export class PushClass {
 			createdBy: currentUser,
 			sent: false,
 			sending: 0,
-		}, _.pick(options, 'from', 'title', 'text', 'userId'));
+		}, _.pick(options, 'from', 'title', 'payload', 'userId', 'callId'));
 
 		// Add extra
-		Object.assign(notification, _.pick(options, 'payload', 'badge', 'sound', 'notId', 'delayUntil', 'android_channel_id'));
+		// Object.assign(notification, _.pick(options, 'payload', 'badge', 'sound', 'notId', 'delayUntil', 'android_channel_id'));
 
-		if (Match.test(options.apn, Object)) {
-			notification.apn = _.pick(options.apn, 'from', 'title', 'text', 'badge', 'sound', 'notId', 'category');
-		}
+		// if (Match.test(options.apn, Object)) {
+		// 	notification.apn = _.pick(options.apn, 'from', 'title', 'text', 'badge', 'sound', 'notId', 'category');
+		// }
 
-		if (Match.test(options.gcm, Object)) {
-			notification.gcm = _.pick(options.gcm, 'image', 'style', 'summaryText', 'picture', 'from', 'title', 'text', 'badge', 'sound', 'notId', 'actions', 'android_channel_id');
-		}
+		// if (Match.test(options.gcm, Object)) {
+		// 	notification.gcm = _.pick(options.gcm, 'image', 'style', 'summaryText', 'picture', 'from', 'title', 'text', 'badge', 'sound', 'notId', 'actions', 'android_channel_id');
+		// }
 
-		if (options.contentAvailable != null) {
-			notification.contentAvailable = options.contentAvailable;
-		}
+		// if (options.contentAvailable != null) {
+		// 	notification.contentAvailable = options.contentAvailable;
+		// }
 
-		if (options.forceStart != null) {
-			notification.forceStart = options.forceStart;
-		}
+		// if (options.forceStart != null) {
+		// 	notification.forceStart = options.forceStart;
+		// }
 
-		// Validate the notification
-		this._validateDocument(notification);
+		// // Validate the notification
+		// this._validateDocument(notification);
 
 		try {
 			this.sendNotification(notification);
@@ -492,5 +459,4 @@ export class PushClass {
 	}
 }
 
-export const Push = new PushClass();
-// export const PushVoIP = new PushClass();
+export const PushVoIP = new PushClassVoIP();

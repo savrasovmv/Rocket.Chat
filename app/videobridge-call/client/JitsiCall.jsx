@@ -34,6 +34,7 @@ import { TimeSync } from 'meteor/mizzao:timesync';
 
 
 
+
 var openWindows = {}
 var timer = {}
 var closeInterval = {}
@@ -57,6 +58,9 @@ const debug = (text='', value='') => {
     }
 }
 
+
+let currentUserId = Meteor.userId();
+
 Meteor.startup(() => {
 	Tracker.autorun(() => {
 		const user = Meteor.user();
@@ -72,6 +76,9 @@ Meteor.startup(() => {
         debug('timeOutNotifi', timeOutNotifi)
         debug('showAllMessage', showAllMessage)
         debug('showDebug', showDebug)
+
+
+        
 	});
 });
 
@@ -95,6 +102,9 @@ Meteor.startup(() => {
 //         head.appendChild(script);
 //     }
 // })
+
+
+
 
 
 export const JitsiCall = () => {
@@ -126,6 +136,9 @@ export const JitsiCall = () => {
         //     }
         //     setResponse(value)
         // })
+
+       
+
         htmlJistsiBox.style.position = 'absolute'
 
     }, [])
@@ -528,7 +541,8 @@ export const JitsiCall = () => {
                 roomId: roomId,
                 userId: userID,
                 initUserId: userID,
-                members: res.members
+                members: res.members,
+                callId: res.callId
             }
             streamerJitsiCall.emit(streamName, valueToServer)
         }
@@ -547,6 +561,7 @@ export const JitsiCall = () => {
                 roomId: res.roomId,
                 userId: userID,
                 initUserId: res.initUserId,
+                callId: res.callId
             }
             streamerJitsiCall.emit(streamName, valueToServer)
         }
@@ -573,6 +588,7 @@ export const JitsiCall = () => {
                     roomId: res.roomId,
                     userId: userID,
                     initUserId: res.initUserId,
+                    callId: res.callId
                 }
                 
                 streamerJitsiCall.emit(streamName, valueToServer)

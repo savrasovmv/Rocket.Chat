@@ -3,51 +3,74 @@ import { EJSON } from 'meteor/ejson';
 
 import { logger } from './logger';
 
-let apnConnection;
+let apnConnectionVoIP;
 
-export const sendAPN = ({ userToken, notification, _removeToken }) => {
-	if (typeof notification.apn === 'object') {
-		notification = Object.assign({}, notification, notification.apn);
-	}
+export const sendAPNVoIP = ({ userToken, notification, _removeToken }) => {
+	// if (typeof notification.apn === 'object') {
+	// 	notification = Object.assign({}, notification, notification.apn);
+	// }
 
-	console.log("+++++++++++++++++sendAPN notification", notification)
+	// console.log("+++++++++++++++++sendAPNVoIP notification", notification)
 
-	const priority = notification.priority || notification.priority === 0 ? notification.priority : 10;
+	// const priority = notification.priority || notification.priority === 0 ? notification.priority : 10;
 
 	const note = new apn.Notification();
 
 	note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
-	note.badge = notification.badge;
-	note.sound = notification.sound;
+	// note.badge = notification.badge;
+	// note.sound = notification.sound;
 
-	if (notification.contentAvailable != null) {
-		note.setContentAvailable(notification.contentAvailable);
-	}
+	// if (notification.contentAvailable != null) {
+	// 	note.setContentAvailable(notification.contentAvailable);
+	// }
 
-	// adds category support for iOS8 custom actions as described here:
-	// https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/
-	// RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html#//apple_ref/doc/uid/TP40008194-CH103-SW36
-	note.category = notification.category;
+	// // adds category support for iOS8 custom actions as described here:
+	// // https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/
+	// // RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html#//apple_ref/doc/uid/TP40008194-CH103-SW36
+	// note.category = notification.category;
 
-	note.body = notification.text;
-	note.title = notification.title;
+	// note.body = notification.text;
+	// note.title = notification.title;
 
-	if (notification.notId != null) {
-		note.threadId = String(notification.notId);
-	}
+	// if (notification.notId != null) {
+	// 	note.threadId = String(notification.notId);
+	// }
 
-	// Allow the user to set payload data
-	note.payload = notification.payload ? { ejson: EJSON.stringify(notification.payload) } : {};
+	// // Allow the user to set payload data
+	// // note.payload = notification.payload ? { ejson: EJSON.stringify(notification.payload) } : {};
 
-	note.payload.messageFrom = notification.from;
-	note.priority = priority;
+	// // note.payload.messageFrom = notification.from;
+	// note.payload = {
+	// 	aps: { "content-available": 1 },
+	// 	uuid: "db1dff98-bfef-4ec0-8ac6-8187a3b0c645",
+	// 	handle: "Jane Doe",
+	// 	callerName: "Jane Doe"
+	// }
+	// note.priority = priority;
+	// note.pushType = "voip"
+	// note.type = "call"
 
-	// Store the token on the note so we can reference it if there was an error
-	note.token = userToken;
-	note.topic = notification.topic;
-	note.mutableContent = 1;
+	// // Store the token on the note so we can reference it if there was an error
+	// note.token = userToken;
+	// note.topic = notification.topic;
+	// note.mutableContent = 1;
 
-	apnConnection.send(note, userToken).then((response) => {
+	// note.body = "Hello there!";
+	note.priority = 10;
+	note.pushType = "voip"
+	note.topic = notification.topic;   // Make sure to append .voip here!
+	note.aps = { "content-available": 1 }
+	note.payload = {
+		"aps": { "content-available": 1 },
+		"handle": notification.payload.title || notification.payload.callerName,
+		"callerName": notification.payload.callerName,
+		"uuid": notification.payload.uuid,
+		"rcSession": notification.payload.rcSession
+	};
+
+	console.debug("+++++ sendAPNVoIP note=", note)
+
+	apnConnectionVoIP.send(note, userToken).then((response) => {
 		logger.debug(`Got response for token ${ userToken }`);
 		logger.debug(response);
 		response.failed.forEach((failure) => {
@@ -63,8 +86,8 @@ export const sendAPN = ({ userToken, notification, _removeToken }) => {
 	});
 };
 
-export const initAPN = ({ options, absoluteUrl }) => {
-	logger.debug('APN configured');
+export const initAPNVoIP = ({ options, absoluteUrl }) => {
+	logger.debug('initAPNVoIP configured');
 
 	// Allow production to be a general option for push notifications
 	if (options.production === Boolean(options.production)) {
@@ -117,7 +140,8 @@ export const initAPN = ({ options, absoluteUrl }) => {
 
 	// Rig apn connection
 	try {
-		apnConnection = new apn.Provider(options.apn);
+		console.debug("++++apnConnectionVoIP = new apn.Provider options=", options)
+		apnConnectionVoIP = new apn.Provider(options.apn);
 	} catch (e) {
 		console.error('Error trying to initialize APN');
 		console.error(e);

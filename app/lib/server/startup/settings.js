@@ -1259,6 +1259,22 @@ settings.addGroup('Push', function() {
 			value: true,
 		},
 	});
+	this.add('Push_test_push_voip', 'push_test_voip', {
+		type: 'action',
+		actionText: 'Send_a_test_push_voip',
+		enableQuery: {
+			_id: 'Push_enable',
+			value: true,
+		},
+	});
+	this.add('Push_test_send_username', '', {
+		type: 'string',
+		enableQuery: {
+			_id: 'Push_enable',
+			value: true,
+		},
+		
+	});
 	this.section('Certificates_and_Keys', function() {
 		this.add('Push_apn_passphrase', '', {
 			type: 'string',
@@ -1272,6 +1288,12 @@ settings.addGroup('Push', function() {
 			secret: true,
 		});
 		this.add('Push_apn_cert', '', {
+			type: 'string',
+			multiline: true,
+			enableQuery: pushEnabledWithoutGateway,
+			secret: true,
+		});
+		this.add('Push_apn_voip_cert', '', { // Savrasov Для звонков VoIP
 			type: 'string',
 			multiline: true,
 			enableQuery: pushEnabledWithoutGateway,

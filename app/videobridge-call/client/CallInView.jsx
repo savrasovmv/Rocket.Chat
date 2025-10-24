@@ -21,7 +21,7 @@ import { settings } from '../../settings';
 
 //const ringerJitsiIn = createRef() //элемент для рингтона
 
-Notification.requestPermission()
+// Notification.requestPermission()
 
 export const CallInView = ({infoCall, handleAnswer, handleReject, timeOutCall}) => {
 
