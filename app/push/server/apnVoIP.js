@@ -60,13 +60,13 @@ export const sendAPNVoIP = ({ userToken, notification, _removeToken }) => {
 	note.pushType = "voip"
 	note.topic = notification.topic;   // Make sure to append .voip here!
 	note.aps = { "content-available": 1 }
-	note.payload = {
-		"aps": { "content-available": 1 },
-		"handle": notification.payload.title || notification.payload.callerName,
-		"callerName": notification.payload.callerName,
-		"uuid": notification.payload.uuid,
-		"rcSession": notification.payload.rcSession
-	};
+	note.payload = notification.payload
+	// 	"aps": { "content-available": 1 },
+	// 	"handle": notification.payload.handle ?? notification.payload.callerName,
+	// 	"callerName": notification.payload.callerName,
+	// 	"callId": notification.payload.callId,
+	// 	"rcSession": notification.payload.rcSession
+	// };
 
 	console.debug("+++++ sendAPNVoIP note=", note)
 

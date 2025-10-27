@@ -140,8 +140,45 @@ API.v1.addRoute(
 			members.map((id) => {
 				if (id !== userId) {
 					streamerJitsiCall.emit(id + '/' + streamName, valueToUsers) //Отмена вызова
+					Notifications.notifyUser(id, 'video-conference', valueToUsers);
 				}
 			})
+
+			return API.v1.success();
+		},
+	},
+);
+
+
+
+API.v1.addRoute(
+	'video-conference.reject',
+	{ authRequired: true, rateLimiterOptions: { numRequestsAllowed: 3, intervalTimeInMS: 60000 } },
+	{
+		async post() {
+			const { callId, roomId, initUserId } = this.bodyParams;
+			const { userId } = this;
+
+			
+			const subscriptions = Subscriptions.findByRoomId(roomId, {
+				fields: { 'u._id': 1 },
+				sort: { 'u.username': 1 },
+			})
+
+			const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+
+			valueToUsers = {
+				type: 'reject',
+				action: 'rejected',
+				roomId: roomId,
+				// rid: value.roomId,
+				initUserId: initUserId,
+				rejectUserId: userId, //юзер который отказлся принять вызов
+				callId: callId,
+			}
+			//console.log('STREEM to USER_ID')
+			streamerJitsiCall.emit(initUserId + '/' + streamName, valueToUsers) //Отказ от принятия входящего вызова
+			Notifications.notifyUser(initUserId, 'video-conference', valueToUsers);
 
 			return API.v1.success();
 		},
@@ -156,33 +193,39 @@ API.v1.addRoute(
 	{ authRequired: true, rateLimiterOptions: { numRequestsAllowed: 3, intervalTimeInMS: 60000 } },
 	{
 		async post() {
-			const { callId, initUserId } = this.bodyParams;
+			const { callId, roomId, initUserId } = this.bodyParams;
 			const { userId } = this;
-			const roomId = callId
+			
 			
 			const subscriptions = Subscriptions.findByRoomId(roomId, {
 				fields: { 'u._id': 1 },
 				sort: { 'u.username': 1 },
 			})
 
-			const members = subscriptions.fetch().map((s) => s.u && s.u._id)
+			if (initUserId) {
+				valueToUsers = {
+					type: 'answer',
+					action: 'confirmed',
+					roomId: roomId,
+					initUserId: initUserId,
+					answerUserId: userId, //юзер который принял входящий вызов
+					// rid: value.roomId,
+					callId: callId,
+				}
+				//console.log('STREEM to USER_ID')
+				streamerJitsiCall.emit(initUserId + '/'+ streamName, valueToUsers) //Начать конференцию Вызывающему юзеру
+				// streamerJitsiCall.emit(value.userId + '/'+ streamName, valueToUsers) //Начать конференцию ответившему юзеру
 
-			valueToUsers = {
-				type: 'answer',
-				roomId: roomId,
-				userId: userId,
-				initUserId: initUserId,
-				members: []
+				Notifications.notifyUser(initUserId, 'video-conference', valueToUsers);
+
+
+
+				//Говорим что ответили на другом устройстве
+				streamerJitsiCall.emit(userId + '/' + streamName, { type: 'finishInCall', roomId: roomId, status: 'finishInCall' }) //Закончить вызов если ответивший имеет несколько запущенных клиентов
+
 			}
 
-			console.log("++++++++++video-conference.accepted valueToUsers", valueToUsers)
-			
-			//Сообщаем инициатору что мы ответили
-			streamerJitsiCall.emit(initUserId + '/' + streamName, valueToUsers) //ответили на вызов
-			Notifications.notifyUser(id, 'video-conference', { callId: roomId, action: 'inCall', meetParam: {rcSession: rcSession, initUserId: userId} });
-			
-				
-			
+		
 
 			return API.v1.success();
 		},

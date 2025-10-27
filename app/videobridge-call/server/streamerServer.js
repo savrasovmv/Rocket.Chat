@@ -200,7 +200,7 @@ export const sendStartCallJitsi = async (userId = false, roomId = false, initUse
 				rcSession: rcSession,
 				callId: callId,
 				callerName: fname, //ФИО звонящего
-				title: user.title
+				handle: 'VoIP Call'
 
 			}
 			members.map((id) => {
@@ -209,7 +209,7 @@ export const sendStartCallJitsi = async (userId = false, roomId = false, initUse
 					Notifications.notifyUser(id, 'video-conference', valueToCaller);  //Для мобильного клиента
 				} else {
 					streamerJitsiCall.emit(id + '/' + streamName, valueToUser) //Запрос о готовности клиента
-					PushVoIP.send({initUserId: userId, userId: id, callId: callId, action: 'inCall', payload: valueToUser })
+					PushVoIP.send({initUserId: userId, userId: id, callId: callId, title: 'VoIP Call', action: 'inCall', payload: valueToUser })
 
 				}
 			})
@@ -250,6 +250,7 @@ streamerJitsiCall.on(streamName, function (value) {
 					}
 					value.members.map((m) => {
 						streamerJitsiCall.emit(m.userId + '/' + streamName, valueToUsers) //Отмена вызова
+						Notifications.notifyUser(m.userId, 'video-conference', valueToUsers);
 					})
 				}
 
