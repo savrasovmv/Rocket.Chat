@@ -272,6 +272,10 @@ streamerJitsiCall.on(streamName, function (value) {
 					//console.log('STREEM to USER_ID')
 					streamerJitsiCall.emit(value.initUserId + '/' + streamName, valueToUsers) //Отказ от принятия входящего вызова
 					Notifications.notifyUser(value.initUserId, 'video-conference', valueToUsers);
+					
+					//Завершить так же выхов на мобильном клиенте
+					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, status: 'finishInCall' }) //Отказ от принятия входящего вызова
+					Notifications.notifyUser(value.userId, 'video-conference',  { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, });
 				}
 				break
 
@@ -298,6 +302,8 @@ streamerJitsiCall.on(streamName, function (value) {
 
 					//Говорим что ответили на другом устройстве
 					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', roomId: value.roomId, status: 'finishInCall' }) //Закончить вызов если ответивший имеет несколько запущенных клиентов
+
+					Notifications.notifyUser(value.userId, 'video-conference',  { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, });
 				}
 
 				break

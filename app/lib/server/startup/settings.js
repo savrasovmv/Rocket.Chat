@@ -2928,6 +2928,28 @@ settings.addGroup('Troubleshoot', function() {
 		type: 'boolean',
 		alert: 'Troubleshoot_Disable_Presence_Broadcast_Alert',
 	});
+
+	//Savrasov Лимиты на отправку уведомлений присутствия
+	this.add('Troubleshoot_LIMIT_PER', false, {
+		type: 'boolean',
+		alert: 'Troubleshoot_LIMIT_PER_Alert',
+	});
+	this.add('Troubleshoot_LIMIT_PER_MIN', 100, {
+		type: 'int', 
+		enableQuery: { _id: 'Troubleshoot_LIMIT_PER', value: true },
+		alert: 'Troubleshoot_LIMIT_PER_MIN_Alert',
+	});
+	this.add('Troubleshoot_LIMIT_PER_MS', 60000, {
+		type: 'int', 
+		enableQuery: { _id: 'Troubleshoot_LIMIT_PER', value: true },
+		alert: 'Troubleshoot_LIMIT_PER_MS_Alert',
+	});
+	this.add('Troubleshoot_LIMIT_PER_BLOCK_MS', 300000, {
+		type: 'int', 
+		enableQuery: { _id: 'Troubleshoot_LIMIT_PER', value: true },
+		alert: 'Troubleshoot_LIMIT_PER_BLOCK_MS_Alert',
+	});
+	
 	this.add('Troubleshoot_Disable_Instance_Broadcast', false, {
 		type: 'boolean',
 		alert: 'Troubleshoot_Disable_Instance_Broadcast_Alert',

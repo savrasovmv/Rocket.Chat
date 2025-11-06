@@ -180,6 +180,9 @@ API.v1.addRoute(
 			streamerJitsiCall.emit(initUserId + '/' + streamName, valueToUsers) //Отказ от принятия входящего вызова
 			Notifications.notifyUser(initUserId, 'video-conference', valueToUsers);
 
+			// Сообщаем настольному клиенту о том что был отбой 
+			streamerJitsiCall.emit(userId + '/' + streamName, { type: 'finishInCall', action: 'finishInCall', roomId: roomId, callId: callId, status: 'finishInCall' }) 
+
 			return API.v1.success();
 		},
 	},

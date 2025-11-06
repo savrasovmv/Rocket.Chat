@@ -24,11 +24,7 @@ export const setUserStatus = (user, status/* , statusConnection*/) => {
 
 	// since this callback can be called by only one instance in the cluster
 	// we need to broadcast the change to all instances
-	// Savrasov Проверяем лимит
-	if (!canBroadcast()) {
-		// Пропускаем – либо в блоке, либо лимит превышен
-		return;
-	}
+	console.log("+++++++++++++++++++++++++++++++++++++++++++++++setUserStatus username", username)
 	api.broadcast('presence.status', {
 		user: { status, _id, username, statusText }, // TODO remove username
 	});
