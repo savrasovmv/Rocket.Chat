@@ -63,7 +63,7 @@ export async function getUserInfoFSMeet() {
 			body: JSON.stringify(data) // body data type must match "Content-Type" header
 		});
 		const resdata = await response.json();
-		console.log("++++++getUserInfoFSMeet", resdata)
+		// console.log("++++++getUserInfoFSMeet", resdata)
 		return resdata;
     } catch (err) {
 		return {
@@ -231,7 +231,7 @@ streamerJitsiCall.on(streamName, function (value) {
 	let valueToCaller = {}
 	let valueToUser = {}
 
-	console.log("++++++streamerJitsiCall.on" , value)
+	// console.log("++++++streamerJitsiCall.on" , value)
 
 
 	if (value.type && value.userId && value.roomId) {
@@ -244,6 +244,7 @@ streamerJitsiCall.on(streamName, function (value) {
 				if (value.members) {
 					valueToUsers = {
 						type: 'cancel',
+						action: 'canceled',
 						roomId: value.roomId,
 						initUserId: value.userId,
 						callId: value.callId,

@@ -10,7 +10,7 @@ export const sendAPN = ({ userToken, notification, _removeToken }) => {
 		notification = Object.assign({}, notification, notification.apn);
 	}
 
-	console.log("+++++++++++++++++sendAPN notification", notification)
+	// console.log("+++++++++++++++++sendAPN notification", notification)
 
 	const priority = notification.priority || notification.priority === 0 ? notification.priority : 10;
 

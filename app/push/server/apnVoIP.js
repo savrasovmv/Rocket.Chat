@@ -68,7 +68,7 @@ export const sendAPNVoIP = ({ userToken, notification, _removeToken }) => {
 	// 	"rcSession": notification.payload.rcSession
 	// };
 
-	console.debug("+++++ sendAPNVoIP note=", note)
+	// console.debug("+++++ sendAPNVoIP note=", note)
 
 	apnConnectionVoIP.send(note, userToken).then((response) => {
 		logger.debug(`Got response for token ${ userToken }`);

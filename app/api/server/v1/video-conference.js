@@ -17,7 +17,7 @@ import { Notifications } from '../../../notifications/server';
 API.v1.addRoute('users.getUserInfoFSMeet', { authRequired: true }, {
 	post() {
 
-		console.log("+++++++this.userId", this.userId)
+		// console.log("+++++++this.userId", this.userId)
 		const user = Users.findOneById(this.userId);
 		if (!user) {
 			return API.v1.failure('user does not exist!');
@@ -73,8 +73,8 @@ API.v1.addRoute(
 			const { userId } = this;
 
 
-			console.log("+++++++video-conference.start roomId", roomId)
-			console.log("+++++++video-conference.start callId", callId)
+			// console.log("+++++++video-conference.start roomId", roomId)
+			// console.log("+++++++video-conference.start callId", callId)
 			// if (!userId || !(await canAccessRoomIdAsync(roomId, userId))) {
 			// 	return API.v1.failure('invalid-params');
 			// }
@@ -249,9 +249,9 @@ API.v1.addRoute(
 		post() {
 			const { callId } = this.bodyParams;
 			const { userId } = this;
-
+			const domain = settings.get('Jitsi_Domain');
 			return API.v1.success({
-				url: `https://savrasov.tmenergo.ru:/conference/${callId}`,
+				url: `https://${domain}/conference/${callId}`,
 				providerName: 'jitsi'
 			});
 		},
@@ -269,7 +269,7 @@ API.v1.addRoute(
 			const { userId } = this;
 
 			return API.v1.success({
-				url: `https://savrasov.tmenergo.ru:/conference/${callId}`,
+				url: `https://${domain}/conference/${callId}`,
 				providerName: 'jitsi'
 			});
 		},
