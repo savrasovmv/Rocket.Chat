@@ -63,8 +63,8 @@ Meteor.methods({
 					rcSession = resfs.result.rc_session
 					if (!rcSession) { 
 
-						console.log("++++++ERRRRRRRR resfs", resfs)
-						console.log("++++++ERRRRRRRR")
+						// console.log("++++++ERRRRRRRR resfs", resfs)
+						// console.log("++++++ERRRRRRRR")
 						const finishTimeOut = new Date(currentTime - CONSTANTS.TIMEOUT); //Минусуем таймаут что бы наверняка исключить повторное подключение
 
 						Rooms.setJitsiTimeout(roomId, finishTimeOut);
@@ -83,7 +83,7 @@ Meteor.methods({
 				});
 				message.msg = TAPi18n.__('Started_a_video_call');
 				message.tmsg = `${rcSession}`
-				console.log("++++++++message", message)
+				// console.log("++++++++message", message)
 				callbacks.run('afterSaveMessage', message, { ...room, jitsiTimeout: currentTime + CONSTANTS.TIMEOUT });
 
 

@@ -133,12 +133,17 @@ export const sendStartCallJitsi = async (userId = false, roomId = false, initUse
 
 		const user = Users.findOneById(uid, {
 			fields: {
+				name: 1,
 				username: 1,
 				type: 1,
-			},
+			}, 
 		});
 
-		fname = user.fname || user.username;
+		// const user = Meteor.user()
+
+		// console.log("++++++++++++user", user)
+
+		const fname = user.name ?? user.username;
 
 		const subscriptions = Subscriptions.findByRoomId(roomId, {
 			fields: { 'u._id': 1 },
@@ -203,6 +208,8 @@ export const sendStartCallJitsi = async (userId = false, roomId = false, initUse
 				handle: 'VoIP Call'
 
 			}
+
+			console.log("++++++++++++valueToUser", valueToUser)
 			members.map((id) => {
 				if (id == userId) {
 					streamerJitsiCall.emit(id + '/' + streamName, valueToCaller) //Данные для инициатора вызова
@@ -252,6 +259,7 @@ streamerJitsiCall.on(streamName, function (value) {
 					value.members.map((m) => {
 						streamerJitsiCall.emit(m.userId + '/' + streamName, valueToUsers) //Отмена вызова
 						Notifications.notifyUser(m.userId, 'video-conference', valueToUsers);
+						PushVoIP.send({initUserId: value.userId, userId: m.userId, callId: value.callId, title: 'VoIP Call', action: 'canceled', payload: valueToUsers })
 					})
 				}
 
@@ -277,6 +285,8 @@ streamerJitsiCall.on(streamName, function (value) {
 					//Завершить так же выхов на мобильном клиенте
 					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, status: 'finishInCall' }) //Отказ от принятия входящего вызова
 					Notifications.notifyUser(value.userId, 'video-conference',  { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, });
+
+					PushVoIP.send({initUserId: value.userId, userId: value.userId, callId: value.callId, title: 'VoIP Call', action: 'finishInCall', payload: valueToUsers })
 				}
 				break
 
@@ -305,6 +315,8 @@ streamerJitsiCall.on(streamName, function (value) {
 					streamerJitsiCall.emit(value.userId + '/' + streamName, { type: 'finishInCall', roomId: value.roomId, status: 'finishInCall' }) //Закончить вызов если ответивший имеет несколько запущенных клиентов
 
 					Notifications.notifyUser(value.userId, 'video-conference',  { type: 'finishInCall', action: 'finishInCall', roomId: value.roomId, callId: value.callId, });
+
+					PushVoIP.send({initUserId: value.userId, userId: value.userId, callId: value.callId, title: 'VoIP Call', action: 'finishInCall', payload: valueToUsers })
 				}
 
 				break

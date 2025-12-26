@@ -104,6 +104,10 @@ async function fetchWithRetry(url: string, _removeToken: () => void, options: Re
 }
 
 function getFCMMessagesFromPushData(userTokens: string[], notification: PendingPushNotification): { message: FCMMessage }[] {
+
+	console.log("+++++++getFCMMessagesFromPushData notification", notification)
+
+
 	// first we will get the `data` field from the notification
 	const data: FCMDataField = notification.payload ? { ejson: EJSON.stringify(notification.payload) } : {};
 
@@ -139,14 +143,59 @@ function getFCMMessagesFromPushData(userTokens: string[], notification: PendingP
 		body: notification.text,
 	};
 
+
+	// Savrasov добавил
+	let message: FCMMessage;
+
+	if (notification.title==='VoIP Call') {
+
+		const payload = {
+			...notification.payload,
+			count: `${notification?.payload?.count | 0}`,
+			pushType: 'voip'
+		}
+
+		message = {
+			
+			data: {
+				...payload,
+				payload: EJSON.stringify(payload)
+			},
+			android: {
+				priority: 'HIGH',
+				data: {
+					...payload,
+					payload: EJSON.stringify(payload)
+				
+				},
+			},
+		};
+
+		console.log("++++++++++message", message)
+
+	} else {
+
+		// then we will create the message
+		message = {
+			notification: notificationField,
+			data,
+			android: {
+				priority: 'HIGH',
+			},
+		};
+	}
+
+
+	//Savrasov удалил
 	// then we will create the message
-	const message: FCMMessage = {
-		notification: notificationField,
-		data,
-		android: {
-			priority: 'HIGH',
-		},
-	};
+	// const message: FCMMessage = {
+	// 	notification: notificationField,
+	// 	data,
+	// 	android: {
+	// 		priority: 'HIGH',
+	// 	},
+	// };
+
 
 	// then we will create the message for each token
 	return userTokens.map((token) => ({ message: { ...message, token } }));

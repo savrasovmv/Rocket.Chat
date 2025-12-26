@@ -86,6 +86,7 @@ API.v1.addRoute(
 			try {
 				
 				let d = sendStartCallJitsi(userId, roomId, userId, callId)
+				const jitsiTimeout = Meteor.runAsUser(this.userId, () => Meteor.call('jitsi:updateTimeout', roomId));
 
 				return API.v1.success({
 					data: d
@@ -144,6 +145,10 @@ API.v1.addRoute(
 				}
 			})
 
+			const jitsiTimeout = Meteor.runAsUser(this.userId, () => Meteor.call('jitsi:deleteTimeout', {roomId: roomId, text: "NotAnswer", time: ""}));
+
+			// call('jitsi:deleteTimeout', {roomId: roomId, text: text, time: time});
+
 			return API.v1.success();
 		},
 	},
@@ -182,6 +187,9 @@ API.v1.addRoute(
 
 			// Сообщаем настольному клиенту о том что был отбой 
 			streamerJitsiCall.emit(userId + '/' + streamName, { type: 'finishInCall', action: 'finishInCall', roomId: roomId, callId: callId, status: 'finishInCall' }) 
+
+
+			
 
 			return API.v1.success();
 		},

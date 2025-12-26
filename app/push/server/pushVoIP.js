@@ -141,7 +141,7 @@ export class PushClassVoIP {
 				notification.topic = `${app.appName}.voip`;
 				sendAPNVoIP({ userToken: app.token.apnvoip, notification, _removeToken: this._removeToken });
 			}
-		} else if (app.token.gcmvoip) {
+		} else if (app.token.gcm) {
 			countGcm.push(app._id);
 			
 			// Send to GCM
@@ -308,7 +308,7 @@ export class PushClassVoIP {
 			userId: notification.userId,
 			$or: [
 				{ 'token.apnvoip': { $exists: true } },
-				{ 'token.gcmvoip': { $exists: true } },
+				{ 'token.gcm': { $exists: true } },
 			],
 		};
 	
